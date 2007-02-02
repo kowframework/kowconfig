@@ -25,26 +25,21 @@ package Ada_Config is
 	type Config_File is private;
 	-- represents the configuration file
 
-	function "<" ( L, R: Node ) return boolean;
-	-- function required by Ordered_Maps
-	-- it orders the Node by it's name
 
-	package Nodes_Map is new Ada.Containers.Ordered_Maps(
-		Key_Type => Unbounded_String,
-		Element_Type => Node );
+	SYNTAX_ERROR: Exception;
+
+	------------------------
+	-- Exception Handling --
+	------------------------
+
+	procedure Raise_Syntax_Error(	File_Name: in String;
+					Line_Number: in Natural;
+					Message: in String );
+	-- Raise SYNTAX_ERROR exception with message composed by:
+	-- "["& File_Name &":"&Line_Number & "] " & Message
+--	Ada.Exceptions.Raise_Exception(SYNTAX_ERROR'Identity, Line_Number & " - " & Name & ".");
 
 
-	-- cursors:
-	type Node_Cursor is new Nodes_Map.Cursor;
-	type Key_Cursor is new Keys_Map.Cursor;
-
-	-- iterators:
-	type Key_Iterator  is access procedure( Key, Value: in String;
-						Parent_Node: in Node );
-
-	type Node_Iterator is access procedure( Key: in String;
-						Value: in Node;
-						Parent_Node: in Node);
 	------------------------------------
 	-- Methods for Project Management --
 	------------------------------------
@@ -68,22 +63,64 @@ package Ada_Config is
 	function Get_Config_Path return Alos.UString_Vectors.Vector;
 	-- return the current config path
 
+	-------------------
+	-- File handling --
+	-------------------
+
+	function New_Config_File( N: in String ) return Config_File;
+	-- opens a new config file with name N.
+	-- read it's contents and return an object representing it.
+	-- the file is closed right after it've been read
+
 
 	----------------------------------
 	-- Methods for Config Iteration --
 	----------------------------------
 
-	procedure Set_Section( S: in String );
+	procedure Set_Section( F: in out Config_File; S: in String );
 	pragma Inline( Set_Section );
 	-- set the current section of the config file.
 
-	procedure Set_Section( S: in Unbounded_String );
+	procedure Set_Section( F: in out Config_File; S: in Unbounded_String );
 	pragma Inline( Set_Section );
 	-- set the current section of the config file.
 
+	function Get_Section( F: in Config_File ) return String;
+	pragma Inline( Get_Section );
+	-- return the current section or "" if there is no section active
 
+	function Get_Section( F: in Config_File ) return Unbounded_String;
+	pragma Inline( Get_Section );
+	-- return the current section or "" if there is no section active
 
+	function Element( Key: String; F: Config_File ) return String;
+	-- return the value of element inside the current section with
+	-- key Key
+	-- if no current section active, return propertie relative
+	-- to root section; ie expects Key to be of the form "sectionName.key"
 
+	function Element( Key: Unbounded_String; F: Config_File ) return String;
+	-- return the value of element inside the current section with
+	-- key Key
+	-- if no current section active, return propertie relative
+	-- to root section; ie expects Key to be of the form "sectionName.key"
+
+	function Element( Key: String; F: Config_File ) return Unbounded_String;
+	-- return the value of element inside the current section with
+	-- key Key
+	-- if no current section active, return propertie relative
+	-- to root section; ie expects Key to be of the form "sectionName.key"
+
+	function Element( Key: Unbounded_String; F: Config_File ) return Unbounded_String;
+	-- return the value of element inside the current section with
+	-- key Key
+	-- if no current section active, return propertie relative
+	-- to root section; ie expects Key to be of the form "sectionName.key"
+
+	function Get_Contents_Map( F: in Config_File ) return Alos.UString_Ordered_Maps.Map;
+	Pragma Inline( Get_Contents_Map );
+	-- return an ordered map of Unbounded_String => Unbounded_String
+	-- with all keys respecting the pattern "section.subSection.key"
 
 private
 
