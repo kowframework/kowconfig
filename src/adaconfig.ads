@@ -4,45 +4,83 @@
 --
 -- author Marcelo C. de Freitas <marcelo.batera@gmail.com>
 -- createdAt 2007-01-25
--- lastUpdate
+-- lastUpdate 2007-02-01
 
 
 
-with Ada.Containers.Maps;
+with Ada.Containers.Ordered_Maps;
+
+with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
+
+with ALOS.UString_Vectors;
 
 package AdaConfig is
+
+
+	-----------------------
+	-- Types Declaration --
+	-----------------------
 
 	type Config_File is private;
 	-- represents the configuration file
 
-	type Node_Record is private;
-	type Node is access Node_Record;
-	-- represents the node. 
+	function "<" ( L, R: Node ) return boolean;
+	-- function required by Ordered_Maps
+	-- it orders the Node by it's name
 
-	type Node_Cursor is private;
-	type Key_Cursor is private;
+	package Nodes_Map is new Ada.Containers.Ordered_Maps(
+		Key_Type => Unbounded_String,
+		Element_Type => Node );
 
-	package Nodes_Map is new Ada.Containers.Maps(	Key_Type => String;
-							Element_Type => Node );
+	package Keys_Map is new Ada.Containers.Ordered_Maps(
+		Key_Type => Unbounded_String,
+		Element_Type => Unbounded_String );
 
-	package Keys_Map is new Ada.Container.Maps(	Key_Type => String;
-							Element_Type => String );
+	-- cursors:
+	type Node_Cursor is new Nodes_Map.Cursor;
+	type Key_Cursor is new Keys_Map.Cursor;
+
+	-- iterators:
+	type Key_Iterator  is access procedure( Key, Value: in String;
+						Parent_Node: in Node );
+
+	type Node_Iterator is access procedure( Key: in String;
+						Value: in Node;
+						Parent_Node: in Node);
+	------------------------------------
+	-- Methods for Project Management --
+	------------------------------------
+
+	procedure Set_Project_Name( Str: in String );
+	-- Set the project name so AdaConfig can find for 
+	-- config files search path
+	-- This will reset the config path
+
+	procedure Set_Project_Name( Str: in Unbounded_String );
+	-- Set the project name so AdaConfig can find for 
+	-- config files search path
+	-- This will reset the config path
+
+	procedure Add_Config_Path( Str: in String );
+	-- add Str to config path.
+
+	procedure Add_Config_Path( Str: in Unbounded_String );
+	-- add Str to config path.
+
+	function Get_Config_Path return ALOS.UString_Vectors.Vector;
+	-- return the current config path
+
+
+	----------------------------------
+	-- Methods for Config Iteration --
+	----------------------------------
 
 private
 
 
-	type Node_Cursor renames Nodes_Map.Cursor;
-	type Key_Cursor renames Keys_Map.Cursor;
-
-	type Config_File is private record
-		File_Name: String;
-		Root_Node: Nodes_Map;
-	end record;
-
-	type Node_Record is private record
-		Name: String;
-		Child_Nodes: Nodes_Map;
-		Child_Keys: Keys_Map;
+	type Config_File is record
+		File_Name: Unbounded_String;
+		Contents: ALOS.UString_Maps.Map;
 	end record;
 
 end AdaConfig;
