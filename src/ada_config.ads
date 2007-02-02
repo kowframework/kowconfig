@@ -12,9 +12,10 @@ with Ada.Containers.Ordered_Maps;
 
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 
-with ALOS.UString_Vectors;
+with Alos.UString_Vectors;
+with Alos.UString_Ordered_Maps;
 
-package AdaConfig is
+package Ada_Config is
 
 
 	-----------------------
@@ -32,9 +33,6 @@ package AdaConfig is
 		Key_Type => Unbounded_String,
 		Element_Type => Node );
 
-	package Keys_Map is new Ada.Containers.Ordered_Maps(
-		Key_Type => Unbounded_String,
-		Element_Type => Unbounded_String );
 
 	-- cursors:
 	type Node_Cursor is new Nodes_Map.Cursor;
@@ -67,7 +65,7 @@ package AdaConfig is
 	procedure Add_Config_Path( Str: in Unbounded_String );
 	-- add Str to config path.
 
-	function Get_Config_Path return ALOS.UString_Vectors.Vector;
+	function Get_Config_Path return Alos.UString_Vectors.Vector;
 	-- return the current config path
 
 
@@ -75,12 +73,25 @@ package AdaConfig is
 	-- Methods for Config Iteration --
 	----------------------------------
 
+	procedure Set_Section( S: in String );
+	pragma Inline( Set_Section );
+	-- set the current section of the config file.
+
+	procedure Set_Section( S: in Unbounded_String );
+	pragma Inline( Set_Section );
+	-- set the current section of the config file.
+
+
+
+
+
 private
 
 
 	type Config_File is record
 		File_Name: Unbounded_String;
-		Contents: ALOS.UString_Maps.Map;
+		Current_Session: Unbounded_String;
+		Contents: Alos.UString_Ordered_Maps.Map;
 	end record;
 
-end AdaConfig;
+end Ada_Config;

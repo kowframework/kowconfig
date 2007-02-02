@@ -4,7 +4,13 @@
 
 
 ADA_PROJECT_PATH=.
-for i in ../*; do ADA_PROJECT_PATH=${ADA_PROJECT_PATH}:$i; done; 
+for i in ../*;
+do
+	ADA_PROJECT_PATH=${ADA_PROJECT_PATH}:$i;
+done
 
 
-gnatmake -P adaconfig.gpr
+echo $ADA_PROJECT_PATH
+export ADA_PROJECT_PATH
+
+gnatmake -P ada_config.gpr

@@ -6,12 +6,17 @@
 -- lastUpdate
 
 
-project AdaConfig is
-	for Source_Dirs use ( "src" );
+with "alos.gpr";
+
+project Ada_Config is
+	for Source_Dirs use ( "src", "test" );
 	for Object_Dir use "lib";
+	for Exec_Dir use "bin";
+
+	for Main use ( "sample_project" );
 
 	package Compiler is
 		for Default_Switches( "Ada" )
 			use( "-O2" );
 	end Compiler;
-end AdaConfig;
+end Ada_Config;
