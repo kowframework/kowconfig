@@ -1,10 +1,7 @@
--- This is the interface for AdaConfig's parser
--- Each parser got to derive from this one class
---and implement every functions and procedures
---in it
+-- parser for plain text/properties file
 --
 -- @author Marcelo Coraça de Freitas <marcelo.batera@gmail.com>
--- @createdAt 2007-02-01
+-- @createdAt 2007-02-02
 -- @lastUpdate
 
 with Ada_Config.Parser_Interface;	use Ada_Config.Parser_Interface
