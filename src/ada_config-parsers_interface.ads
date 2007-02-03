@@ -11,6 +11,7 @@ package Ada_Config.Parsers_Interface is
 
 	type Parser is tagged null record;
 
+	type Parser_Access is Access all Parser'Class;
 
 	procedure Prepare(	P: in out Parser'Class;
 				File_Name: in String ) is abstract;

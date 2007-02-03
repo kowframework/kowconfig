@@ -149,7 +149,7 @@ private
 		File_Name: Unbounded_String;
 		Current_Section: Unbounded_String;
 		Contents: Alos.UString_Ordered_Maps.Map;
-		My_Parser: Ada_Config.Parsers_Interface.Parser;
+		My_Parser: Ada_Config.Parsers_Interface.Parser_Access;
 	end record;
 
 end Ada_Config;
