@@ -1,14 +1,14 @@
--- parser for plain text/properties file
+-- parser for XML file
 --
 -- @author Marcelo Coraça de Freitas <marcelo.batera@gmail.com>
--- @createdAt 2007-02-02
+-- @createdAt 2007-02-03
 -- @lastUpdate
 
 with Ada_Config.Parser_Interface;
 
 package Ada_Config.Parsers is
 
-	type Parser is new Ada_Config.Parser_Interfac.Pearser with private record;
+	type Parser is new Parser with private record;
 
 
 	procedure Prepare(	P: in out Parser'Class;

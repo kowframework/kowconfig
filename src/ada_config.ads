@@ -15,6 +15,9 @@ with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 with Alos.UString_Vectors;
 with Alos.UString_Ordered_Maps;
 
+
+with Ada_Config.Parser_Interface;
+
 package Ada_Config is
 
 
@@ -27,6 +30,7 @@ package Ada_Config is
 
 
 	SYNTAX_ERROR: Exception;
+	FILE_NOT_FOUND: Exception;
 
 	------------------------
 	-- Exception Handling --
@@ -37,7 +41,6 @@ package Ada_Config is
 					Message: in String );
 	-- Raise SYNTAX_ERROR exception with message composed by:
 	-- "["& File_Name &":"&Line_Number & "] " & Message
---	Ada.Exceptions.Raise_Exception(SYNTAX_ERROR'Identity, Line_Number & " - " & Name & ".");
 
 
 	------------------------------------
@@ -45,14 +48,28 @@ package Ada_Config is
 	------------------------------------
 
 	procedure Set_Project_Name( Str: in String );
+	pragma Inline( Set_Project_Name );
 	-- Set the project name so AdaConfig can find for 
 	-- config files search path
 	-- This will reset the config path
 
 	procedure Set_Project_Name( Str: in Unbounded_String );
+	pragma Inline( Set_Project_Name );
 	-- Set the project name so AdaConfig can find for 
 	-- config files search path
 	-- This will reset the config path
+
+	function Get_Project_Name return String;
+	pragma Inline( Get_Project_Name );
+	-- return the current project name
+
+	function Get_Project_Name return String;
+	pragma Inline( Get_Project_Name );
+	-- return the current project name
+
+	procedure Reset_Config_Path;
+	-- reset the config path using the environment variable:
+	-- [PROJECT_NAME]_CONFIG_PATH
 
 	procedure Add_Config_Path( Str: in String );
 	-- add Str to config path.
@@ -61,6 +78,7 @@ package Ada_Config is
 	-- add Str to config path.
 
 	function Get_Config_Path return Alos.UString_Vectors.Vector;
+	pragma Inline( Get_Config_Path );
 	-- return the current config path
 
 	-------------------
@@ -124,11 +142,14 @@ package Ada_Config is
 
 private
 
+	Config_Path: Alos.UString_Vectors.Vector;
+	
 
 	type Config_File is record
 		File_Name: Unbounded_String;
-		Current_Session: Unbounded_String;
+		Current_Section: Unbounded_String;
 		Contents: Alos.UString_Ordered_Maps.Map;
+		My_Parser: Ada_Config.Parser_Interface.Parser;
 	end record;
 
 end Ada_Config;
