@@ -7,7 +7,11 @@
 
 
 with "alos.gpr";
-with "xmlada.gpr";
+
+-- XML/Ada Packages we use: -- FIX ME
+with "xmlada_input.gpr";
+with "xmlada_sax.gpr";
+with "xmlada_unicode.gpr";
 
 project Ada_Config is
 	for Source_Dirs use ( "src", "test" );
