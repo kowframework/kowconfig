@@ -16,7 +16,7 @@ with Alos.UString_Vectors;
 with Alos.UString_Ordered_Maps;
 
 
-with Ada_Config.Parser_Interface;
+with Ada_Config.Parsers_Interface;
 
 package Ada_Config is
 
@@ -149,7 +149,7 @@ private
 		File_Name: Unbounded_String;
 		Current_Section: Unbounded_String;
 		Contents: Alos.UString_Ordered_Maps.Map;
-		My_Parser: Ada_Config.Parser_Interface.Parser;
+		My_Parser: Ada_Config.Parsers_Interface.Parser;
 	end record;
 
 end Ada_Config;
