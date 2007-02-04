@@ -16,7 +16,7 @@ with Alos.UString_Vectors;
 with Alos.UString_Ordered_Maps;
 
 
-with Ada_Config.Parsers_Interface;
+with Parsers_Interface;
 
 package Ada_Config is
 
@@ -63,7 +63,7 @@ package Ada_Config is
 	pragma Inline( Get_Project_Name );
 	-- return the current project name
 
-	function Get_Project_Name return String;
+	function Get_Project_Name return Unbounded_String;
 	pragma Inline( Get_Project_Name );
 	-- return the current project name
 

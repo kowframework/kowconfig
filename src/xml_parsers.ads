@@ -16,12 +16,12 @@ with Sax.Readers;
 with Unicode.CES;
 
 
-with Ada_Config.Parsers_Interface;
+with Parsers_Interface;
 
 
 
 
-package Ada_Config.Xml_Parsers is
+package Xml_Parsers is
 
 	type Parser is new Parser with private record;
 
@@ -99,5 +99,5 @@ private
 		My_Cursor: Alos.UString_Ordered_Maps.Cursor;
 	end record;
 
-end Ada_Config.Xlm_Parsers;
+end Xlm_Parsers;
 	

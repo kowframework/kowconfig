@@ -17,7 +17,7 @@ with Sax.Readers;
 with Unicode.CES;
 
 
-with Ada_Config.Parsers_Interface;
+with Parsers_Interface;
 
 
 with Alos.UString_Vectors;
@@ -25,7 +25,7 @@ with Alos.Ustring_Ordered_Maps;
 
 
 
-package Ada_Config.Xml_Parsers is
+package Xml_Parsers is
 
 	procedure Prepare(	P: in out Parser'Class;
 				File_Name: in String ) is
@@ -147,5 +147,5 @@ package Ada_Config.Xml_Parsers is
 	begin
 		Handler.Current_Value := Handler.Current_Value & Ch;
 	end Characters;
-end Ada_Config.Xlm_Parsers;
+end Xlm_Parsers;
 	
