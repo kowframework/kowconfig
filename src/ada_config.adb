@@ -149,34 +149,69 @@ package body Ada_Config is
 		-- opens a new config file with name N.
 		-- read it's contents and return an object representing it.
 		-- the file is closed right after it've been read
+
+
+		-- ALOS packages
 		use Alos.File_System;
+		use Alos.UString_Vectors;
+		
+		-- AdaConfig packages
+		use Parser_Vectors;
+
+
+		MY_OWN_EXCEPTION: Exception;
+		-- this is used to check when the file has been found
+		
 		F: Config_File;
+		-- this is the object that is used as return value
+
+		tmp: Unbounded_String;
+		-- this Unbounded_String is used by Parser and Path iterators
+		-- to share the Path being used
+
+		-- Iteractors:
+		procedure Parser_Iterator( C: Parser_Vectors.Cursor ) is
+			P: Parser_Access;
+			FN: String;
+		begin
+			P := Element( C );
+			FN := Get_File_Name( N );
+
+			if Is_File( To_String( tmp ) & '/' & FN ) then
+				F.My_Parser := P;
+				F.File_Name :=	tmp & To_Unbounded_String( "/" & FN );
+				raise MY_OWN_EXCEPTION;
+				-- tell the main unit that we've found a winner! :)
+			end if;
+		end Parser_Iterator;
+
+
+		procedure Path_Iterator( C: Alos.UString_Vectors.Cursor ) is
+		begin
+			tmp: Element( C );
+			Iterate( Parsers, Parser_Iterator'Access );
+		end Path_Iterator;
 
 	begin
-		for j in 1 .. Alos.UString_Vectors.Length( Config_Path ) loop
-			declare
-				i: Integer := j;
-				tmp: String := To_String( 
-					Alos.UString_Vectors.Element( Config_Path, i )
-					);
-			begin
-				if Is_File( tmp & '/' & N & ".cfg.xml" ) then
-					F.My_Parser := new XML_Parsers.Parser;
-					F.File_Name := To_Unbounded_String (
-						tmp & '/' & N & ".cfg.xml"
-					);
-					return F;
-				elsif Is_File( tmp & '/' & N & ".cfg" ) then
-					F.My_Parser := new Text_Parsers.Parser;
-					F.File_Name := To_Unbounded_String (
-						tmp & '/' & N & ".cfg"
-					);
-				end if;
-			end;
-		end loop;
-
+		if Is_Empty( Config_Path ) then
+			raise NO_CONFIG_PATH;
+		elsif Is_Empty( Parsers ) then
+			raise NO_PARSER;
+		end if;
+						
+		
+		Iterate( Config_Path, Path_Iterator'Access );
+		-- iterate over the config path which iterate over parsers
+		-- when one path X parser combination match the requested file
+		-- MY_OWN_EXCEPTION is raised. This one is cautch following and
+		-- then the value of F is returned.
+		-- if no exception is raised, then it raise FILE_NOT_FOUND
 		Ada.Exceptions.Raise_Exceptions( FINE_NOT_FOUND'Identity, N );
 
+	exception
+		when MY_OWN_EXCEPTION =>
+			Reload_Config( F );
+			return F;
 	end New_Config_File;
 
 	procedure Reload_Config( F: in out Config_File ) is
