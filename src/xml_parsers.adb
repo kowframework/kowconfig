@@ -86,6 +86,13 @@ package Xml_Parsers is
 	end Element;
 
 
+	function Get_File_Name( Config_Name: in String ) return String is
+		-- returns the Config_Name with expected extension 
+		-- i.e.: Config_Name & ".cfg.xml"
+	begin
+		return Config_Name & ".cfg.xml";
+	end Get_File_Name;
+
 	-- private
 
 	procedure Start_Element
@@ -147,5 +154,7 @@ package Xml_Parsers is
 	begin
 		Handler.Current_Value := Handler.Current_Value & Ch;
 	end Characters;
+
+
 end Xlm_Parsers;
 	

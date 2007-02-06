@@ -8,7 +8,7 @@ with Parsers_Interface;
 
 package Text_Parsers is
 
-	type Parser is new Parsers_Interface.Parser with private record;
+	type Parser private;
 
 
 	procedure Prepare(	P: in out Parser'Class;
@@ -35,10 +35,15 @@ package Text_Parsers is
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
 
+	function Get_File_Name( Config_Name: in String ) return String;
+	-- returns the Config_Name with expected extension 
+	-- i.e., for Plain Text files: Config_Name & ".cfg"
+
 	private
 
 	type Parser is new Parser with record
 		-- TODO: definir as propriedades do parser
+		null;
 	end record;
 
 end Text_Parsers;
