@@ -20,7 +20,7 @@ with Alos.UString_Ordered_Maps;
 
 -- AdaConfig packages
 with Parsers_Interface;
-with Parsers_Vectors;
+with Parser_Vectors;
 
 package Ada_Config is
 
@@ -89,7 +89,7 @@ package Ada_Config is
 	-- Parsers Handling --
 	----------------------
 
-	procedure Set_Parsers( Paser_Vector: in Parsers_Vector.Vector );
+	procedure Set_Parsers( Paser_Vector: in Parser_Vectors.Vector );
 	-- set the parsers to use from a vector of Parsers
 
 	procedure Add_Parser( Parser: in Parsers_Interface.Parser_Access );
@@ -98,7 +98,7 @@ package Ada_Config is
 	procedure Remove_Parser( N: Natural );
 	-- remove the parser at index N
 
-	function Get_Parsers return Parsers_Vector.Vector;
+	function Get_Parsers return Parser_Vectors.Vector;
 	-- return a vector with all parsers
 
 	-------------------
@@ -166,7 +166,7 @@ private
 
 	Project_Name: Unbounded_String;
 
-	Parsers: Parsers_Vector.Vector;
+	Parsers: Parser_Vectors.Vector;
 	
 
 	type Config_File is record
