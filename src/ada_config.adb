@@ -188,7 +188,7 @@ package body Ada_Config is
 
 		procedure Path_Iterator( C: Alos.UString_Vectors.Cursor ) is
 		begin
-			tmp: Element( C );
+			tmp := Element( C );
 			Iterate( Parsers, Parser_Iterator'Access );
 		end Path_Iterator;
 
