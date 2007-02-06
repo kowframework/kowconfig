@@ -4,10 +4,11 @@
 -- @createdAt 2007-02-02
 -- @lastUpdate
 
+with Parsers_Interface;
 
-package Ada_Config.Text_Parsers is
+package Text_Parsers is
 
-	type Parser private;
+	type Parser is new Parsers_Interface.Parser with private record;
 
 
 	procedure Prepare(	P: in out Parser'Class;
@@ -34,16 +35,11 @@ package Ada_Config.Text_Parsers is
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
 
-	function Get_File_Name( Config_Name: in String ) return String;
-	-- returns the Config_Name with expected extension 
-	-- i.e., for Plain Text files: Config_Name & ".cfg"
-
 	private
 
 	type Parser is new Parser with record
 		-- TODO: definir as propriedades do parser
-		null;
 	end record;
 
-end Ada_Config.Text_Parsers;
+end Text_Parsers;
 	
