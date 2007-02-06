@@ -17,15 +17,13 @@ with Sax.Readers;
 with Unicode.CES;
 
 
-with Parsers_Interface;
-
-
+-- ALOS Packages
 with Alos.UString_Vectors;
 with Alos.Ustring_Ordered_Maps;
 
 
 
-package Xml_Parsers is
+package Ada_Config.Xml_Parsers is
 
 	procedure Prepare(	P: in out Parser'Class;
 				File_Name: in String ) is
@@ -156,5 +154,5 @@ package Xml_Parsers is
 	end Characters;
 
 
-end Xlm_Parsers;
+end Ada_Config.Xlm_Parsers;
 	

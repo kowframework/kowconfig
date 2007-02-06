@@ -47,7 +47,7 @@ generic
 	-- returns the Config_Name with expected extension 
 	-- i.e., for Plain Text files: Config_Name & ".cfg"
 	
-package Ada_Config is
+package Ada_Config.Generic_Config is
 	Pragma Preelaborate;
 
 
@@ -180,7 +180,7 @@ private
 		File_Name: Unbounded_String;
 		Current_Section: Unbounded_String;
 		Contents: Alos.UString_Ordered_Maps.Map;
-		My_Parser: Parser;
+		My_Parser: Parser_Access;
 	end record;
 
-end Ada_Config;
+end Ada_Config.Generic_Config;

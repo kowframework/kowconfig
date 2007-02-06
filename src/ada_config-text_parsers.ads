@@ -4,9 +4,8 @@
 -- @createdAt 2007-02-02
 -- @lastUpdate
 
-with Parsers_Interface;
 
-package Text_Parsers is
+package Ada_Config.Text_Parsers is
 
 	type Parser private;
 
@@ -46,5 +45,5 @@ package Text_Parsers is
 		null;
 	end record;
 
-end Text_Parsers;
+end Ada_Config.Text_Parsers;
 	

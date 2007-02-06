@@ -23,16 +23,10 @@ with Alos.UString_Vectors;
 
 
 
-with Parsers_Interface;
 
+package Ada_Config.Xml_Parsers is
 
-
-
-
-
-package Xml_Parsers is
-
-	type Parser is new Parser with private;
+	type Parser is private;
 
 
 	procedure Prepare(	P: in out Parser'Class;
@@ -110,5 +104,5 @@ private
 		My_Cursor: Alos.UString_Ordered_Maps.Cursor;
 	end record;
 
-end Xml_Parsers;
+end Ada_Config.Xml_Parsers;
 	
