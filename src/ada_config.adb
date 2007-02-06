@@ -109,6 +109,38 @@ package body Ada_Config is
 		return Config_Path;
 	end Get_Config_Path;
 
+
+	----------------------
+	-- Parsers Handling --
+	----------------------
+
+	procedure Set_Parsers( Pasers_Vector: in Parsers_Vector.Vector ) is
+		-- set the parsers to use from a vector of Parsers
+	begin
+		Parsers := Parsers_Vector;
+	end Set_Parsers;
+
+	procedure Add_Parser( Parser: in Parsers_Interface.Parser_Access ) is
+		-- add a parser to the parsers to use
+	begin
+		Parsers_Vector.Append( Parsers, Parser );
+	end Add_Parser;
+
+	procedure Remove_Parser( N: Natural ) is
+		-- remove the parser at index N
+	begin
+		Parsers_Vectors.Delete( Parsers, N );
+	end Remove_Parser;
+
+
+	function Get_Parsers return Parsers_Vector.Vector is
+		-- return a vector with all parsers
+	begin
+		return Parsers;
+	end Get_Parsers;
+
+
+
 	-------------------
 	-- File handling --
 	-------------------

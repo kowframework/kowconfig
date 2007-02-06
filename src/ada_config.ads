@@ -8,15 +8,19 @@
 
 
 
-with Ada.Containers.Ordered_Maps;
 
+-- Ada Packages
+with Ada.Containers.Ordered_Maps;
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 
+-- ALOS Packages
 with Alos.UString_Vectors;
 with Alos.UString_Ordered_Maps;
 
 
+-- AdaConfig packages
 with Parsers_Interface;
+with Parsers_Vectors;
 
 package Ada_Config is
 
@@ -81,6 +85,22 @@ package Ada_Config is
 	pragma Inline( Get_Config_Path );
 	-- return the current config path
 
+	----------------------
+	-- Parsers Handling --
+	----------------------
+
+	procedure Set_Parsers( Paser_Vector: in Parsers_Vector.Vector );
+	-- set the parsers to use from a vector of Parsers
+
+	procedure Add_Parser( Parser: in Parsers_Interface.Parser_Access );
+	-- add a parser to the parsers to use
+
+	procedure Remove_Parser( N: Natural );
+	-- remove the parser at index N
+
+	function Get_Parsers return Parsers_Vector.Vector;
+	-- return a vector with all parsers
+
 	-------------------
 	-- File handling --
 	-------------------
@@ -143,6 +163,10 @@ package Ada_Config is
 private
 
 	Config_Path: Alos.UString_Vectors.Vector;
+
+	Project_Name: Unbounded_String;
+
+	Parsers: Parsers_Vector.Vector;
 	
 
 	type Config_File is record
