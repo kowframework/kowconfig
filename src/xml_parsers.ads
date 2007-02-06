@@ -7,7 +7,7 @@
 
 
 -- Ada Packages
-with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
+with Ada.Strings_Unbounded;	use Ada.Strings_Unbounded;
 
 
 -- XML/Ada Packages
@@ -16,17 +16,14 @@ with Sax.Readers;
 with Unicode.CES;
 
 
-
--- Alos
-with Alos.UString_Ordered_Maps;
-with Alos.UString_Vectors;
+with Parsers_Interface;
 
 
 
 
-package Ada_Config.Xml_Parsers is
+package Xml_Parsers is
 
-	type Parser is private;
+	type Parser is new Parser with private record;
 
 
 	procedure Prepare(	P: in out Parser'Class;
@@ -52,9 +49,7 @@ package Ada_Config.Xml_Parsers is
 	-- return the value of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
-	function Get_File_Name( Config_Name: in String ) return String;
-	-- returns the Config_Name with expected extension 
-	-- i.e.: Config_Name & ".cfg.xml"
+
 private
 
 	type Reader is new Sax.Readers.Reader with record
@@ -104,5 +99,5 @@ private
 		My_Cursor: Alos.UString_Ordered_Maps.Cursor;
 	end record;
 
-end Ada_Config.Xml_Parsers;
+end Xlm_Parsers;
 	

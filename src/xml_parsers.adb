@@ -17,13 +17,15 @@ with Sax.Readers;
 with Unicode.CES;
 
 
--- ALOS Packages
+with Parsers_Interface;
+
+
 with Alos.UString_Vectors;
 with Alos.Ustring_Ordered_Maps;
 
 
 
-package Ada_Config.Xml_Parsers is
+package Xml_Parsers is
 
 	procedure Prepare(	P: in out Parser'Class;
 				File_Name: in String ) is
@@ -83,13 +85,6 @@ package Ada_Config.Xml_Parsers is
 		return To_String( Element( P.My_Cursor ) );
 	end Element;
 
-
-	function Get_File_Name( Config_Name: in String ) return String is
-		-- returns the Config_Name with expected extension 
-		-- i.e.: Config_Name & ".cfg.xml"
-	begin
-		return Config_Name & ".cfg.xml";
-	end Get_File_Name;
 
 	-- private
 
@@ -152,7 +147,5 @@ package Ada_Config.Xml_Parsers is
 	begin
 		Handler.Current_Value := Handler.Current_Value & Ch;
 	end Characters;
-
-
-end Ada_Config.Xlm_Parsers;
+end Xlm_Parsers;
 	
