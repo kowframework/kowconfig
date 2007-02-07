@@ -86,6 +86,12 @@ package Xml_Parsers is
 	end Element;
 
 
+	function Get_File_Name( Name: in String ) return String is
+	begin
+		return Name & ".cfg.xml";
+	end Get_File_Name;
+
+
 	-- private
 
 	procedure Start_Element
