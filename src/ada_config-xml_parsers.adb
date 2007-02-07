@@ -27,7 +27,7 @@ with Alos.Ustring_Ordered_Maps;
 
 package Ada_Config.Xml_Parsers is
 
-	procedure Prepare(	P: in out Parser'Class;
+	procedure Prepare(	P: in out Parser;
 				File_Name: in String ) is
 		-- prepare the parser to parse the file with the
 		-- absolute path File_Name.
@@ -52,7 +52,7 @@ package Ada_Config.Xml_Parsers is
 		P.My_Cursor := First( P.My_Reader.Values );
 	end Prepare;
 
-	procedure Finish( P: in out Parser'Class ) is 
+	procedure Finish( P: in out Parser ) is 
 		-- close the file and do whatever it's needed to finish it.
 		use Alos.UString_Ordered_Maps;
 	begin
@@ -60,7 +60,7 @@ package Ada_Config.Xml_Parsers is
 	end Finish;
 
 
-	procedure Next( P: in out Parser'Class ) is
+	procedure Next( P: in out Parser ) is
 		-- move the parser to the next field, if it exists
 		-- if not prepare the parser to return CONSTRAINT_ERROR
 		-- everytime Key and Value are called
@@ -69,7 +69,7 @@ package Ada_Config.Xml_Parsers is
 		Next( P.My_Cursor );
 	end Next;
 
-	function Key( P: in Parser'Class ) return String is
+	function Key( P: in Parser ) return String is
 		-- return the key of the current field
 		-- raise CONSTRAINT_ERROR if there is nothing else to read
 		use Alos.UString_Ordered_Maps;
@@ -77,7 +77,7 @@ package Ada_Config.Xml_Parsers is
 		return To_String( Key( P.My_Cursor ) );
 	end Key;
 
-	function Element( P: in Parser'Class ) return String is
+	function Element( P: in Parser ) return String is
 		-- return the value of the current field
 		-- raise CONSTRAINT_ERROR if there is nothing else to read
 		use Alos.UString_Ordered_Maps;
@@ -86,9 +86,9 @@ package Ada_Config.Xml_Parsers is
 	end Element;
 
 
-	function Get_File_Name( Name: in String ) return String is
+	function Get_File_Name( P: in Parser; Original: in String ) return String is
 	begin
-		return Name & ".cfg.xml";
+		return Original & ".cfg.xml";
 	end Get_File_Name;
 
 

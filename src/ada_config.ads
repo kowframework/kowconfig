@@ -18,9 +18,6 @@ with Alos.UString_Vectors;
 with Alos.UString_Ordered_Maps;
 
 
--- AdaConfig packages
-with Parsers_Interface;
-with Parser_Vectors;
 
 package Ada_Config is
 
@@ -89,7 +86,7 @@ package Ada_Config is
 	-- Parsers Handling --
 	----------------------
 
-	procedure Set_Parsers( Paser_Vector: in Parser_Vectors.Vector );
+	procedure Set_Parsers( Paser_Vector: in Ada_Config.Parser_Vectors.Vector );
 	-- set the parsers to use from a vector of Parsers
 
 	procedure Add_Parser( Parser: in Parsers_Interface.Parser_Access );
