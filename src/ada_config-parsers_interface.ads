@@ -7,7 +7,7 @@
 -- @createdAt 2007-02-01
 -- @lastUpdate
 
-package Parsers_Interface is
+package Ada_Config.Parsers_Interface is
 
 	type Parser is tagged null record;
 
@@ -35,4 +35,4 @@ package Parsers_Interface is
 	-- return the value of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
-end Parsers_Interface;
+end Ada_Config.Parsers_Interface;

@@ -10,5 +10,6 @@ with Ada.Containers.Vectors;
 -- AdaConfig packages
 with Parsers_Interface;	
 
-package Parser_Vectors is new Ada.Containers.Vectors(	Index_Type   => Natural;
-							Element_Type => Parser_Access );
+package Ada_Config.Parser_Vectors is new Ada.Containers.Vectors(
+						Index_Type   => Natural;
+						Element_Type => Parser_Access );

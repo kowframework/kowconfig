@@ -6,7 +6,7 @@
 
 with Parsers_Interface;
 
-package Text_Parsers is
+package Ada_Config.Text_Parsers is
 
 	type Parser is new Parsers_Interface.Parser with private record;
 
@@ -41,5 +41,5 @@ package Text_Parsers is
 		-- TODO: definir as propriedades do parser
 	end record;
 
-end Text_Parsers;
+end Ada_Config.Text_Parsers;
 	

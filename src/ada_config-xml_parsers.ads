@@ -21,7 +21,7 @@ with Parsers_Interface;
 
 
 
-package Xml_Parsers is
+package Ada_Config.Xml_Parsers is
 
 	type Parser is new Parser with private record;
 
@@ -99,5 +99,5 @@ private
 		My_Cursor: Alos.UString_Ordered_Maps.Cursor;
 	end record;
 
-end Xlm_Parsers;
+end Ada_Config.Xlm_Parsers;
 	
