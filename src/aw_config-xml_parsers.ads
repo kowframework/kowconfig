@@ -16,9 +16,9 @@ with Sax.Readers;
 with Unicode.CES;
 
 
-package Ada_Config.Xml_Parsers is
+package Aw_Config.Xml_Parsers is
 
-	type Parser is new Ada_Config.Parser_Interface with private record;
+	type Parser is new Aw_Config.Parser_Interface with private record;
 
 
 	procedure Prepare(	P: in out Parser;
@@ -99,5 +99,5 @@ private
 		My_Cursor: Alos.UString_Ordered_Maps.Cursor;
 	end record;
 
-end Ada_Config.Xlm_Parsers;
+end Aw_Config.Xlm_Parsers;
 	

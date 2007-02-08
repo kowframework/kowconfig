@@ -13,18 +13,18 @@ with Ada.Exceptions;
 
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 
-with Alos.Env_Vars;
-with Alos.File_System;
-with Alos.String_Util;
-with Alos.UString_Vectors;
-with Alos.UString_Ordered_Maps;
+with Aw_Lib.Env_Vars;
+with Aw_Lib.File_System;
+with Aw_Lib.String_Util;
+with Aw_Lib.UString_Vectors;
+with Aw_Lib.UString_Ordered_Maps;
 
 -- Parsers
 with Parsers_Interface;
 with Text_Parsers;
 with Xml_Parsers;
 
-package body Ada_Config is
+package body Aw_Config is
 
 
 	------------------------
@@ -78,32 +78,32 @@ package body Ada_Config is
 	procedure Reset_Config_Path is
 		-- reset the config path using the environment variable:
 		-- [PROJECT_NAME]_CONFIG_PATH
-		use Alos.String_Util;
+		use Aw_Lib.String_Util;
 	begin
-		Config_Path := Alos.File_System.To_Vector (
-			Alos.Env_Vars.Value(
+		Config_Path := Aw_Lib.File_System.To_Vector (
+			Aw_Lib.Env_Vars.Value(
 				Str_Replace( ' ', '_', To_String( Project_Name ) ) &
 				"_CONFIG_PATH" 	)
 				);
 	exception
 		when  CONSTRAINT_ERROR =>
-			Config_Path := Alos.UString_Vectors.Empty_Vector;
+			Config_Path := Aw_Lib.UString_Vectors.Empty_Vector;
 	end Reset_Config_Path;
 
 
 	procedure Add_Config_Path( Str: in String ) is
 		-- add Str to config path.
 	begin
-		Alos.UString_Vectors.Append( Config_Path, To_Unbounded_String( Str ) );
+		Aw_Lib.UString_Vectors.Append( Config_Path, To_Unbounded_String( Str ) );
 	end Add_Config_Path;
 
 	procedure Add_Config_Path( Str: in Unbounded_String ) is
 		-- add Str to config path.
 	begin
-		Alos.UString_Vectors.Append( Config_Path, Str );
+		Aw_Lib.UString_Vectors.Append( Config_Path, Str );
 	end Add_Config_Path;
 
-	function Get_Config_Path return Alos.UString_Vectors.Vector is
+	function Get_Config_Path return Aw_Lib.UString_Vectors.Vector is
 		-- return the current config path
 	begin
 		return Config_Path;
@@ -152,8 +152,8 @@ package body Ada_Config is
 
 
 		-- ALOS packages
-		use Alos.File_System;
-		use Alos.UString_Vectors;
+		use Aw_Lib.File_System;
+		use Aw_Lib.UString_Vectors;
 		
 		-- AdaConfig packages
 		use Parser_Vectors;
@@ -186,7 +186,7 @@ package body Ada_Config is
 		end Parser_Iterator;
 
 
-		procedure Path_Iterator( C: Alos.UString_Vectors.Cursor ) is
+		procedure Path_Iterator( C: Aw_Lib.UString_Vectors.Cursor ) is
 		begin
 			tmp := Element( C );
 			Iterate( Parsers, Parser_Iterator'Access );
@@ -218,7 +218,7 @@ package body Ada_Config is
 		-- reloads the configuration from the flie. :D
 		use Text_Parser;
 		use Xml_Parser;
-		use Alos.UString_Ordered_Maps;
+		use Aw_Lib.UString_Ordered_Maps;
 	begin
 		F.Contents := Empty_Map;
 
@@ -299,7 +299,7 @@ package body Ada_Config is
 		-- key Key
 		-- if no current section active, return propertie relative
 		-- to root section; ie expects Key to be of the form "sectionName.key"
-		use Alos.UString_Ordered_Maps;
+		use Aw_Lib.UString_Ordered_Maps;
 	begin
 		if F.Current_Section = "" then
 			return Element( F.Contents, Key );
@@ -308,11 +308,11 @@ package body Ada_Config is
 				F.Current_Section & To_Unbounded_String (".") & Key );
 	end Element;
 
-	function Get_Contents_Map( F: in Config_File ) return Alos.UString_Ordered_Maps.Map is
+	function Get_Contents_Map( F: in Config_File ) return Aw_Lib.UString_Ordered_Maps.Map is
 	-- return an ordered map of Unbounded_String => Unbounded_String
 	-- with all keys respecting the pattern "section.subSection.key"
 	begin
 		return F.Contents;
 	end Get_Contents_Map;
-end Ada_Config;
+end Aw_Config;
 

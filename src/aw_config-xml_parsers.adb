@@ -25,7 +25,7 @@ with Alos.Ustring_Ordered_Maps;
 
 
 
-package Ada_Config.Xml_Parsers is
+package Aw_Config.Xml_Parsers is
 
 	procedure Prepare(	P: in out Parser;
 				File_Name: in String ) is
@@ -153,5 +153,5 @@ package Ada_Config.Xml_Parsers is
 	begin
 		Handler.Current_Value := Handler.Current_Value & Ch;
 	end Characters;
-end Ada_Config.Xlm_Parsers;
+end Aw_Config.Xlm_Parsers;
 	

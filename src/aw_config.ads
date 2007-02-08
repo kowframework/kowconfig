@@ -15,18 +15,18 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
 
 -- ALOS Packages
-with Alos.UString_Vectors;
-with Alos.UString_Ordered_Maps;
+with Aw_Lib.UString_Vectors;
+with Aw_Lib.UString_Ordered_Maps;
 
 
 
-package Ada_Config is
+package Aw_Config is
 
 
 	------------------------------
 	-- Sub Packages Declaration --
 	------------------------------
-	package Ada_Config.Parser_Vectors is new Ada.Containers.Vectors(
+	package Aw_Config.Parser_Vectors is new Ada.Containers.Vectors(
 							Index_Type   => Natural;
 							Element_Type => Parser_Access );
 
@@ -95,7 +95,7 @@ package Ada_Config is
 	procedure Add_Config_Path( Str: in Unbounded_String );
 	-- add Str to config path.
 
-	function Get_Config_Path return Alos.UString_Vectors.Vector;
+	function Get_Config_Path return Aw_Lib.UString_Vectors.Vector;
 	pragma Inline( Get_Config_Path );
 	-- return the current config path
 
@@ -169,7 +169,7 @@ package Ada_Config is
 	-- if no current section active, return propertie relative
 	-- to root section; ie expects Key to be of the form "sectionName.key"
 
-	function Get_Contents_Map( F: in Config_File ) return Alos.UString_Ordered_Maps.Map;
+	function Get_Contents_Map( F: in Config_File ) return Aw_Lib.UString_Ordered_Maps.Map;
 	Pragma Inline( Get_Contents_Map );
 	-- return an ordered map of Unbounded_String => Unbounded_String
 	-- with all keys respecting the pattern "section.subSection.key"
@@ -208,7 +208,7 @@ package Ada_Config is
 
 private
 
-	Config_Path: Alos.UString_Vectors.Vector;
+	Config_Path: Aw_Lib.UString_Vectors.Vector;
 
 	Project_Name: Unbounded_String;
 
@@ -218,8 +218,8 @@ private
 	type Config_File is record
 		File_Name: Unbounded_String;
 		Current_Section: Unbounded_String;
-		Contents: Alos.UString_Ordered_Maps.Map;
+		Contents: Aw_Lib.UString_Ordered_Maps.Map;
 		My_Parser: Parser_Access;
 	end record;
 
-end Ada_Config;
+end Aw_Config;

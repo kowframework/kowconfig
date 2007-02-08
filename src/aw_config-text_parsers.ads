@@ -4,9 +4,9 @@
 -- @createdAt 2007-02-02
 -- @lastUpdate
 
-package Ada_Config.Text_Parsers is
+package Aw_Config.Text_Parsers is
 
-	type Parser is new Ada_Config.Parser_Interface with private record;
+	type Parser is new Aw_Config.Parser_Interface with private record;
 
 
 	procedure Prepare(	P: in out Parser;
@@ -44,5 +44,5 @@ package Ada_Config.Text_Parsers is
 		-- TODO: definir as propriedades do parser
 	end record;
 
-end Ada_Config.Text_Parsers;
+end Aw_Config.Text_Parsers;
 	

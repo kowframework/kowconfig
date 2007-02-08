@@ -8,7 +8,7 @@
 
 with Ada.Text_IO;	use Ada.Text_IO;
 
-with Ada_Config;	use Ada_Config;
+with Aw_Config;		use Aw_Config;
 
 procedure Sample_Project is
 begin
