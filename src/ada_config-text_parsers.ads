@@ -4,11 +4,9 @@
 -- @createdAt 2007-02-02
 -- @lastUpdate
 
-with Parsers_Interface;
-
 package Ada_Config.Text_Parsers is
 
-	type Parser is new Parsers_Interface.Parser with private record;
+	type Parser is new Ada_Config.Parser_Interface with private record;
 
 
 	procedure Prepare(	P: in out Parser;

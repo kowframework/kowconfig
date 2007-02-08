@@ -11,7 +11,8 @@
 
 -- Ada Packages
 with Ada.Containers.Ordered_Maps;
-with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
+with Ada.Containers.Vectors;
+with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
 
 -- ALOS Packages
 with Alos.UString_Vectors;
@@ -22,12 +23,28 @@ with Alos.UString_Ordered_Maps;
 package Ada_Config is
 
 
+	------------------------------
+	-- Sub Packages Declaration --
+	------------------------------
+	package Ada_Config.Parser_Vectors is new Ada.Containers.Vectors(
+							Index_Type   => Natural;
+							Element_Type => Parser_Access );
+
 	-----------------------
 	-- Types Declaration --
 	-----------------------
 
 	type Config_File is private;
 	-- represents the configuration file
+
+	type Parser_Interface is tagged null record;
+	-- every parser got to derive from this type
+
+	type Parser_Access is Access all Parser_Interface'Class;
+	-- this type is used internally by AdaWorks but is visible just in case
+	-- the developer needs it.
+
+
 
 
 	SYNTAX_ERROR: Exception;
@@ -86,10 +103,10 @@ package Ada_Config is
 	-- Parsers Handling --
 	----------------------
 
-	procedure Set_Parsers( Paser_Vector: in Ada_Config.Parser_Vectors.Vector );
+	procedure Set_Parsers( Paser_Vector: in Parser_Vectors.Vector );
 	-- set the parsers to use from a vector of Parsers
 
-	procedure Add_Parser( Parser: in Parsers_Interface.Parser_Access );
+	procedure Add_Parser( Parser: in Parser_Access );
 	-- add a parser to the parsers to use
 
 	procedure Remove_Parser( N: Natural );
@@ -157,6 +174,38 @@ package Ada_Config is
 	-- return an ordered map of Unbounded_String => Unbounded_String
 	-- with all keys respecting the pattern "section.subSection.key"
 
+
+	-------------------------------------
+	-- Methods of the Parser_Interface --
+	-------------------------------------
+
+	procedure Prepare(	P: in out Parser_Interface;
+				File_Name: in String ) is abstract;
+	-- prepare the parser to parse the file with the
+	-- absolute path File_Name.
+	-- read the 1st field
+
+	procedure Finish( P: in out Parser_Interface ) is abstract;
+	-- close the file and do whatever it's needed to finish it.
+
+	procedure Next( P: in out Parser_Interface ) is abstract;
+	-- move the parser to the next field, if it exists
+	-- if not prepare the parser to return CONSTRAINT_ERROR
+	-- everytime Key and Value are called
+
+	function Key( P: in Parser_Interface ) return String is abstract;
+	-- return the key of the current field
+	-- raise CONSTRAINT_ERROR if there is nothing else to read
+
+	function Element( P: in Parser_Interface ) return String is abstract;
+	-- return the value of the current field
+	-- raise CONSTRAINT_ERROR if there is nothing else to read
+
+	function Get_File_Name( P: in Parser_Interface; Original: in String ) return String is abstract;
+	-- returns the filename Original with expected extension
+	-- ie, Original & ".cfg" in case of Text Parser
+
+
 private
 
 	Config_Path: Alos.UString_Vectors.Vector;
@@ -170,7 +219,7 @@ private
 		File_Name: Unbounded_String;
 		Current_Section: Unbounded_String;
 		Contents: Alos.UString_Ordered_Maps.Map;
-		My_Parser: Ada_Config.Parsers_Interface.Parser_Access;
+		My_Parser: Parser_Access;
 	end record;
 
 end Ada_Config;

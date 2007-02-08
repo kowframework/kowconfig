@@ -16,14 +16,9 @@ with Sax.Readers;
 with Unicode.CES;
 
 
-with Parsers_Interface;
-
-
-
-
 package Ada_Config.Xml_Parsers is
 
-	type Parser is new Parser with private record;
+	type Parser is new Ada_Config.Parser_Interface with private record;
 
 
 	procedure Prepare(	P: in out Parser;

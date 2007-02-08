@@ -21,4 +21,4 @@ echo $ADA_PROJECT_PATH
 echo $ADA_PROJECT_PATH
 export ADA_PROJECT_PATH
 
-gnatmake -P ada_config.gpr
+gnatmake  -P ada_config.gpr `xmlada-config`
