@@ -4,9 +4,9 @@
 
 
 libs:
-	gnatmake -P awconfig.gpr
+	ADA_PROJECT_PATH=.:../awlib gnatmake -P awconfig.gpr
 tests: libs
-	gnatmake -P awconfig-tests.gpr
+	ADA_PROJECT_PATH=.:../awlib gnatmake -P awconfig-tests.gpr
 
 all: libs
 
@@ -22,9 +22,9 @@ run: run-xml run-plain
 
 
 clean-libs:
-	gnatclean -P awconfig.gpr
+	ADA_PROJECT_PATH=.:../awlib gnatclean -P awconfig.gpr
 clean-tests:
-	gnatclean -P awconfig-tests.gpr
+	ADA_PROJECT_PATH=.:../awlib gnatclean -P awconfig-tests.gpr
 clean: clean-tests clean-libs
 	@echo "All clean"
 

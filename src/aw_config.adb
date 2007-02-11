@@ -109,13 +109,13 @@ package body Aw_Config is
 	-- Parsers Handling --
 	----------------------
 
-	procedure Set_Parsers( Pasers_Vector: in Parser_Vectors.Vector ) is
+	procedure Set_Parsers( V: in Parser_Vectors.Vector ) is
 		-- set the parsers to use from a vector of Parsers
 	begin
-		Parsers := Parser_Vectors;
+		Parsers := V;
 	end Set_Parsers;
 
-	procedure Add_Parser( Parser: in Parsers_Interface.Parser_Access ) is
+	procedure Add_Parser( Parser: in Parser_Access ) is
 		-- add a parser to the parsers to use
 	begin
 		Parser_Vectors.Append( Parsers, Parser );
@@ -167,14 +167,14 @@ package body Aw_Config is
 		-- Iteractors:
 		procedure Parser_Iterator( C: Parser_Vectors.Cursor ) is
 			P: Parser_Access;
-			FN: String;
+			FN: Unbounded_String;
 		begin
-			P := Element( C );
-			FN := Get_File_Name( N );
+			P := Parser_Vectors.Element( C );
+			FN := To_Unbounded_String( Get_File_Name( P.all, N ) );
 
-			if Is_File( To_String( tmp ) & '/' & FN ) then
+			if Is_File( To_String( tmp & '/' & FN ) ) then
 				F.My_Parser := P;
-				F.File_Name :=	tmp & To_Unbounded_String( "/" & FN );
+				F.File_Name :=	tmp & '/' & FN;
 				raise MY_OWN_EXCEPTION;
 				-- tell the main unit that we've found a winner! :)
 			end if;
@@ -184,7 +184,7 @@ package body Aw_Config is
 		procedure Path_Iterator( C: Aw_Lib.UString_Vectors.Cursor ) is
 		begin
 			tmp := Element( C );
-			Iterate( Parsers, Parser_Iterator'Access );
+			Parser_Vectors.Iterate( Parsers, Parser_Iterator'Access );
 		end Path_Iterator;
 
 	begin
@@ -201,7 +201,7 @@ package body Aw_Config is
 		-- MY_OWN_EXCEPTION is raised. This one is cautch following and
 		-- then the value of F is returned.
 		-- if no exception is raised, then it raise FILE_NOT_FOUND
-		Ada.Exceptions.Raise_Exceptions( FINE_NOT_FOUND'Identity, N );
+		Ada.Exceptions.Raise_Exception( FILE_NOT_FOUND'Identity, N );
 
 	exception
 		when MY_OWN_EXCEPTION =>
@@ -215,7 +215,7 @@ package body Aw_Config is
 	begin
 		F.Contents := Empty_Map;
 
-		Prepare( F.My_Parser.All, F.File_Name );
+		Prepare( F.My_Parser.All, To_String( F.File_Name ) );
 
 		loop
 			Include(	F.Contents,
@@ -228,7 +228,7 @@ package body Aw_Config is
 	exception
 		when CONSTRAINT_ERROR =>
 			-- the file has reached the end
-			Finish( F.My_Parser );
+			Finish( F.My_Parser.all );
 	end Reload_Config;
 
 
@@ -251,7 +251,7 @@ package body Aw_Config is
 	function Get_Section( F: in Config_File ) return String is
 		-- return the current section or "" if there is no section active
 	begin
-		return To_Unbounded_String( F.Current_Section );
+		return To_String( F.Current_Section );
 	end Get_Section;
 
 	function Get_Section( F: in Config_File ) return Unbounded_String is
@@ -260,32 +260,6 @@ package body Aw_Config is
 		return F.Current_Section;
 	end Get_Section;
 
-	function Element( F: Config_File; Key: String ) return String is
-		-- return the value of element inside the current section with
-		-- key Key
-		-- if no current section active, return propertie relative
-		-- to root section; ie expects Key to be of the form "sectionName.key"
-	begin
-		return To_String( Element( F, To_Unbounded_String( Key ) ) );
-	end Element;
-
-	function Element( F: Config_File; Key: Unbounded_String  ) return String is
-		-- return the value of element inside the current section with
-		-- key Key
-		-- if no current section active, return propertie relative
-		-- to root section; ie expects Key to be of the form "sectionName.key"
-	begin
-		return To_String( Element( F, Key ) );
-	end Element;
-
-	function Element(  F: Config_File; Key: String ) return Unbounded_String is
-		-- return the value of element inside the current section with
-		-- key Key
-		-- if no current section active, return propertie relative
-		-- to root section; ie expects Key to be of the form "sectionName.key"
-	begin
-		return Element( F, To_Unbounded_String( Key ) );
-	end Element;
 
 	function Element( F: Config_File; Key: Unbounded_String ) return Unbounded_String is
 		-- return the value of element inside the current section with
@@ -298,8 +272,19 @@ package body Aw_Config is
 			return Element( F.Contents, Key );
 		end if;
 		return Element(	F.Contents,
-				F.Current_Section & To_Unbounded_String (".") & Key );
+				F.Current_Section & '.' & Key );
 	end Element;
+
+	function Element( F: Config_File; Key: String ) return Unbounded_String is
+		-- return the value of element inside the current section with
+		-- key Key
+		-- if no current section active, return propertie relative
+		-- to root section; ie expects Key to be of the form "sectionName.key"
+	begin
+		return Element( F, To_Unbounded_String( Key ) );
+	end Element;
+
+
 
 	function Get_Contents_Map( F: in Config_File ) return Aw_Lib.UString_Ordered_Maps.Map is
 	-- return an ordered map of Unbounded_String => Unbounded_String

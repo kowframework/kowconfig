@@ -23,12 +23,6 @@ with Aw_Lib.UString_Ordered_Maps;
 package Aw_Config is
 
 
-	------------------------------
-	-- Sub Packages Declaration --
-	------------------------------
-	package Parser_Vectors is new Ada.Containers.Vectors(
-			dex_Type   => Natural,
-			Element_Type => Parser_Access );
 
 	-----------------------
 	-- Types Declaration --
@@ -37,18 +31,36 @@ package Aw_Config is
 	type Config_File is private;
 	-- represents the configuration file
 
-	type Parser_Interface is tagged null record;
+	type Parser_Interface is abstract tagged null record;
 	-- every parser got to derive from this type
 
 	type Parser_Access is Access all Parser_Interface'Class;
 	-- this type is used internally by AdaWorks but is visible just in case
 	-- the developer needs it.
 
+	------------------------------
+	-- Sub Packages Declaration --
+	------------------------------
+	package Parser_Vectors is new Ada.Containers.Vectors(
+			Index_Type   => Natural,
+			Element_Type => Parser_Access );
 
 
+	----------------
+	-- Exceptions --
+	----------------
 
 	SYNTAX_ERROR: Exception;
+	-- when there is an error in the config file
+
 	FILE_NOT_FOUND: Exception;
+	-- when there is no config file found in the config path
+
+	NO_CONFIG_PATH: Exception;
+	-- when there is no config path set
+
+	NO_PARSER: Exception;
+	-- when there is no parser set and it's trying to access config files
 
 	------------------------
 	-- Exception Handling --
@@ -103,7 +115,7 @@ package Aw_Config is
 	-- Parsers Handling --
 	----------------------
 
-	procedure Set_Parsers( Pasers_Vector: in Parser_Vectors.Vector );
+	procedure Set_Parsers( V: in Parser_Vectors.Vector );
 	-- set the parsers to use from a vector of Parsers
 
 	procedure Add_Parser( Parser: in Parser_Access );
@@ -123,6 +135,9 @@ package Aw_Config is
 	-- opens a new config file with name N.
 	-- read it's contents and return an object representing it.
 	-- the file is closed right after it've been read
+
+	procedure Reload_Config( F: in out Config_File );
+	-- (re)load the configuration from the file
 
 
 	----------------------------------
@@ -145,29 +160,20 @@ package Aw_Config is
 	pragma Inline( Get_Section );
 	-- return the current section or "" if there is no section active
 
-	function Element( Key: String; F: Config_File ) return String;
+
+	function Element( F: Config_File; Key: Unbounded_String ) return Unbounded_String;
 	-- return the value of element inside the current section with
 	-- key Key
 	-- if no current section active, return propertie relative
 	-- to root section; ie expects Key to be of the form "sectionName.key"
 
-	function Element( Key: Unbounded_String; F: Config_File ) return String;
+
+	function Element( F:Config_File; Key: String ) return Unbounded_String;
 	-- return the value of element inside the current section with
 	-- key Key
 	-- if no current section active, return propertie relative
 	-- to root section; ie expects Key to be of the form "sectionName.key"
 
-	function Element( Key: String; F: Config_File ) return Unbounded_String;
-	-- return the value of element inside the current section with
-	-- key Key
-	-- if no current section active, return propertie relative
-	-- to root section; ie expects Key to be of the form "sectionName.key"
-
-	function Element( Key: Unbounded_String; F: Config_File ) return Unbounded_String;
-	-- return the value of element inside the current section with
-	-- key Key
-	-- if no current section active, return propertie relative
-	-- to root section; ie expects Key to be of the form "sectionName.key"
 
 	function Get_Contents_Map( F: in Config_File ) return Aw_Lib.UString_Ordered_Maps.Map;
 	Pragma Inline( Get_Contents_Map );
@@ -193,11 +199,11 @@ package Aw_Config is
 	-- if not prepare the parser to return CONSTRAINT_ERROR
 	-- everytime Key and Value are called
 
-	function Key( P: in Parser_Interface ) return String is abstract;
+	function Key( P: in Parser_Interface ) return Unbounded_String is abstract;
 	-- return the key of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
-	function Element( P: in Parser_Interface ) return String is abstract;
+	function Element( P: in Parser_Interface ) return Unbounded_String is abstract;
 	-- return the value of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
