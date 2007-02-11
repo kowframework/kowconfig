@@ -1,12 +1,12 @@
-# Makefile for the AW_Lib
+# Makefile for the AW_Config
 #
 # @author Marcelo Coraça de Freitas <marcelo.batera@gmail.com> 
 
 
 libs:
-	gnatmake -P awlib.gpr
+	gnatmake -P awconfig.gpr
 tests:
-	gnatmake -P awlib-tests.gpr
+	gnatmake -P awconfig-tests.gpr
 
 all: libs
 
