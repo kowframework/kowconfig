@@ -5,11 +5,20 @@
 
 libs:
 	gnatmake -P awconfig.gpr
-tests:
+tests: libs
 	gnatmake -P awconfig-tests.gpr
 
 all: libs
 
+
+run-xml: tests
+	TEST_CONFIG_PATH=$(PWD)/data ./bin/xml-test
+
+
+run-plain: tests
+	TEST_CONFIG_PATH=$(PWD)/data ./bin/plain-test
+
+run: run-xml run-plain
 
 
 clean-libs:
