@@ -19,11 +19,6 @@ with Aw_Lib.String_Util;
 with Aw_Lib.UString_Vectors;
 with Aw_Lib.UString_Ordered_Maps;
 
--- Parsers
-with Parsers_Interface;
-with Text_Parsers;
-with Xml_Parsers;
-
 package body Aw_Config is
 
 
@@ -216,8 +211,6 @@ package body Aw_Config is
 
 	procedure Reload_Config( F: in out Config_File ) is
 		-- reloads the configuration from the flie. :D
-		use Text_Parser;
-		use Xml_Parser;
 		use Aw_Lib.UString_Ordered_Maps;
 	begin
 		F.Contents := Empty_Map;
