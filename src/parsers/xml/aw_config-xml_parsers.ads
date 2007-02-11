@@ -7,7 +7,7 @@
 
 
 -- Ada Packages
-with Ada.Strings_Unbounded;	use Ada.Strings_Unbounded;
+with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 
 
 -- XML/Ada Packages
@@ -18,16 +18,16 @@ with Unicode.CES;
 
 package Aw_Config.Xml_Parsers is
 
-	type Parser is new Aw_Config.Parser_Interface with private record;
+	type Parser is new Aw_Config.Parser_Interface with private;
 
 
-	procedure Prepare(	P: in out Parser;
+	procedure Prepare(	P: in out Aw_Config.Xml_Parsers.Parser;
 				File_Name: in String );
 	-- prepare the parser to parse the file with the
 	-- absolute path File_Name.
 	-- read the 1st field
 
-	procedure Finish( P: in out Parser ) is abstract;
+	procedure Finish( P: in out Parser );
 	-- close the file and do whatever it's needed to finish it.
 
 	procedure Next( P: in out Parser );
@@ -36,16 +36,16 @@ package Aw_Config.Xml_Parsers is
 	-- everytime Key and Value are called
 
 
-	function Key( P: in Parser ) return String;
+	function Key( P: in Parser ) return Unbounded_String;
 	-- return the key of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
-	function Element( P: in Parser ) return String;
+	function Element( P: in Parser ) return Unbounded_String;
 	-- return the value of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
 
-	function Get_File_Name( P: in Parser; Original: in String ) return String is abstract;
+	function Get_File_Name( P: in Parser; Original: in String ) return String;
 	-- returns the filename Original with expected extension
 	-- ie, Original & ".cfg" in case of Text Parser
 
@@ -53,7 +53,7 @@ package Aw_Config.Xml_Parsers is
 private
 
 	type Reader is new Sax.Readers.Reader with record
-		Section: Alos.UString_Vectors.Vector;
+		Section: AW_Lib.UString_Vectors.Vector;
 		-- where the current section is stored
 
 		In_Key: Boolean := false;
@@ -65,7 +65,7 @@ private
 		Current_Value: Unbounded_String;
 		-- the value of current key.
 
-		Values: Alos.UString_Ordered_Maps.Map;
+		Values: AW_Lib.UString_Ordered_Maps.Map;
 		-- the values must be stored into a map before returned in 
 		-- order to be compilant with Parsers_Interface.Parser and
 		-- SAX' callbacks
@@ -93,11 +93,12 @@ private
 
 
 
-	type Parser is new Parser with record
+	type Parser is new AW_Config.Parser_Interface with record
 		My_Reader: Reader;
 		-- the reader. :P
-		My_Cursor: Alos.UString_Ordered_Maps.Cursor;
+		My_Cursor: AW_Lib.UString_Ordered_Maps.Cursor;
 	end record;
 
-end Aw_Config.Xlm_Parsers;
+
+end Aw_Config.Xml_Parsers;
 	

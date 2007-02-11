@@ -5,8 +5,14 @@
 
 libs:
 	ADA_PROJECT_PATH=.:../awlib gnatmake -P awconfig.gpr
-tests: libs
+
+parsers:
+	ADA_PROJECT_PATH=.:../awlib gnatmake -x -P awconfig-parsers.gpr `xmlada-config`
+
+tests: libs parsers
 	ADA_PROJECT_PATH=.:../awlib gnatmake -P awconfig-tests.gpr
+
+
 
 all: libs
 
@@ -23,9 +29,13 @@ run: run-xml run-plain
 
 clean-libs:
 	ADA_PROJECT_PATH=.:../awlib gnatclean -P awconfig.gpr
+clean-parsers:	
+	ADA_PROJECT_PATH=.:../awlib gnatclean -P awconfig-parsers.gpr
 clean-tests:
 	ADA_PROJECT_PATH=.:../awlib gnatclean -P awconfig-tests.gpr
-clean: clean-tests clean-libs
+
+clean: clean-tests clean-parsers clean-libs 
+	@rm bin/* lib/* obj/*
 	@echo "All clean"
 
 
