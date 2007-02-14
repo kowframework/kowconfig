@@ -7,7 +7,7 @@ with "awconfig-parsers.gpr";
 
 project AwConfig.Tests is
 
-   for Source_Dirs use ( "src/samples" );
+   for Source_Dirs use ( "src/examples" );
 
    for Object_Dir use "obj";
 

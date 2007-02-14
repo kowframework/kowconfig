@@ -1,0 +1,46 @@
+-- GNAT Project file for AW_config
+--
+-- @author Marcelo Coraça de Freitas <marcelo.batera@gmail.com> 
+
+with "awconfig.gpr";
+
+project AwConfig.Parsers is
+
+	Version := AwConfig.Version;
+
+	-- Decide what parsers to build
+	type Yes_No is ( "YES", "NO" );
+
+	Xml_Parser: Yes_No := external( "XML_PARSER", "YES" );
+	Text_Parser: Yes_No := external( "TEXT_PARSER", "NO" );
+
+
+
+  	case Xml_Parser is
+		when "YES" => for Source_Dirs use project'Source_Dirs & "src/parsers/xml";
+		when "NO"  => null;
+	end case;
+
+  	case Text_Parser is
+		when "YES" => for Source_Dirs use project'Source_Dirs & "src/parsers/text";
+		when "NO"  => null;
+	end case;
+
+
+
+	-- set directories path and lib path too.
+	for Object_Dir use "obj";
+	
+	for Library_Dir use "lib";
+	for Library_Name use "awconfig-parsers";
+	for Library_Kind use "dynamic";
+	for Library_Version use "libawconfig-parsers.so." & Version;
+	
+	
+	package Compiler is
+		for Default_Switches ("ada") use ("-O2", "-gnat05");
+	end Compiler;
+
+
+end AwConfig.Parsers;
+
