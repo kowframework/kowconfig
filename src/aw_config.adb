@@ -105,108 +105,60 @@ package body Aw_Config is
 	end Get_Config_Path;
 
 
-	----------------------
-	-- Parsers Handling --
-	----------------------
-
-	procedure Set_Parsers( V: in Parser_Vectors.Vector ) is
-		-- set the parsers to use from a vector of Parsers
-	begin
-		Parsers := V;
-	end Set_Parsers;
-
-	procedure Add_Parser( Parser: in Parser_Access ) is
-		-- add a parser to the parsers to use
-	begin
-		Parser_Vectors.Append( Parsers, Parser );
-	end Add_Parser;
-
-	procedure Remove_Parser( N: Natural ) is
-		-- remove the parser at index N
-	begin
-		Parser_Vectors.Delete( Parsers, N );
-	end Remove_Parser;
-
-
-	function Get_Parsers return Parser_Vectors.Vector is
-		-- return a vector with all parsers
-	begin
-		return Parsers;
-	end Get_Parsers;
-
-
-
 	-------------------
 	-- File handling --
 	-------------------
 
-	function New_Config_File( N: in String ) return Config_File is
-		-- opens a new config file with name N.
+	function New_Config_File( N: in String; P: in Parser_Access ) return Config_File is
+		-- opens a new config file that will be handled by parser P
 		-- read it's contents and return an object representing it.
 		-- the file is closed right after it've been read
 
 
-		-- ALOS packages
+		-- AW_Lib packages
 		use Aw_Lib.File_System;
 		use Aw_Lib.UString_Vectors;
 		
-		-- AdaConfig packages
-		use Parser_Vectors;
 
-
-		MY_OWN_EXCEPTION: Exception;
 		-- this is used to check when the file has been found
 		
 		F: Config_File;
 		-- this is the object that is used as return value
 
-		tmp: Unbounded_String;
-		-- this Unbounded_String is used by Parser and Path iterators
-		-- to share the Path being used
+		FOUND_IT: Boolean := FALSE;
+		-- controls if it did find the file already
 
 		-- Iteractors:
-		procedure Parser_Iterator( C: Parser_Vectors.Cursor ) is
-			P: Parser_Access;
-			FN: Unbounded_String;
-		begin
-			P := Parser_Vectors.Element( C );
-			FN := To_Unbounded_String( Get_File_Name( P.all, N ) );
-
-			if Is_File( To_String( tmp & '/' & FN ) ) then
-				F.My_Parser := P;
-				F.File_Name :=	tmp & '/' & FN;
-				raise MY_OWN_EXCEPTION;
-				-- tell the main unit that we've found a winner! :)
-			end if;
-		end Parser_Iterator;
-
-
 		procedure Path_Iterator( C: Aw_Lib.UString_Vectors.Cursor ) is
 		begin
-			tmp := Element( C );
-			Parser_Vectors.Iterate( Parsers, Parser_Iterator'Access );
+			if FOUND_IT then
+				return;
+			end if;
+
+			F.File_Name := Element( C ) & '/';
+			F.File_Name := F.File_Name & To_Unbounded_String( Get_File_Name( P.all, N ) );
+
+			if Is_File( To_String( F.File_Name ) ) then
+				F.My_Parser := P;
+				FOUND_IT := TRUE;
+				-- tell the main unit that we've found a winner! :)
+			end if;
 		end Path_Iterator;
 
 	begin
 		if Is_Empty( Config_Path ) then
 			raise NO_CONFIG_PATH;
-		elsif Is_Empty( Parsers ) then
-			raise NO_PARSER;
 		end if;
 						
 		
 		Iterate( Config_Path, Path_Iterator'Access );
-		-- iterate over the config path which iterate over parsers
-		-- when one path X parser combination match the requested file
-		-- MY_OWN_EXCEPTION is raised. This one is cautch following and
-		-- then the value of F is returned.
-		-- if no exception is raised, then it raise FILE_NOT_FOUND
-		Ada.Exceptions.Raise_Exception( FILE_NOT_FOUND'Identity, N );
+		-- iterate over the config path looking for the file
 
-	exception
-		when MY_OWN_EXCEPTION =>
-			Reload_Config( F );
-			return F;
+		if not FOUND_IT then
+			Ada.Exceptions.Raise_Exception( FILE_NOT_FOUND'Identity, N );
+		end if;
+		Reload_Config( F );
+		return F;
 	end New_Config_File;
 
 	procedure Reload_Config( F: in out Config_File ) is

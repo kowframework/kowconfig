@@ -3,6 +3,7 @@
 -- @author Marcelo Coraça de Freitas <marcelo.batera@gmail.com> 
 
 with "awconfig.gpr";
+with "awconfig-parsers.gpr";
 
 project AwConfig.Tests is
 
@@ -11,7 +12,7 @@ project AwConfig.Tests is
    for Object_Dir use "obj";
 
    for Exec_Dir use "bin";
-   for Main use ( "xml_test", "plain_test" );
+   for Main use ( "xml_test" );
 
 
    package Compiler is

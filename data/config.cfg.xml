@@ -3,13 +3,15 @@
 	<section name="Main Section">
 		<key name="company name" value="My Test Company"/>
 		<key name="company size" value="medium sized"/>
-		<key name="company address" value="Piraporinha St, number 123"/>
+		<section name="Contact Information">
+			<key name="address" value="Piraporinha St, number 123"/>
+		</section>
 	</section>
 	<section name="Database">
 		<key name="host" value="localhost"/>
 		<key name="user" value="root"/>
 		<key name="password" value="myrootpassword"/>
 		<key name="database" value="My_Database"/>
-		<key name="engine" value="MySQL"/>
+		<!--key name="engine">MySQL</key-->
 	</section>
 </config>

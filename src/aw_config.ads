@@ -1,4 +1,4 @@
--- This is the main AdaConfig package.
+-- This is the main AwConfig package.
 -- Here you'll find the types you should use in your application and all 
 -- visible procedures and functions.
 --
@@ -31,7 +31,7 @@ package Aw_Config is
 	type Config_File is private;
 	-- represents the configuration file
 
-	type Parser_Interface is abstract tagged null record;
+	type Parser_Interface is abstract tagged limited null record;
 	-- every parser got to derive from this type
 
 	type Parser_Access is Access all Parser_Interface'Class;
@@ -79,13 +79,13 @@ package Aw_Config is
 
 	procedure Set_Project_Name( Str: in String );
 	pragma Inline( Set_Project_Name );
-	-- Set the project name so AdaConfig can find for 
+	-- Set the project name so AwConfig can find for 
 	-- config files search path
 	-- This will reset the config path
 
 	procedure Set_Project_Name( Str: in Unbounded_String );
 	pragma Inline( Set_Project_Name );
-	-- Set the project name so AdaConfig can find for 
+	-- Set the project name so AwConfig can find for 
 	-- config files search path
 	-- This will reset the config path
 
@@ -111,28 +111,12 @@ package Aw_Config is
 	pragma Inline( Get_Config_Path );
 	-- return the current config path
 
-	----------------------
-	-- Parsers Handling --
-	----------------------
-
-	procedure Set_Parsers( V: in Parser_Vectors.Vector );
-	-- set the parsers to use from a vector of Parsers
-
-	procedure Add_Parser( Parser: in Parser_Access );
-	-- add a parser to the parsers to use
-
-	procedure Remove_Parser( N: Natural );
-	-- remove the parser at index N
-
-	function Get_Parsers return Parser_Vectors.Vector;
-	-- return a vector with all parsers
-
 	-------------------
 	-- File handling --
 	-------------------
 
-	function New_Config_File( N: in String ) return Config_File;
-	-- opens a new config file with name N.
+	function New_Config_File( N: in String; P: in Parser_Access ) return Config_File;
+	-- opens a new config file that will be handled by the parser P
 	-- read it's contents and return an object representing it.
 	-- the file is closed right after it've been read
 
@@ -217,9 +201,6 @@ private
 	Config_Path: Aw_Lib.UString_Vectors.Vector;
 
 	Project_Name: Unbounded_String;
-
-	Parsers: Parser_Vectors.Vector;
-	
 
 	type Config_File is record
 		File_Name: Unbounded_String;

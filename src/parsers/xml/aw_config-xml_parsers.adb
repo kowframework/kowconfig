@@ -9,7 +9,7 @@
 -- Ada Packages
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 with Ada.Characters.Handling;
-
+with Ada.Text_IO;		use Ada.Text_IO;
 -- XML/Ada Packages
 with Input_Sources.File;
 with Sax.Attributes;
@@ -104,7 +104,9 @@ package body Aw_Config.Xml_Parsers is
 		 L: Unicode.CES.Byte_Sequence := To_Lower( Local_Name );
 	begin
 		Handler.Current_Value := Null_Unbounded_String;
-		if L = "key" then
+		if L = "config" then
+			null;
+		elsif L = "key" then
 			Handler.In_Key := true;
 			Handler.Current_Value := To_Unbounded_String( 
 				Get_Value( Atts, "", "value" )
@@ -152,7 +154,9 @@ package body Aw_Config.Xml_Parsers is
 		(Handler: in out Reader;
 		Ch	: Unicode.CES.Byte_Sequence) is
 	begin
-		Handler.Current_Value := Handler.Current_Value & Ch;
+		Put( Ch );
+--		Handler.Current_Value := Handler.Current_Value & Ch;
+		null;
 	end Characters;
 end Aw_Config.Xml_Parsers;
 	
