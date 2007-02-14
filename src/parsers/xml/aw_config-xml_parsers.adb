@@ -9,14 +9,14 @@
 -- Ada Packages
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 with Ada.Characters.Handling;
-with Ada.Text_IO;		use Ada.Text_IO;
+
 -- XML/Ada Packages
 with Input_Sources.File;
 with Sax.Attributes;
 with Sax.Readers;		
 with Unicode.CES;
 
-
+-- AW_Lib Packages
 with AW_Lib.String_Util;
 with AW_Lib.UString_Vectors;
 with AW_Lib.Ustring_Ordered_Maps;
@@ -108,9 +108,14 @@ package body Aw_Config.Xml_Parsers is
 			null;
 		elsif L = "key" then
 			Handler.In_Key := true;
-			Handler.Current_Value := To_Unbounded_String( 
-				Get_Value( Atts, "", "value" )
-				);
+			begin
+				Handler.Current_Value := To_Unbounded_String( 
+					Get_Value( Atts, "", "value" )
+					);
+			exception
+				when CONSTRAINT_ERROR => null;
+				-- it means that the attribute value is empty and that's expected in some cases
+			end;
 			Handler.Current_Key := To_Unbounded_String(
 				Get_Value( Atts, "", "name" )
 				);
@@ -154,8 +159,7 @@ package body Aw_Config.Xml_Parsers is
 		(Handler: in out Reader;
 		Ch	: Unicode.CES.Byte_Sequence) is
 	begin
-		Put( Ch );
---		Handler.Current_Value := Handler.Current_Value & Ch;
+		Handler.Current_Value := Handler.Current_Value & Ch;
 		null;
 	end Characters;
 end Aw_Config.Xml_Parsers;

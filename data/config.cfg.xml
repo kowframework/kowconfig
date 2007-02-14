@@ -12,6 +12,6 @@
 		<key name="user" value="root"/>
 		<key name="password" value="myrootpassword"/>
 		<key name="database" value="My_Database"/>
-		<!--key name="engine">MySQL</key-->
+		<key name="engine">MySQL</key>
 	</section>
 </config>
