@@ -6,10 +6,10 @@
 libs:
 	ADA_PROJECT_PATH=.:../awlib gnatmake -P awconfig.gpr
 
-parsers:
+parsers: libs
 	ADA_PROJECT_PATH=.:../awlib gnatmake -x -P awconfig-parsers.gpr `xmlada-config`
 
-tests: libs parsers
+tests: parsers
 	ADA_PROJECT_PATH=.:../awlib gnatmake -P awconfig-tests.gpr
 
 
