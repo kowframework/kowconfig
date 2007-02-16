@@ -21,10 +21,11 @@ project AwConfig.Parsers is
 		when "NO"  => null;
 	end case;
 
-  	case Text_Parser is
+ 	case Text_Parser is
 		when "YES" => for Source_Dirs use project'Source_Dirs & "src/parsers/text";
 		when "NO"  => null;
 	end case;
+
 
 
 
@@ -35,7 +36,10 @@ project AwConfig.Parsers is
 	for Library_Name use "awconfig-parsers";
 	for Library_Kind use "dynamic";
 	for Library_Version use "libawconfig-parsers.so." & Version;
-	
+
+	package Builder is
+		for Default_Switches ("ada") use ( "-x" );
+	end Builder;
 	
 	package Compiler is
 		for Default_Switches ("ada") use ("-O2", "-gnat05");

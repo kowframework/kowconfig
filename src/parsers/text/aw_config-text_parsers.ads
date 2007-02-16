@@ -4,7 +4,7 @@
 
 
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
-
+with Input_Sources.File; 	use Input_Sources.File;-- handle unicode input files
 package Aw_Config.Text_Parsers is
 
 	type Parser is new Aw_Config.Parser_Interface with private record;
@@ -41,8 +41,10 @@ package Aw_Config.Text_Parsers is
 
 	private
 
+	type String_Access;
+
 	type Parser is new Parser with record
-		File: File_Type;
+		File: File_Input;
 		Current_Key, Current_Element: Unbounded_String;
 	end record;
 
