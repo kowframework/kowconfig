@@ -4,10 +4,12 @@
 
 
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
-with Input_Sources.File; 	use Input_Sources.File;-- handle unicode input files
+
+with Ada.Text_IO;		use Ada.Text_IO;
+
 package Aw_Config.Text_Parsers is
 
-	type Parser is new Aw_Config.Parser_Interface with private record;
+	type Parser is new Aw_Config.Parser_Interface with private;
 
 
 	procedure Prepare(	P: in out Parser;
@@ -34,18 +36,19 @@ package Aw_Config.Text_Parsers is
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
 	
-	function Get_File_Name( P: in Parser; Original: in String ) return Unbounded_String;
+	function Get_File_Name( P: in Parser; Original: in String ) return String;
 	-- returns the filename Original with expected extension
 	-- ie, Original & ".cfg" in case of Text Parser
 
 
 	private
 
-	type String_Access;
+	type String_Access is access String;
 
-	type Parser is new Parser with record
-		File: File_Input;
-		Current_Key, Current_Element: Unbounded_String;
+	type Parser is new Aw_Config.Parser_Interface with record
+		File: File_Type;
+		File_Name: String_Access;
+		Current_Key, Current_Element, Current_Section: Unbounded_String;
 	end record;
 
 end Aw_Config.Text_Parsers;
