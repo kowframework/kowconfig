@@ -1,8 +1,9 @@
 -- parser for plain text/properties file
 --
 -- @author Marcelo Coraça de Freitas <marcelo.batera@gmail.com>
--- @createdAt 2007-02-02
--- @lastUpdate
+
+
+with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 
 package Aw_Config.Text_Parsers is
 
@@ -24,16 +25,16 @@ package Aw_Config.Text_Parsers is
 	-- everytime Key and Value are called
 
 
-	function Key( P: in Parser ) return String;
+	function Key( P: in Parser ) return Unbounded_String;
 	-- return the key of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
-	function Element( P: in Parser ) return String;
+	function Element( P: in Parser ) return Unbounded_String;
 	-- return the value of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
 	
-	function Get_File_Name( P: in Parser; Original: in String ) return String;
+	function Get_File_Name( P: in Parser; Original: in String ) return Unbounded_String;
 	-- returns the filename Original with expected extension
 	-- ie, Original & ".cfg" in case of Text Parser
 
@@ -41,7 +42,8 @@ package Aw_Config.Text_Parsers is
 	private
 
 	type Parser is new Parser with record
-		-- TODO: definir as propriedades do parser
+		File: File_Type;
+		Current_Key, Current_Element: Unbounded_String;
 	end record;
 
 end Aw_Config.Text_Parsers;

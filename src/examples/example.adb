@@ -9,6 +9,9 @@ package body Example is
 
 	procedure Run_Example( P: in Parser_Access ) is
 		-- run a test
+
+		Config: Config_File;
+
 	begin
 
 		Add_Config_Path( "./data" );
@@ -34,6 +37,16 @@ package body Example is
 
 		New_Line;
 
+		Database_Information( Config );
+
+		New_Line;
+		Put_Line( "If you didn't see any error message untill now it should be running fine" );
+	end Run_Example;
+
+	procedure Database_Information( Config: in out Config_File ) is
+		-- this procedure has no idea of where the config file is
+		-- and what parser was used to treat it
+	begin
 		Put_Line( "Section => ""Database"" " );
 		Set_Section( Config, "Database" );
 		Put_Line( "     host     => " & To_String( Element( Config, "host" ) ) );
@@ -43,7 +56,5 @@ package body Example is
 		Put_Line( "     engine   => " & To_String( Element( Config, "engine" ) ) );
 
 
-		New_Line;
-		Put_Line( "If you didn't see any error message untill now it should be running fine" );
-	end Run_Example;
+	end Database_Information;
 end Example;
