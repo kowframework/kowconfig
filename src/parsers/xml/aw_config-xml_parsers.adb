@@ -126,9 +126,8 @@ package body Aw_Config.Xml_Parsers is
 					);
 		else
 			-- just in case SAX isn't validating
-			Raise_Syntax_Error(	To_String( Handler.File_Name ),
-						0,
-						"Parse Error: " & Local_Name);	
+			Raise_Syntax_Error(	File_Name => To_String( Handler.File_Name ),
+						Message   => "Parse Error: """ & Local_Name & """ is not a valid element");	
 		end if;
 	end Start_Element;
 	

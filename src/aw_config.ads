@@ -67,7 +67,8 @@ package Aw_Config is
 	------------------------
 
 	procedure Raise_Syntax_Error(	File_Name: in String;
-					Line_Number: in Natural;
+					Line_Number: in Natural := 0;
+					Column_Number: in Natural := 0;
 					Message: in String );
 	-- Raise SYNTAX_ERROR exception with message composed by:
 	-- "["& File_Name &":"&Line_Number & "] " & Message

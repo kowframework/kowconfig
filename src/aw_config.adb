@@ -27,12 +27,21 @@ package body Aw_Config is
 	------------------------
 
 	procedure Raise_Syntax_Error(	File_Name: in String;
-					Line_Number: in Natural;
+					Line_Number: in Natural := 0;
+					Column_Number: in Natural := 0;
 					Message: in String ) is
 		-- Raise SYNTAX_ERROR exception with message composed by:
 		-- "["& File_Name &":"&Line_Number & "] " & Message
+		msg: Unbounded_String := To_Unbounded_String( "[" & File_Name );
 	begin
-		Ada.Exceptions.Raise_Exception( SYNTAX_ERROR'Identity, "[" & File_Name & ":" & Integer'Image(Line_Number) & "] " & Message );
+		if Line_Number /= 0 then
+			Append( msg, ":" & Integer'Image( Line_Number ) );
+			if Column_Number /= 0 then
+				Append( msg, ":" & Integer'Image( Column_Number ) );
+			end if;
+		end if;
+		Append( msg, "] " & Message );
+		Ada.Exceptions.Raise_Exception( SYNTAX_ERROR'Identity, To_String( msg ) );
 	end Raise_Syntax_Error;
 
 
