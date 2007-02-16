@@ -11,7 +11,7 @@ project AwConfig.Parsers is
 	-- Decide what parsers to build
 	type Yes_No is ( "YES", "NO" );
 
-	Xml_Parser: Yes_No := external( "XML_PARSER", "YES" );
+	Xml_Parser: Yes_No := external( "XML_PARSER", "NO" );
 	Text_Parser: Yes_No := external( "TEXT_PARSER", "YES" );
 
 

@@ -5,6 +5,9 @@ with Aw_Config;			use Aw_Config;
 with Ada.Text_IO;		use Ada.Text_IO;
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 
+
+with Aw_Lib.UString_Ordered_Maps;	use Aw_Lib.UString_Ordered_Maps;
+
 package body Example is
 
 	procedure Run_Example( P: in Parser_Access ) is
@@ -12,12 +15,29 @@ package body Example is
 
 		Config: Config_File;
 
+
+
+		procedure iterator( C: in Cursor ) is
+		begin
+			Put_Line( To_String( Key( C ) ) & " ==> " & To_String( Element( C ) ) );
+		end iterator;
+
 	begin
 
 		Add_Config_Path( "./data" );
 
 		Put_Line( "Loading config file... " );
 		Config := New_Config_File( "config", P );
+
+		New_Line;
+
+		Put_Line( "Dumping all the data:" );
+
+		New_Line;
+
+		Iterate( Get_Contents_Map( Config ), Iterator'Access );
+
+		New_Line;
 
 
 		Put_Line( "Fetching information" );
@@ -41,6 +61,8 @@ package body Example is
 
 		New_Line;
 		Put_Line( "If you didn't see any error message untill now it should be running fine" );
+
+		
 	end Run_Example;
 
 	procedure Database_Information( Config: in out Config_File ) is
