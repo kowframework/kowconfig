@@ -1,0 +1,9 @@
+=== INSTALLATION ==
+
+This target isn't ready yet but the installation procedure is quite simple.
+  1. Copy the contents of src/**/*.ads to the \"include\" folder.
+  2. Copy the contents of lib/*.{ali,so,-VERSION_NUMBER} to the \"lib\" folder
+
+
+With this you can compile fine using the -L and -I options in GNAT.
+
