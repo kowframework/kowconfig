@@ -31,5 +31,5 @@ project AwConfig.Text_Parser is
 	end Compiler;
 
 
-end AwConfig.Text_Parsers;
+end AwConfig.Text_Parser;
 
