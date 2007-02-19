@@ -3,6 +3,7 @@
 # @author Marcelo Coraça de Freitas <marcelo.batera@gmail.com> 
 
 
+APP=.:../awlib
 
 ################
 # Main targets #
@@ -10,7 +11,7 @@
 all: tests
 
 base:
-	ADA_PROJECT_PATH=.:../awlib gnatmake -P awconfig.gpr
+	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig.gpr
 
 clean: 
 	@-rm bin/* lib/* obj/*
