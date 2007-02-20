@@ -45,7 +45,14 @@ package Aw_Config.Text_Parsers is
 
 	type String_Access is access String;
 
+	type File_Blocks is ( B_NONE, B_SECTION, B_KEY, B_ELEMENT );
+	-- represents the known structures in the file
+
 	type Parser is new Aw_Config.Parser_Interface with record
+		First_Key_Value_Pair: Boolean := True;
+		-- controls if it's the 1st pair to be read
+		Current_Block: File_Blocks := B_NONE;
+		C: Character;
 		File: File_Type;
 		File_Name: String_Access;
 		Current_Key, Current_Element, Current_Section: Unbounded_String;

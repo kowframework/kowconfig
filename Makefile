@@ -4,6 +4,7 @@
 
 
 APP=.:../awlib
+TCP=$(PWD)/data	
 
 ################
 # Main targets #
@@ -32,10 +33,10 @@ install:
 ##################
 
 text-parser: base
-	ADA_PROJECT_PATH=.:../awlib gnatmake -P awconfig-text_parser.gpr
+	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig-text_parser.gpr
 	
 xml-parser: base
-	ADA_PROJECT_PATH=.:../awlib gnatmake -P awconfig-xml_parser.gpr `xmlada-config`
+	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig-xml_parser.gpr `xmlada-config`
 
 parsers: text-parser xml-parser
 
@@ -46,10 +47,10 @@ parsers: text-parser xml-parser
 #################
 
 text-test: text-parser
-	ADA_PROJECT_PATH=.:../awlib gnatmake -P awconfig-text_test.gpr
+	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig-text_test.gpr
 
 xml-test: xml-parser
-	ADA_PROJECT_PATH=.:../awlib gnatmake -P awconfig-xml_test.gpr
+	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig-xml_test.gpr
 
 tests: text-test xml-test
 
@@ -58,11 +59,11 @@ tests: text-test xml-test
 #####################
 
 run-xml: tests
-	TEST_CONFIG_PATH=$(PWD)/data ./bin/xml-test
+	TEST_CONFIG_PATH=${TCP} ./bin/xml_test
 
 
-run-plain: tests
-	TEST_CONFIG_PATH=$(PWD)/data ./bin/plain-test
+run-text: tests
+	TEST_CONFIG_PATH=${TCP} ./bin/text_test
 
 run: run-xml run-plain
 

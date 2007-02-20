@@ -24,7 +24,9 @@ package body Example is
 
 	begin
 
-		Add_Config_Path( "./data" );
+		-- Add_Config_Path( "./data" );
+		-- you could use Add_Config_Path too. But I'm using project config path:
+		Set_Project_Name( "TEST" );
 
 		Put_Line( "Loading config file... " );
 		Config := New_Config_File( "config", P );

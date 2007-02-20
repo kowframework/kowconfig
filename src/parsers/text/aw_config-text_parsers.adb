@@ -11,6 +11,8 @@ with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 with Ada.Characters.Latin_1;	use Ada.Characters.Latin_1;
 
 
+with Ada.Text_IO; use Ada.text_IO;
+
 package body Aw_Config.Text_Parsers is
 
 	procedure Prepare(	P: in out Parser;
@@ -56,21 +58,14 @@ package body Aw_Config.Text_Parsers is
 		SPACE: Character := Character'Val(32);
 		NEW_LINE: Character := Character'Val(10);
 
-		type File_Blocks is ( B_NONE, B_SECTION, B_KEY, B_ELEMENT );
-		-- represents the known structures in the file
-		Current_Block: File_Blocks := B_NONE;
-
-		C: Character; -- current char
 		
-		Line: Positive := 1;
-		-- count the current line
-		Column: Positive := 1;
-		-- count the current column
-
 
 
 		Finished_Key_Value_Pair: Boolean := False;
 		-- controls if we've finished reading this value pair
+		Possible_End_Of_Element: Boolean := False;
+		-- controls when a " char is read if it's the end of Element
+		-- block
 
 
 		--------------------------------------------
@@ -79,63 +74,49 @@ package body Aw_Config.Text_Parsers is
 
 		function Is_White_Space return boolean is
 		begin
-			return C  = NEW_LINE or C = TAB;
+			return P.C  = NEW_LINE or P.C = TAB;
 		end Is_White_Space;
 
 		procedure Raise_Unexpected_Character is
 		begin
 			
 			Raise_Syntax_Error(	File_Name => P.File_Name.all,
-						Line_Number => Line,
-						Column_Number => Column,
-						Message => "''" & C & "'' not expected here" );
+						Line_Number => Integer( Line( P.File ) ),
+						Column_Number => Integer( Col( P.File ) ),
+						Message => "''" & P.C & "'' not expected here" );
 		end Raise_Unexpected_Character;
 
 		procedure Raise_Unexpected_Line_Break is
 		begin
 			
 			Raise_Syntax_Error(	File_Name => P.File_Name.all,
-						Line_Number => Line,
-						Column_Number => Column,
+						Line_Number => Integer( Line( P.File ) ),
+						Column_Number => Integer( Col( P.File ) ),
 						Message => "unexpected end of line" );
 		end Raise_Unexpected_Line_Break;
 
 		procedure Raise_Unexpected_EOF is
 		begin
 			Raise_Syntax_Error(	File_Name => P.File_Name.all,
-						Line_Number => Line,
-						Column_Number => Column,
+						Line_Number => Integer( Line( P.File ) ),
+						Column_Number => Integer( Line( P.File ) ),
 						Message => "unexpected end of file" );
 		end Raise_Unexpected_EOF;
 
 
-		function Next_Line return Boolean is
+		procedure Next_Line is
 			-- continue 'till the next line 
-			-- and set the counters
-			-- if there is a next like return true
-			-- if not return false
+			Str: String := Get_Line( P.File );
+			-- Get_Line return String is an Ada2005 function
 		begin
-			while C /= NEW_LINE loop
-				-- look for next line break
-				Get( P.File, C );
-			end loop;
-
-			Line := Line + 1;
-			Column := 1;
-			-- check if this isn't a blank line:
-
-			Get( P.File, C );
-			-- gets the 1st char on the line
-
-			return true;
+			null;
 		end Next_Line;
 
 
 		procedure Next_Char is
 			-- walk to the next char and increment the counter
 		begin
-			Get( P.File, C );
-			Column := Column + 1;
+			Get( P.File, P.C );
 		end Next_Char;
 
 
@@ -145,31 +126,6 @@ package body Aw_Config.Text_Parsers is
 		-- INTERNAL PROCEDURES --
 		-------------------------
 
-		procedure Find_Next_Block is
-			-- look for a next block start doing nothing in the meantime
-			-- when the next block is found update it.
-		begin
-			if ( C = NEW_LINE OR C = '#' ) AND not Next_Line then
-				-- check if it's a new line or a comment
-				-- if it is and the file got an EOF, return without error
-				return;
-			elsif Is_White_Space  then
-				-- ignore blank spaces
-				return;
-			elsif C = '[' then
-				-- checks if it's a new section mark
-				P.Current_Section := Null_Unbounded_String;
-				Current_Block := B_SECTION;
-			elsif C = ']' OR C = ''' OR C = '"' then
-				-- checks if it's an invalid section closing mark
-				-- if it's a " or a ' too
-				Raise_Unexpected_Character;
-			else
-				-- if it's any other caracter we've just entered into a key block ;)
-				P.Current_Key := To_Unbounded_String( "" & C );
-				Current_Block := B_KEY;
-			end if;
-		end Find_Next_Block;
 
 
 
@@ -177,9 +133,9 @@ package body Aw_Config.Text_Parsers is
 		procedure Read_Section is
 			-- read a section block and set P.Current_Section
 		begin
-				if C = '#' OR C = '"' OR C = ''' OR C = '[' OR C = NEW_LINE then
+				if P.C = '#' OR P.C = '"' OR P.C = ''' OR P.C = '[' then
 					Raise_Unexpected_Character;
-				elsif C = ']' then
+				elsif P.C = ']' then
 
 					Trim( P.Current_Section, Both );
 					if P.Current_Section = "" then
@@ -189,31 +145,39 @@ package body Aw_Config.Text_Parsers is
 					Append( P.Current_Section, '.' );
 					-- we do this for better performance
 
-					Current_Block := B_NONE;
+					P.Current_Block := B_NONE;
+					-- set block to none and continue
 				else
 					-- all set, let's do it. :)
-					Append( P.Current_Section, C );
+					Append( P.Current_Section, P.C );
 				end if;
 		end Read_Section;
 
 		procedure Read_Key is
 			-- reads a key block and set P.Current_Key
 		begin
-			if C = '#' OR C = ''' OR C = '"' OR C = '.' OR C = '[' OR C = ']' OR C = NEW_LINE then
+			if	End_Of_Line( P.File)	OR 
+				P.C = '#'			OR
+				P.C = '''			OR
+				P.C = '"'			OR
+				P.C = '.'			OR
+				P.C = '['			OR
+				P.C = ']'
+			then
 				Raise_Unexpected_Character;
-			elsif C = '=' then
+			elsif P.C = '=' then
 				-- start of the Element block
 				Trim( P.Current_Key, Both );
-				Current_Block := B_ELEMENT;
+				P.Current_Block := B_ELEMENT;
 				Next_Char;
-				while C /= '"' loop
-					if not Is_White_Space AND C /= '"' then
+				while P.C /= '"' loop
+					if not Is_White_Space AND P.C /= '"' then
 						Raise_Unexpected_Character;
 					end if;
 					Next_Char;
 				end loop;
 			else
-				Append( P.Current_Key, C );
+				Append( P.Current_Key, P.C );
 			end if;
 		end Read_Key;
 
@@ -221,21 +185,64 @@ package body Aw_Config.Text_Parsers is
 		procedure Read_Element is
 			-- reads an Element block
 		begin
-			if C = '"' then
-				Next_Char;
-				if C = '"' then
-					-- check if it's a "" mark
-					Append( P.Current_Element, C );
-				else
-					-- if it got here it's not a "" mark. :D
-					Current_Block := B_NONE;
-					Finished_Key_Value_Pair := TRUE;
-				end if;
+			if P.C = '"' then
+				Possible_End_Of_Element := TRUE;
+				-- so Find_Nex_Block will see if it's the end of 
+				-- Element block or not.
+				P.Current_Block := B_NONE;
 			else
-				-- we just add all other value to the Element
-				Append( P.Current_Element, C );
+				Append( P.Current_Element, P.C );
+				-- the value is appended even it's the final "
 			end if;
 		end Read_Element;
+
+
+		procedure Find_Next_Block is
+			-- look for a next block start doing nothing in the meantime
+			-- when the next block is found update it.
+		begin
+
+			if Possible_End_Of_Element then
+				if P.C = '"' then
+					P.Current_Block := B_ELEMENT;
+					-- it's part of the element.
+					Append( P.Current_Element, P.C );
+					-- and append the " to Current_Element.
+					return;
+					-- and return to main looping so I can continue fetching array and stuff. :D
+				else
+					Possible_End_Of_Element := FALSE;
+					-- it's the end of the element. ;)
+					-- look for the block we are and stuff. :D
+					Finished_Key_Value_Pair := TRUE;
+					P.First_Key_Value_Pair := FALSE;
+					-- and continue checking where I am.
+				end if;
+			end if;
+
+
+			if  P.C = '#'  then
+				-- if it's comment...
+				Next_Line;
+			elsif Is_White_Space  then
+				-- ignore blank spaces
+				return;
+			elsif P.C = '[' then
+				-- checks if it's a new section mark
+				P.Current_Block := B_SECTION;
+			elsif P.C = ']' OR P.C = ''' OR P.C = '"' then
+				-- checks if it's an invalid section closing mark
+				-- if it's a " or a ' too
+				Raise_Unexpected_Character;
+			else
+				-- if it's any other caracter we've just entered into a key block ;)
+				P.Current_Block := B_KEY;
+				if P.Current_Key = Null_Unbounded_String then
+					-- if the key is empty, meaning it's a new key
+					Read_Key;
+				end if;
+			end if;
+		end Find_Next_Block;
 
 
 	begin
@@ -244,12 +251,27 @@ package body Aw_Config.Text_Parsers is
 		P.Current_Element := Null_Unbounded_String;
 		-- Reset the value
 
-
-		while NOT Finished_Key_Value_Pair loop
+		if P.First_Key_Value_Pair then
+			-- reads the first char or skip the [ in a section start
 			Next_Char;
-			case Current_Block is
-				when B_NONE => 
-					-- when I'm not reading a section, neither key and neither a value
+		elsif P.Current_Block = B_SECTION then
+			-- should empty the current section and read the 1st char
+			P.Current_Section := Null_Unbounded_String;
+			Next_Char;
+		end if;
+
+		loop
+			Put_Line( 	P.C &
+					" => " &
+					File_Blocks'Image( P.Current_Block )  &
+					"  //  " & 
+					To_String( P.Current_Section ) &
+					To_String( P.Current_Key ) &
+					" => " &
+					To_String( P.Current_Element ) );
+
+			case P.Current_Block is
+				when B_NONE =>
 					Find_Next_Block;
 				when B_SECTION =>
 					Read_Section;
@@ -259,13 +281,17 @@ package body Aw_Config.Text_Parsers is
 					Read_Element;
 			end case;
 
+			exit when Finished_Key_Value_Pair;
+
+			Next_Char;
 		end loop;
+
 
 	exception
 		when End_Error =>
 			P.Current_Key := Null_Unbounded_String;
 			P.Current_Element := Null_Unbounded_String;
-			if Current_Block /= B_NONE then
+			if P.Current_Block /= B_NONE then
 				Raise_Unexpected_EOF;
 			end if;
 	end Next;
@@ -278,7 +304,9 @@ package body Aw_Config.Text_Parsers is
 			raise CONSTRAINT_ERROR;
 		end if;
 
+		Put_Line( To_String( P.Current_Section & P.Current_Key ) );
 		return P.Current_Section & P.Current_Key;
+
 	end Key;
 
 	function Element( P: in Parser ) return Unbounded_String is
@@ -300,7 +328,6 @@ package body Aw_Config.Text_Parsers is
 	begin
 		return  Original &  ".cfg";
 	end Get_File_Name;
-
 
 end Aw_Config.Text_Parsers;
 	
