@@ -39,9 +39,11 @@ package body Aw_Config.Xml_Parsers is
 		P.My_Reader.File_Name := To_Unbounded_String( File_Name );
 		Open( File_Name, F );
 		-- now we remove the features we don't want from XMLAda:
-		Set_Feature( P.My_Reader, Namespace_Prefixes_feature, False);
-		Set_Feature( P.My_Reader, Namespace_Feature, False);
-		Set_Feature( P.My_Reader, Validation_Feature, False);
+		Set_Feature( P.My_Reader, Namespace_Prefixes_feature, True);
+		Set_Feature( P.My_Reader, Namespace_Feature, True);
+
+		-- this will force the file to be validated
+		Set_Feature( P.My_Reader, Validation_Feature, True);
 		
 		-- Now we parse the damn file using our Reader:
 		Parse( P.My_Reader, F );

@@ -1,3 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+
+<!--
+There is no DOCTYPE here because Aw_Config is validating the document by itself.
+It's a simple document and there is no need to a DTD or a Schema definition.
+
+One is planned in the future, but not now (other priorities)!
+
+// -->
 
 <config>
 	<section name="Main Section">
