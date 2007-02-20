@@ -11,7 +11,6 @@ with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 with Ada.Characters.Latin_1;	use Ada.Characters.Latin_1;
 
 
-with Ada.Text_IO; use Ada.text_IO;
 
 package body Aw_Config.Text_Parsers is
 
@@ -55,7 +54,6 @@ package body Aw_Config.Text_Parsers is
 		-- and calls Finish( P );
 
 		TAB: Character := Character'Val(9);
-		SPACE: Character := Character'Val(32);
 		NEW_LINE: Character := Character'Val(10);
 
 		
@@ -74,7 +72,7 @@ package body Aw_Config.Text_Parsers is
 
 		function Is_White_Space return boolean is
 		begin
-			return P.C  = NEW_LINE or P.C = TAB;
+			return P.C  = NEW_LINE or P.C = TAB or P.C = ' ';
 		end Is_White_Space;
 
 		procedure Raise_Unexpected_Character is
@@ -226,7 +224,8 @@ package body Aw_Config.Text_Parsers is
 				Next_Line;
 			elsif Is_White_Space  then
 				-- ignore blank spaces
-				return;
+				Next_Char;
+				Find_Next_Block;
 			elsif P.C = '[' then
 				-- checks if it's a new section mark
 				P.Current_Block := B_SECTION;
@@ -251,8 +250,8 @@ package body Aw_Config.Text_Parsers is
 		P.Current_Element := Null_Unbounded_String;
 		-- Reset the value
 
-		if P.First_Key_Value_Pair then
-			-- reads the first char or skip the [ in a section start
+		if P.First_Key_Value_Pair or P.C = '"' then
+			-- reads the first char or skip the " that represents the ending of the last element
 			Next_Char;
 		elsif P.Current_Block = B_SECTION then
 			-- should empty the current section and read the 1st char
@@ -261,14 +260,6 @@ package body Aw_Config.Text_Parsers is
 		end if;
 
 		loop
-			Put_Line( 	P.C &
-					" => " &
-					File_Blocks'Image( P.Current_Block )  &
-					"  //  " & 
-					To_String( P.Current_Section ) &
-					To_String( P.Current_Key ) &
-					" => " &
-					To_String( P.Current_Element ) );
 
 			case P.Current_Block is
 				when B_NONE =>
@@ -289,9 +280,10 @@ package body Aw_Config.Text_Parsers is
 
 	exception
 		when End_Error =>
-			P.Current_Key := Null_Unbounded_String;
-			P.Current_Element := Null_Unbounded_String;
+			-- if this End_Error came before reading the key
+			-- then it's the expected EOF. Nothing to do here.
 			if P.Current_Block /= B_NONE then
+				-- if it's not expected...
 				Raise_Unexpected_EOF;
 			end if;
 	end Next;
@@ -304,7 +296,6 @@ package body Aw_Config.Text_Parsers is
 			raise CONSTRAINT_ERROR;
 		end if;
 
-		Put_Line( To_String( P.Current_Section & P.Current_Key ) );
 		return P.Current_Section & P.Current_Key;
 
 	end Key;
