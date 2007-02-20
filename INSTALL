@@ -1,3 +1,43 @@
+
+-----------------
+- 1 -  BUILDING -
+-----------------
+
+
+When building this library from source you'll get new files in:
+	./obj	=> where the object files are built. It's for internal use of the compiler
+	./lib	=> where the shared libraries will be linked.
+	./bin	=> where the example programs will be linked.
+
+For more information, please read the following sections.
+
+--------------------
+- 1.1 Dependencies -
+--------------------
+
+To build this library you'll need:
+ * awlib sources. They should be in a folder called "../awlib".
+ * GNAT >= 4.1.1.
+ 	- the only supported compiler is GNAT-GCC 4.1.1 but it should work fine with GNAT-GPL
+	and GNAT-PRO.
+
+ * XML/Ada - the command xmlada-config got to be in the path.
+ 	- required only when using XML based configuration files.
+
+
+---------------------------
+- 1.2 Building everything -
+---------------------------
+
+This is the easiest and recomended way for new users. Just type:
+
+$ make
+
+In the root of this source distribution. The libraries and .ali files can be found in ./lib and the example programs should be in ./bin.
+
+=== RUNNING ===
+To run the example programs that come with this distribution
+
 === INSTALLATION ==
 
 This target isn't ready yet but the installation procedure is quite simple.
