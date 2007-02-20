@@ -191,6 +191,9 @@ package body Aw_Config.Text_Parsers is
 			else
 				Append( P.Current_Element, P.C );
 				-- the value is appended even it's the final "
+				if End_of_Line( P.File ) then
+					Append( P.Current_Element, NEW_LINE );
+				end if;
 			end if;
 		end Read_Element;
 
