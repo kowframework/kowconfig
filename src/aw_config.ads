@@ -8,6 +8,9 @@
 
 
 
+-- $date$
+-- $log$
+
 
 -- Ada Packages
 with Ada.Containers.Ordered_Maps;
