@@ -4,6 +4,7 @@
 --
 -- author Marcelo C. de Freitas <marcelo.batera@gmail.com>
 --
+-- Repository information:
 -- $Date$
 -- $Revision$
 -- $Author$
@@ -11,10 +12,6 @@
 
 
 
-------------------
--- Change Log : --
-------------------
--- $log$
 
 
 -- Ada Packages
@@ -219,3 +216,12 @@ private
 	end record;
 
 end Aw_Config;
+
+
+
+
+
+------------------
+-- Change Log : --
+------------------
+-- $Log$
