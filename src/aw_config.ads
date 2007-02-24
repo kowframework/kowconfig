@@ -3,7 +3,7 @@
 -- visible procedures and functions.
 --
 -- author Marcelo C. de Freitas <marcelo.batera@gmail.com>
---
+-- 
 -- Repository information:
 -- $Date$
 -- $Revision$
