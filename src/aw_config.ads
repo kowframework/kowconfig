@@ -3,8 +3,10 @@
 -- visible procedures and functions.
 --
 -- author Marcelo C. de Freitas <marcelo.batera@gmail.com>
+--
 -- $Date$
--- $Rev$ by $Author$
+-- $Revision$
+-- $Author$
 
 
 
@@ -12,7 +14,7 @@
 ------------------
 -- Change Log : --
 ------------------
--- $log $
+-- $log$
 
 
 -- Ada Packages
