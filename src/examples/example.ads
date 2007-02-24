@@ -1,3 +1,11 @@
+-- Example on how to use Aw_Config
+--
+-- author Marcelo Coraça de Freitas <marcelo.batera@gmail.com> 
+--
+-- Repository information:
+-- $Date$
+-- $Revision$
+-- $Author$
 
 
 

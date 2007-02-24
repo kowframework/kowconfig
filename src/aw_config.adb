@@ -4,7 +4,12 @@
 --
 -- author Marcelo C. de Freitas <marcelo.batera@gmail.com>
 -- createdAt 2007-01-25
--- lastUpdate 2007-02-01
+--
+-- Repository information:
+-- $Date$
+-- $Revision$
+-- $Author$
+
 
 
 

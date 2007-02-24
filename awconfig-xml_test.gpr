@@ -1,7 +1,14 @@
-
--- GNAT Project file for AW_config
+-- This is the AwConfig XML tests GNAT Project file.
 --
--- @author Marcelo Coraça de Freitas <marcelo.batera@gmail.com> 
+-- author Marcelo Coraça de Freitas <marcelo.batera@gmail.com> 
+--
+-- Repository information:
+-- $Date$
+-- $Revision$
+-- $Author$
+
+
+
 
 with "awconfig.gpr";
 with "awconfig-xml_parser.gpr";

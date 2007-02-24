@@ -1,6 +1,12 @@
--- parser for plain text/properties file
+-- parser for plain text/properties files
 --
--- @author Marcelo Coraça de Freitas <marcelo.batera@gmail.com>
+-- author Marcelo Coraça de Freitas <marcelo.batera@gmail.com>
+--
+-- Repository information:
+-- $Date$
+-- $Revision$
+-- $Author$
+
 
 
 

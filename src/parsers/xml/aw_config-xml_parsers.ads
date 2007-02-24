@@ -1,8 +1,13 @@
 -- parser for XML file
 --
--- @author Marcelo Coraça de Freitas <marcelo.batera@gmail.com>
--- @createdAt 2007-02-03
--- @lastUpdate
+-- author Marcelo Coraça de Freitas <marcelo.batera@gmail.com>
+-- createdAt 2007-02-03
+--
+-- Repository information:
+-- $Date$
+-- $Revision$
+-- $Author$
+
 
 
 
