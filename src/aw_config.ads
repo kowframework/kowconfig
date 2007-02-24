@@ -10,10 +10,6 @@
 -- $Author$
 
 
-
-
-
-
 -- Ada Packages
 with Ada.Containers.Ordered_Maps;
 with Ada.Containers.Vectors;
@@ -216,12 +212,3 @@ private
 	end record;
 
 end Aw_Config;
-
-
-
-
-
-------------------
--- Change Log : --
-------------------
--- $Log$
