@@ -17,6 +17,7 @@ with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 
 -- XML/Ada Packages
 with Sax.Attributes;
+with Sax.Exceptions;
 with Sax.Readers;
 with Unicode.CES;
 
@@ -95,6 +96,11 @@ private
 	procedure Characters
 		(Handler: in out Reader;
 		Ch	: Unicode.CES.Byte_Sequence);	
+
+
+	procedure Fatal_Error
+		(Handler: in out Reader;
+		 Except : Sax.Exceptions.Sax_Parse_Exception'Class);
 
 
 

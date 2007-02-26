@@ -14,10 +14,13 @@
 -- Ada Packages
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 with Ada.Characters.Handling;
+with Ada.Exceptions;
+
 
 -- XML/Ada Packages
 with Input_Sources.File;
 with Sax.Attributes;
+with Sax.Exceptions;
 with Sax.Readers;		
 with Unicode.CES;
 
@@ -58,6 +61,11 @@ package body Aw_Config.Xml_Parsers is
 
 
 		P.My_Cursor := First( P.My_Reader.Values );
+--	exception
+--		when SAX.READERS.XML_FATAL_ERROR =>
+			-- as the user doesn't have to know anything about the XML parser
+			-- we are using, we have to deal with this raising our own
+			-- exception (Aw_Config.Syntax_Error exception)
 	end Prepare;
 
 	procedure Finish( P: in out Parser ) is 
@@ -168,5 +176,45 @@ package body Aw_Config.Xml_Parsers is
 		Handler.Current_Value := Handler.Current_Value & Ch;
 		null;
 	end Characters;
+
+	procedure Fatal_Error
+		(Handler: in out Reader;
+		 Except : Sax.Exceptions.Sax_Parse_Exception'Class) is
+		
+		-- the next few lines is to format the message using Aw_Config' standards.
+		-- it's probably not the best way of doing this, but it works. :D
+
+		use Aw_Lib.UString_Vectors;
+
+		Values: Vector := Aw_Lib.String_Util.Explode( ':', String( Sax.Exceptions.Get_Message( Except ) ) );
+
+		Size: Natural := 0;
+		Line: Natural := 0;
+		Col: Natural;
+		Err: Unbounded_String;
+	begin
+		begin
+			Size := Natural( Length( Values ) );
+			Line := Natural'Value( To_String( Element( Values, Size - 3 ) ) );
+			Col  := Natural'Value( To_String( Element( Values, Size - 2 ) ) );
+			Err  := Element( Values, Size - 1);
+			
+		exception
+			when CONSTRAINT_ERROR =>
+				-- then I couldn't split the data as expected
+				Raise_Syntax_Error(
+					File_Name     => To_String( Handler.File_Name ),
+					Message        => "Unkown SAX Error"
+					);
+		end;
+
+		Raise_Syntax_Error(
+			File_Name     => To_String( Handler.File_Name ),
+			Line_Number   => Line,
+			Column_Number => Col,
+			Message       => To_String( Err )
+			);
+	end Fatal_Error;
+
 end Aw_Config.Xml_Parsers;
 	
