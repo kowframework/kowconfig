@@ -12,6 +12,9 @@
 
 with "awconfig.gpr";
 
+--with "xmlada.gpr";
+with "/usr/lib/ada/i686-pc-linux-gnu-gnat-gcc-4.2/gpr/xmlada.gpr";
+
 project AwConfig.Xml_Parser is
 
 	Version := AwConfig.Version;

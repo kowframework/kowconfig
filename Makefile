@@ -36,7 +36,7 @@ text-parser: base
 	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig-text_parser.gpr
 	
 xml-parser: base
-	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig-xml_parser.gpr `xmlada-config`
+	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig-xml_parser.gpr
 
 parsers: text-parser xml-parser
 
