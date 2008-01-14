@@ -35,7 +35,7 @@ project AwConfig.Text_Parser is
 	end Builder;
 	
 	package Compiler is
-		for Default_Switches ("ada") use ("-O2", "-gnat05");
+		for Default_Switches ("ada") use ("-O2", "-gnat05", "-fPIC");
 	end Compiler;
 
 

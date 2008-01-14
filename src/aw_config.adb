@@ -14,11 +14,10 @@
 
 
 with Ada.Containers.Ordered_Maps;
+with Ada.Environment_Variables;
 with Ada.Exceptions;
-
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 
-with Aw_Lib.Env_Vars;
 with Aw_Lib.File_System;
 with Aw_Lib.String_Util;
 with Aw_Lib.UString_Vectors;
@@ -90,7 +89,7 @@ package body Aw_Config is
 		use Aw_Lib.String_Util;
 	begin
 		Config_Path := Aw_Lib.File_System.To_Vector (
-			Aw_Lib.Env_Vars.Value(
+			Ada.Environment_Variables.Value(
 				Str_Replace( ' ', '_', To_String( Project_Name ) ) &
 				"_CONFIG_PATH" 	)
 				);

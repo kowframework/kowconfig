@@ -1,0 +1,121 @@
+V "GNAT Lib v4.2"
+A -O2
+A -gnat05
+A -gnatA
+P SS ZX
+R nnnnnnnnnnnnnnnvnvnnnvvvnnnnnvnnnnnnvnvnnnnnnnnnnnnnnvnnnnnnnnnnnnnnnnnn
+
+U example%b		example.adb		70d4f73d NE PK
+W ada%s			ada.ads			ada.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+W aw_config%s		aw_config.adb		aw_config.ali
+W aw_lib%s		aw_lib.ads		aw_lib.ali
+W aw_lib.ustring_ordered_maps%s  aw_lib-ustring_ordered_maps.ads  aw_lib-ustring_ordered_maps.ali
+W system%s		system.ads		system.ali
+W system.finalization_implementation%s  s-finimp.adb  s-finimp.ali
+W system.finalization_root%s  s-finroo.adb	s-finroo.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+W system.soft_links%s	s-soflin.adb		s-soflin.ali
+W system.standard_library%s  s-stalib.adb	s-stalib.ali
+W system.storage_elements%s  s-stoele.adb	s-stoele.ali
+W system.string_ops%s	s-strops.adb		s-strops.ali
+W system.string_ops_concat_3%s  s-sopco3.adb	s-sopco3.ali
+
+U example%s		example.ads		1ca3194f EE NE PK
+W aw_config%s		aw_config.adb		aw_config.ali
+
+D ada.ads		20080114014811 9c7dd3ea
+D a-charac.ads		20080114014814 506ce725
+D a-chlat1.ads		20080114014807 3078abae
+D a-contai.ads		20080114014814 7b35f559
+D a-coorma.ads		20080114014809 3f5f52fc
+D a-crbltr.ads		20080114014812 3ec6743e
+D a-convec.ads		20080114014808 fcdc05b1
+D a-except.ads		20080114014811 d9ccb28d
+D a-finali.ads		20080114014811 2f48e141
+D a-filico.ads		20080114014810 9299732a
+D a-ioexce.ads		20080114014811 be0900a0
+D a-stream.ads		20080114014808 74337d1b
+D a-string.ads		20080114014814 87b4230b
+D a-strmap.ads		20080114014809 0b90abe7
+D a-strunb.ads		20080114014812 3aeb20e9
+D a-tags.ads		20080114014814 81dd2f9c
+D a-tags.adb		20080114014814 9bcd7865
+D a-textio.ads		20080114014812 bc58c967
+D aw_config.ads		20080111004351 44e886cd
+D aw_lib.ads		20080111004355 f529e8dc
+D aw_lib-ustring_ordered_maps.ads  20080111004355 63a492d7
+D aw_lib-ustring_vectors.ads  20080111004355 c2bb3ed5
+D example.ads		20080111004351 584b9f82
+D example.adb		20080111004351 8960952b
+D interfac.ads		20080114014808 a69cad5c
+D i-cstrea.ads		20080114014811 85085d90
+D system.ads		20080114014813 f14ecda8
+D s-crtl.ads		20080114014814 d74e5b9d
+D s-exctab.ads		20080114014811 e14b1567
+D s-ficobl.ads		20080114014810 ed792749
+D s-finimp.ads		20080114014809 33c39bf7
+D s-finroo.ads		20080114014812 6f410d48
+D s-htable.ads		20080114014809 9598cfa4
+D s-parame.ads		20080114014811 6bd7b874
+D s-secsta.ads		20080114014809 db466d0c
+D s-soflin.ads		20080114014811 677820d8
+D s-stache.ads		20080114014808 07e06d0a
+D s-stalib.ads		20080114014811 99eda53f
+D s-stoele.ads		20080114014814 f7e9ab3e
+D s-stoele.adb		20080114014814 a397f9ca
+D s-stratt.ads		20080114014809 63715cfd
+D s-strops.ads		20080114014809 92e79914
+D s-sopco3.ads		20080114014809 14cc5bf6
+D s-sopco4.ads		20080114014809 dca7f27b
+D s-sopco5.ads		20080114014809 63c5ad18
+D s-traent.ads		20080114014812 9950c76b
+D s-unstyp.ads		20080114014813 b399198a
+D s-wchcon.ads		20080114014813 1705b980
+D s-wchstw.ads		20080114014808 6b782940
+D unchconv.ads		20080114014814 34860a55
+X 1 ada.ads
+16K9*Ada 19e8 24|14r6 14r37 15r6 15r37
+X 5 a-coorma.ads
+52R9*Map
+54R9*Cursor 24|29r43[21|15]
+68V13*Key{15|44R9} 24|31r46[21|15]
+70V13*Element{15|44R9} 24|31r80[21|15]
+172U14*Iterate 24|49r17[21|15]
+X 13 a-string.ads
+16K13*Strings 35e16 24|15r10 15r41
+X 15 a-strunb.ads
+41K21*Unbounded 435e26 24|15w18 15r49
+64V13*To_String{string} 24|31r35 31r69 60r57 61r57 67r57 85r49 86r49 87r49
+. 88r49 89r49
+X 18 a-textio.ads
+49K13*Text_IO 451e16 24|14w10 14r41
+167U14*New_Line 24|43r17 47r17 51r17 56r17 63r17 69r17 73r17
+264U14*Put_Line 24|31r25 40r17 45r17 54r17 58r17 60r17 61r17 65r17 67r17
+. 74r17 83r17 85r17 86r17 87r17 88r17 89r17
+X 19 aw_config.ads
+24K9*Aw_Config 214e14 23|12w6 12r21 24|13w6 13r37
+32R14*Config_File 212e19 23|23r56 24|25r25 79r56
+38P14*Parser_Access(35R14) 23|19r38 24|22r38
+82U19*Set_Project_Name 24|38r17
+120V18*New_Config_File{32R14} 24|41r27
+133U19*Set_Section 24|59r17 66r17 84r17
+157V18*Element{15|44R9} 24|60r68 61r68 67r68 85r60 86r60 87r60 88r60 89r60
+164V18*Get_Contents_Map{5|52R9[21|15]} 24|49r26
+X 20 aw_lib.ads
+12K9*Aw_Lib 14e11 24|18r6 18r45
+X 21 aw_lib-ustring_ordered_maps.ads
+15K16*UString_Ordered_Maps[5|47] 24|18w13 18r52
+X 23 example.ads
+17K9*Example 28l5 28e12 24|20b14 93l5 93t12
+19U19*Run_Example 19>32 24|22b19 77l13 77t24
+19p32 P{19|38P14} 24|22b32 41r54
+23U19 Database_Information 23=41 24|71r17 79b19 92l13 92t33
+23r41 Config{19|32R14} 24|79b41 84m30 85r69 86r69 87r69 88r69 89r69
+X 24 example.adb
+25r17 Config{19|32R14} 41m17 49r44 59m30 60r77 61r77 66m30 67r77 71m39
+29U27 iterator 29b27 29>37 32l21 32t29 49r54
+29r37 C{5|54R9[21|15]} 31r51 31r89
+
