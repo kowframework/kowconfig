@@ -1,21 +1,21 @@
 # Makefile for the AW_Config
 #
-# @author Marcelo Coraça de Freitas <marcelo@kow.com.br>
+# @author Marcelo Coraça de Freitas <marcelo.batera@gmail.com> 
 
 
-ADA_PROJECT_PATH=.:../awlib
+APP=.:../awlib
 TCP=$(PWD)/data	
 
 ################
 # Main targets #
 ################
-all: libs
+all: tests
 
-libs:
-	ADA_PROJECT_PATH=${ADA_PROJECT_PATH} gnatmake -P awconfig.gpr
+base:
+	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig.gpr
 
 clean: 
-	ADA_PROJECT_PATH=${ADA_PROJECT_PATH} gnatclean -P awconfig.gpr
+	@-rm bin/* lib/* obj/*
 	@echo "All clean"
 
 docs:
@@ -26,4 +26,45 @@ install:
 	@cat INSTALL
 # TODO: implement the install target	
 # FIXME: I should create gpr files to be included by other projects.
+
+
+##################
+# Parser Targets #
+##################
+
+text-parser: base
+	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig-text_parser.gpr
+	
+xml-parser: base
+	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig-xml_parser.gpr `xmlada-config`
+
+parsers: text-parser xml-parser
+
+
+
+#################
+# Tests Targets #
+#################
+
+text-test: text-parser
+	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig-text_test.gpr
+
+xml-test: xml-parser
+	ADA_PROJECT_PATH=${APP} gnatmake -P awconfig-xml_test.gpr `xmlada-config`
+
+tests: text-test xml-test
+
+#####################
+# Run-Tests Targets #
+#####################
+
+run-xml: tests
+	TEST_CONFIG_PATH=${TCP} ./bin/xml_test
+
+
+run-text: tests
+	TEST_CONFIG_PATH=${TCP} ./bin/text_test
+
+run: run-xml run-plain
+
 
