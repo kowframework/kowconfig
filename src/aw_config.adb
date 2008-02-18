@@ -148,7 +148,7 @@ package body Aw_Config is
 				return;
 			end if;
 
-			F.File_Name := Element( C ) & '/';
+			F.File_Name := Element( C ) & Separator;
 			F.File_Name := F.File_Name & To_Unbounded_String( Get_File_Name( P.all, N ) );
 
 			if Is_File( To_String( F.File_Name ) ) then
