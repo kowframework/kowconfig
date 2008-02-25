@@ -14,6 +14,7 @@
 
 
 with Ada.Containers.Ordered_Maps;
+with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Exceptions;
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
@@ -151,11 +152,16 @@ package body Aw_Config is
 			F.File_Name := Element( C ) & Separator;
 			F.File_Name := F.File_Name & To_Unbounded_String( Get_File_Name( P.all, N ) );
 
-			if Is_File( To_String( F.File_Name ) ) then
-				F.My_Parser := P;
-				FOUND_IT := TRUE;
-				-- tell the main unit that we've found a winner! :)
-			end if;
+			declare
+				use Ada.Directories;
+				S_File_Name: String := To_String( F.File_Name );
+			begin
+				if Exists( S_File_Name ) AND Kind( S_File_Name ) = Ordinary_File then
+					F.My_Parser := P;
+					FOUND_IT := TRUE;
+					-- tell the main unit that we've found a winner! :)
+				end if;
+			end;
 		end Path_Iterator;
 
 	begin
