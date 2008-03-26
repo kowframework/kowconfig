@@ -3,8 +3,6 @@
 # @author Marcelo Coraça de Freitas <marcelo@kow.com.br>
 
 
-ADA_PROJECT_PATH=.:../awlib
-TCP=$(PWD)/data	
 
 ################
 # Main targets #
@@ -12,10 +10,10 @@ TCP=$(PWD)/data
 all: libs
 
 libs:
-	ADA_PROJECT_PATH=${ADA_PROJECT_PATH} gnatmake -P awconfig.gpr
+	gnatmake -P awconfig.gpr
 
 clean: 
-	ADA_PROJECT_PATH=${ADA_PROJECT_PATH} gnatclean -P awconfig.gpr
+	gnatclean -P awconfig.gpr
 	@echo "All clean"
 
 docs:
