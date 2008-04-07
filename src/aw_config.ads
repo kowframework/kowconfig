@@ -13,20 +13,17 @@
 -- Ada Packages
 with Ada.Containers.Ordered_Maps;
 with Ada.Containers.Vectors;
-
-with Ada.Strings.Wide_Unbounded;	use Ada.Strings.Wide_Unbounded;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
 
-with Aw_Lib.Wide_String_Util;
-with Aw_Lib.String_Util;
-
+-- ALOS Packages
 with Aw_Lib.UString_Vectors;
 with Aw_Lib.UString_Ordered_Maps;
-with Aw_Lib.UWide_String_Vectors;
-with Aw_Lib.UWide_String_Ordered_Maps;
+
 
 
 package Aw_Config is
+
+
 
 	-----------------------
 	-- Types Declaration --
@@ -133,42 +130,40 @@ package Aw_Config is
 	-- Methods for Config Iteration --
 	----------------------------------
 
-
-	procedure Set_Section( F: in out Config_File; S: in Wide_String );
+	procedure Set_Section( F: in out Config_File; S: in String );
 	pragma Inline( Set_Section );
 	-- set the current section of the config file.
 
-	procedure Set_Section( F: in out Config_File; S: in Unbounded_Wide_String );
+	procedure Set_Section( F: in out Config_File; S: in Unbounded_String );
 	pragma Inline( Set_Section );
 	-- set the current section of the config file.
-	
 
-	function Get_Section( F: in Config_File ) return Wide_String;
+	function Get_Section( F: in Config_File ) return String;
 	pragma Inline( Get_Section );
 	-- return the current section or "" if there is no section active
-	
-	function Get_Section( F: in Config_File ) return Unbounded_Wide_String;
+
+	function Get_Section( F: in Config_File ) return Unbounded_String;
 	pragma Inline( Get_Section );
 	-- return the current section or "" if there is no section active
-	
 
-	function Element( F: Config_File; Key: Unbounded_Wide_String ) return Unbounded_Wide_String;
+
+	function Element( F: Config_File; Key: Unbounded_String ) return Unbounded_String;
 	-- return the value of element inside the current section with
 	-- key Key
 	-- if no current section active, return propertie relative
 	-- to root section; ie expects Key to be of the form "sectionName.key"
 
 
-	function Element( F:Config_File; Key: Wide_String ) return Unbounded_Wide_String;
+	function Element( F:Config_File; Key: String ) return Unbounded_String;
 	-- return the value of element inside the current section with
 	-- key Key
 	-- if no current section active, return propertie relative
 	-- to root section; ie expects Key to be of the form "sectionName.key"
 
 
-	function Get_Contents_Map( F: in Config_File ) return Aw_Lib.UWide_String_Ordered_Maps.Map;
+	function Get_Contents_Map( F: in Config_File ) return Aw_Lib.UString_Ordered_Maps.Map;
 	Pragma Inline( Get_Contents_Map );
-	-- return an ordered map of Unbounded_Wide_String => Unbounded_Wide_String
+	-- return an ordered map of Unbounded_String => Unbounded_String
 	-- with all keys respecting the pattern "section.subSection.key"
 
 
@@ -190,11 +185,11 @@ package Aw_Config is
 	-- if not prepare the parser to return CONSTRAINT_ERROR
 	-- everytime Key and Value are called
 
-	function Key( P: in Parser_Interface ) return Unbounded_Wide_String is abstract;
+	function Key( P: in Parser_Interface ) return Unbounded_String is abstract;
 	-- return the key of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
-	function Element( P: in Parser_Interface ) return Unbounded_Wide_String is abstract;
+	function Element( P: in Parser_Interface ) return Unbounded_String is abstract;
 	-- return the value of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
@@ -211,8 +206,8 @@ private
 
 	type Config_File is record
 		File_Name: Unbounded_String;
-		Current_Section: Unbounded_Wide_String;
-		Contents: Aw_Lib.UWide_String_Ordered_Maps.Map;
+		Current_Section: Unbounded_String;
+		Contents: Aw_Lib.UString_Ordered_Maps.Map;
 		My_Parser: Parser_Access;
 	end record;
 
