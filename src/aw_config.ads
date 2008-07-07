@@ -42,7 +42,7 @@ with Ada.Containers.Ordered_Maps;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
 
--- ALOS Packages
+-- Aw_Lib Packages
 with Aw_Lib.UString_Vectors;
 with Aw_Lib.UString_Ordered_Maps;
 
@@ -87,6 +87,10 @@ package Aw_Config is
 
 	NO_PARSER: Exception;
 	-- when there is no parser set and it's trying to access config files
+
+	NOT_MY_FILE: Exception;
+	-- when the file passed to the parser is not his responsability
+
 
 	------------------------
 	-- Exception Handling --
@@ -142,7 +146,14 @@ package Aw_Config is
 	-- File handling --
 	-------------------
 
-	function New_Config_File( N: in String; P: in Parser_Access ) return Config_File;
+
+	function Scan_Relative_Path( Relative_Path : in String; P: in Parser_Access) return AW_Lib.UString_Ordered_Maps.Map;
+	-- Scan a given relative path within the Config_Path for the project.
+	-- Return all the config files found without the extension, indexed by
+	-- their relative name (inside the relative path) without the extension.
+
+
+	function New_Config_File( N: in String; P: in Parser_Access; Is_Complete_Path: Boolean := False ) return Config_File;
 	-- opens a new config file that will be handled by the parser P
 	-- read it's contents and return an object representing it.
 	-- the file is closed right after it've been read
@@ -222,6 +233,9 @@ package Aw_Config is
 	-- returns the filename Original with expected extension
 	-- ie, Original & ".cfg" in case of Text Parser
 
+	function File_To_Config_Name( P: in Parser_Interface; File_Name: in String ) return String is abstract;
+	-- Convert the file name to a config name.
+	-- Raises NOT_MY_FILE if it's not a supported config file
 
 private
 

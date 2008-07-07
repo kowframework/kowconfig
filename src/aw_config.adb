@@ -35,12 +35,13 @@
 -- Here you'll find the types you should use in your application and all    -- 
 -- visible procedures and functions.                                        --
 ------------------------------------------------------------------------------
-
+with ada.text_io;
 
 with Ada.Containers.Ordered_Maps;
 with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Exceptions;
+with Ada.IO_Exceptions;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
 
 with Aw_Lib.File_System;
@@ -51,6 +52,7 @@ with Aw_Lib.UString_Ordered_Maps;
 package body Aw_Config is
 
 
+	procedure pl(str: in string) renames ada.text_io.put_line;
 	------------------------
 	-- Exception Handling --
 	------------------------
@@ -147,7 +149,133 @@ package body Aw_Config is
 	-- File handling --
 	-------------------
 
-	function New_Config_File( N: in String; P: in Parser_Access ) return Config_File is
+
+	function Scan_Relative_Path( Relative_Path : in String; P: in Parser_Access ) return AW_Lib.UString_Ordered_Maps.Map is
+		-- Scan a given relative path within the Config_Path for the project.
+		-- Return all the config files found without the extension.
+		
+		use Ada.Directories;
+		My_Map: Aw_Lib.UString_Ordered_Maps.Map;
+
+
+		-- the 1 is for the directory separator
+		Current_Root_Path_Length: Positive;
+		Current_Root_With_Relative_Path_Length: Positive;
+
+		function Get_Config_Name( Name: in String ) return Unbounded_String is
+			First: Integer := Name'First + Current_Root_With_Relative_Path_Length;
+		begin
+			return To_Unbounded_String(
+				Name( First .. Name'Last )
+				);
+		end Get_Config_Name;
+
+		function Get_Relative_Path( Absolute_Path: in String ) return Unbounded_String is
+			New_First : Integer := Absolute_Path'First + Current_Root_Path_Length + 1;
+			Last      : Integer := Absolute_Path'Last;
+		begin
+			return To_Unbounded_String(
+				Absolute_Path( New_First .. Last )
+				);
+		end Get_Relative_Path;
+
+		procedure Check_File( Path: in String ) is
+		begin
+			declare
+				Name: String := File_To_Config_Name(
+					P.all,
+					Path );
+				Config_Name	: Unbounded_String := Get_Config_Name( Name );
+				Relative_Path	: Unbounded_String := Get_Relative_Path( Name );
+			begin
+				Aw_Lib.UString_Ordered_Maps.Include(
+					My_Map,
+					Config_Name,
+					Relative_Path
+					);
+			end;
+		exception
+			when NOT_MY_FILE => null;
+		end Check_File;
+
+
+	
+		Filter : Filter_Type := (	Directory	=> true,
+						Ordinary_File	=> true,
+						Special_File	=> false );
+
+		procedure Process_Search( Directory_Entry : Directory_Entry_Type );
+
+		procedure Search( Directory: in String ) is
+		begin
+			Search(	Directory	=> Directory,
+				Pattern		=> "*",
+				Filter		=> Filter,
+				Process		=> Process_Search'Access );
+		exception
+			when ADA.IO_EXCEPTIONS.NAME_ERROR => null;
+		end Search;
+
+
+		To_Scan_Path : Aw_Lib.UString_Vectors.Vector;
+
+		procedure Process_Search( Directory_Entry : Directory_Entry_Type ) is
+		begin
+			if Kind( Directory_Entry ) = Ordinary_File then
+				-- if it's a regular file, check and tries to append it to the result
+				Check_File( Full_Name( Directory_Entry ) );
+			elsif Kind( Directory_Entry ) = Directory then
+				-- append to a to-scan line
+				if	Simple_Name( Directory_Entry ) /= "."
+					AND 
+					Simple_Name( Directory_Entry ) /= ".."
+					then
+					Aw_Lib.UString_Vectors.Append( To_Scan_Path, To_Unbounded_String( Full_Name( Directory_Entry ) ) );
+				end if;
+			end if;
+		end Process_Search;
+
+		procedure Path_Iterator( C : Aw_Lib.UString_Vectors.Cursor ) is
+			use Aw_Lib.UString_Vectors;
+			use Aw_Lib.File_System;
+			use Ada.Directories;
+
+			Current_Root_Path : String := Full_Name( To_String( Element( C ) ) );
+			Current_Root_With_Relative_Path: String :=  Full_Name( 
+				Current_Root_Path	&
+				Separator		&
+				Relative_Path );
+		begin
+			Current_Root_Path_Length := Current_Root_Path'Length;
+			Current_Root_With_Relative_Path_Length := Current_Root_With_Relative_Path'Length;
+			
+			Append(
+				To_Scan_Path,
+				To_Unbounded_String(
+					 Current_Root_Path & Separator & Relative_Path
+					)
+				);
+
+			while not Is_Empty( To_Scan_Path ) loop
+				Search( To_String( First_Element( To_Scan_Path ) ) );
+				Delete_First( To_Scan_Path );
+			end loop;
+
+		end Path_Iterator;
+
+		use Aw_Lib.UString_Vectors;
+		use Ada.Containers;
+
+	begin
+
+		Iterate( 	Config_Path,
+				Path_Iterator'Access );
+	
+		return My_Map;
+	end Scan_Relative_Path;
+
+
+	function New_Config_File( N: in String; P: in Parser_Access; Is_Complete_Path: Boolean := False ) return Config_File is
 		-- opens a new config file that will be handled by parser P
 		-- read it's contents and return an object representing it.
 		-- the file is closed right after it've been read
@@ -166,6 +294,10 @@ package body Aw_Config is
 		FOUND_IT: Boolean := FALSE;
 		-- controls if it did find the file already
 
+
+
+		File_Name : Unbounded_String;
+
 		-- Iteractors:
 		procedure Path_Iterator( C: Aw_Lib.UString_Vectors.Cursor ) is
 		begin
@@ -174,7 +306,7 @@ package body Aw_Config is
 			end if;
 
 			F.File_Name := Element( C ) & Separator;
-			F.File_Name := F.File_Name & To_Unbounded_String( Get_File_Name( P.all, N ) );
+			F.File_Name := F.File_Name & File_Name;
 
 			declare
 				use Ada.Directories;
@@ -192,7 +324,12 @@ package body Aw_Config is
 		if Is_Empty( Config_Path ) then
 			raise NO_CONFIG_PATH;
 		end if;
-						
+		
+		if Is_Complete_Path then
+			File_Name := To_Unbounded_String( N );
+		else
+			File_Name := To_Unbounded_String( Get_File_Name( P.all, N ) );
+		end if;
 		
 		Iterate( Config_Path, Path_Iterator'Access );
 		-- iterate over the config path looking for the file
