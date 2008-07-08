@@ -151,6 +151,13 @@ package Aw_Config is
 	-- Scan a given relative path within the Config_Path for the project.
 	-- Return all the config files found without the extension, indexed by
 	-- their relative name (inside the relative path) without the extension.
+	
+	type Iterator_Type is access procedure( Name: in String; Config: in out Config_File );
+	procedure Iterate(	Map	: in Aw_Lib.UString_Ordered_Maps.Map;
+				P	: in Parser_Access; 
+				Iterator: in Iterator_Type );
+	-- Iterate over the elements returned by Scan_Relative_Path.
+	-- The parameters are the initialized config file and the config name within the relative_path parameter
 
 
 	function New_Config_File( N: in String; P: in Parser_Access; Is_Complete_Path: Boolean := False ) return Config_File;

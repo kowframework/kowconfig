@@ -275,6 +275,33 @@ package body Aw_Config is
 	end Scan_Relative_Path;
 
 
+	procedure Iterate(	Map	: in Aw_Lib.UString_Ordered_Maps.Map;
+				P	: in Parser_Access; 
+				Iterator: in Iterator_Type 
+				) is
+		-- Iterate over the elements returned by Scan_Relative_Path.
+		-- The parameters are the initialized config file and the config name within the relative_path parameter
+
+
+		use Aw_Lib.UString_Ordered_Maps;
+		
+		procedure Inner_Iterator( C: in Cursor ) is
+			Config: Config_File := New_Config_File( 
+				To_String( Element( C ) ),
+				P );
+
+		begin
+			Iterator.all(
+				Name	=> To_String( Key( C ) ),
+				Config	=> Config
+				);
+		end Inner_Iterator;
+	begin
+		Iterate( Map, Inner_Iterator'Access );
+	end Iterate;
+
+
+
 	function New_Config_File( N: in String; P: in Parser_Access; Is_Complete_Path: Boolean := False ) return Config_File is
 		-- opens a new config file that will be handled by parser P
 		-- read it's contents and return an object representing it.
@@ -317,6 +344,8 @@ package body Aw_Config is
 					FOUND_IT := TRUE;
 					-- tell the main unit that we've found a winner! :)
 				end if;
+			exception
+				when Ada.IO_Exceptions.Name_Error => null;
 			end;
 		end Path_Iterator;
 
