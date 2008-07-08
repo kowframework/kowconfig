@@ -275,9 +275,9 @@ package body Aw_Config is
 	end Scan_Relative_Path;
 
 
-	procedure Iterate(	Map	: in Aw_Lib.UString_Ordered_Maps.Map;
-				P	: in Parser_Access; 
-				Iterator: in Iterator_Type 
+
+	procedure Generic_Iterate(	Map	: in Aw_Lib.UString_Ordered_Maps.Map;
+					P	: in Parser_Access 
 				) is
 		-- Iterate over the elements returned by Scan_Relative_Path.
 		-- The parameters are the initialized config file and the config name within the relative_path parameter
@@ -291,14 +291,14 @@ package body Aw_Config is
 				P );
 
 		begin
-			Iterator.all(
+			Path_Iterator(
 				Name	=> To_String( Key( C ) ),
 				Config	=> Config
 				);
 		end Inner_Iterator;
 	begin
 		Iterate( Map, Inner_Iterator'Access );
-	end Iterate;
+	end Generic_Iterate;
 
 
 
