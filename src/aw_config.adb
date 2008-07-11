@@ -467,18 +467,32 @@ package body Aw_Config is
 		-- This is so when the user tries to reload the config an exception is
 		-- raised
 
+
+		function Get_Calculated_Prefix return String is
+		begin
+			if F.Current_Section = "" then
+				return Prefix;
+			else
+				return To_String( F.Current_Section ) & '.' & Prefix;
+			end if;
+		end Get_Calculated_Prefix;
+
+		Calculated_Prefix : String := Get_Calculated_Prefix;
+
 		procedure Iterator( C: in Cursor ) is
 			Value: String  := To_String( Key( C ) );
 			First: Integer := Value'First;
-			Last : Integer := Value'First + Prefix'Length - 1;
+			Last : Integer := Value'First + Calculated_Prefix'Length - 1;
 		begin
-			if Value( First .. Last ) = Prefix then
+			if Value( First .. Last ) = Calculated_Prefix then
 				Include(
 					My_File.Contents,
 					To_Unbounded_String( Value( Last + 1 .. Value'Last ) ),
 					Element( C )
 					);
 			end if;
+		exception
+			when CONSTRAINT_ERROR => null;
 		end Iterator;
 	begin
 		Iterate( F.Contents, Iterator'Access );
