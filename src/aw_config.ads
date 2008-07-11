@@ -34,6 +34,11 @@
 -- This is the main AwConfig package.                                       --
 -- Here you'll find the types you should use in your application and all    --
 -- visible procedures and functions.                                        --
+--                                                                          --
+--                                                                          --
+-- Notice that, even though it has been taken in consideration, there is no --
+-- big concern in efficiency (which can be noted in the Elements_Array meth. --
+--                                                                          --
 ------------------------------------------------------------------------------
 
 
@@ -56,6 +61,9 @@ package Aw_Config is
 
 	type Config_File is private;
 	-- represents the configuration file
+	
+	type Config_File_Array is Array( Positive range<> ) of Config_File;
+	-- one array of config files
 
 	type Parser_Interface is abstract tagged limited null record;
 	-- every parser got to derive from this type
@@ -198,11 +206,27 @@ package Aw_Config is
 	-- to root section; ie expects Key to be of the form "sectionName.key"
 
 
-	function Element( F:Config_File; Key: String ) return Unbounded_String;
+	function Element( F: Config_File; Key: String ) return Unbounded_String;
 	-- return the value of element inside the current section with
 	-- key Key
 	-- if no current section active, return propertie relative
 	-- to root section; ie expects Key to be of the form "sectionName.key"
+
+	function Extract( F: Config_File; Prefix: Unbounded_String ) return Config_File;
+	-- return a new config file with the data prefixed by the give prefix
+
+	function Extract( F: Config_File; Prefix: String ) return Config_File;
+	-- return a new config file with the data prefixed by the give prefix
+
+	function Elements_Array( F: Config_File; Key: Unbounded_String ) return Config_File_Array;
+	-- return an array with elements withing the category named by:
+	-- (THE_CURRENT_CATEGORY).Key.INDEX
+	-- where INDEX starts with 1.
+
+	function Elements_Array( F: Config_File; Key: String ) return Config_File_Array;
+	-- return an array with elements withing the category named by:
+	-- (THE_CURRENT_CATEGORY).Key.INDEX
+	-- where INDEX starts with 1.
 
 
 	function Get_Contents_Map( F: in Config_File ) return Aw_Lib.UString_Ordered_Maps.Map;

@@ -42,6 +42,7 @@ with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Exceptions;
 with Ada.IO_Exceptions;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
 
 with Aw_Lib.File_System;
@@ -446,6 +447,89 @@ package body Aw_Config is
 	end Element;
 
 
+
+	function Extract( F: Config_File; Prefix: Unbounded_String ) return Config_File is
+		-- return a new config file with the data prefixed by the give prefix
+	begin
+		return Extract( F, To_String( Prefix ) );
+	end Extract;
+
+	function Extract( F: Config_File; Prefix: String ) return Config_File is
+		-- return a new config file with the data prefixed by the give prefix
+		
+		
+		use Aw_Lib.UString_Ordered_Maps;
+		
+		My_File: Config_File;
+		-- Notice this config file won't have any special property except for the
+		-- data it will extract from the given file.
+		--
+		-- This is so when the user tries to reload the config an exception is
+		-- raised
+
+		procedure Iterator( C: in Cursor ) is
+			Value: String  := To_String( Key( C ) );
+			First: Integer := Value'First;
+			Last : Integer := Value'First + Prefix'Length - 1;
+		begin
+			if Value( First .. Last ) = Prefix then
+				Include(
+					My_File.Contents,
+					To_Unbounded_String( Value( Last + 1 .. Value'Last ) ),
+					Element( C )
+					);
+			end if;
+		end Iterator;
+	begin
+		Iterate( F.Contents, Iterator'Access );
+
+		return My_File;
+	end Extract;
+
+	function Elements_Array( F: Config_File; Key: Unbounded_String ) return Config_File_Array is
+		-- return an array with elements withing the category named by:
+		-- (THE_CURRENT_CATEGORY).Key.INDEX
+		-- where INDEX starts with 1.
+	begin
+		return Elements_Array( F, To_String( Key ) );
+	end Elements_Array;
+
+
+	function Elements_Array( F: Config_File; Key: String ) return Config_File_Array is
+		-- return an array with elements withing the category named by:
+		-- (THE_CURRENT_CATEGORY).Key.INDEX
+		-- where INDEX starts with 1.
+
+		use Ada.Containers;
+		use Aw_Lib.UString_Ordered_Maps;
+		function Iterator( Index: in Positive ) return Config_File_Array is
+
+			function Get_Index return String is
+				Ret: String := Integer'Image( Index );
+				
+				use Ada.Strings;
+				use Ada.Strings.Fixed;
+			begin
+				return Trim( Ret, BOTH );
+			end Get_Index;
+
+
+			My_Key: String := key & '.' & Get_Index & '.' ;
+			My_Config: Config_File := Extract( F, My_Key );
+			Empty: Config_File_Array( 2 .. 1 );
+
+		begin
+
+			if Aw_Lib.UString_Ordered_Maps.Length( My_Config.Contents ) > 0 then
+				return  My_Config & Iterator( Index + 1 );
+			else
+				return Empty;
+			end if;
+		end Iterator;
+		
+	begin
+		return Iterator( 1 );
+	end Elements_Array;
 
 	function Get_Contents_Map( F: in Config_File ) return Aw_Lib.UString_Ordered_Maps.Map is
 	-- return an ordered map of Unbounded_String => Unbounded_String
