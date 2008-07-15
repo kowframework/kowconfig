@@ -177,6 +177,11 @@ package Aw_Config is
 	procedure Reload_Config( F: in out Config_File );
 	-- (re)load the configuration from the file
 
+	function Get_File_Name( F: in Config_File ) return String;
+	-- return the file name used for this config file.
+
+	procedure Dump_Contents( Config: in Aw_Config.Config_File );
+	-- dumps the contents map into the std out
 
 	----------------------------------
 	-- Methods for Config Iteration --

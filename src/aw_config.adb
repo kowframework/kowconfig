@@ -292,10 +292,14 @@ package body Aw_Config is
 				P );
 
 		begin
-			Path_Iterator(
-				Name	=> To_String( Key( C ) ),
-				Config	=> Config
-				);
+			declare
+				My_Key : Unbounded_String := Aw_Lib.UString_Ordered_Maps.Key( C );
+			begin
+				Path_Iterator(
+					Name	=> To_String( My_Key ),
+					Config	=> Config
+					);
+			end;
 		end Inner_Iterator;
 	begin
 		Iterate( Map, Inner_Iterator'Access );
@@ -392,6 +396,31 @@ package body Aw_Config is
 			-- the file has reached the end
 			Finish( F.My_Parser.all );
 	end Reload_Config;
+
+
+	function Get_File_Name( F: in Config_File ) return String is
+		-- return the file name used for this config file.
+	begin
+		return To_String( F.File_Name );
+	end Get_File_Name;
+
+	procedure Dump_Contents( Config: in Aw_Config.Config_File ) is
+		-- dumps the contents map into the std out
+		use Ada.Text_IO;
+		use Aw_Lib.UString_Ordered_Maps;
+		procedure My_Iterator( C: in Aw_Lib.UString_Ordered_Maps.Cursor ) is
+		begin
+			Put( To_String( Key( C ) ) );
+			Put( " => " );
+			Put( To_String( Element( C ) ) );
+			New_Line;
+		end My_Iterator;
+	begin
+		Iterate(
+			Aw_Config.Get_Contents_Map( Config ),
+			My_Iterator'Access
+		);
+	end Dump_Contents;
 
 
 	----------------------------------
