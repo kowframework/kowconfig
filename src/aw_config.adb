@@ -562,14 +562,13 @@ package body Aw_Config is
 			Empty: Config_File_Array( 2 .. 1 );
 
 		begin
-
+			My_Config.File_Name := F.File_Name & To_Unbounded_String( ":" & Key );
 			if Aw_Lib.UString_Ordered_Maps.Length( My_Config.Contents ) > 0 then
 				return  My_Config & Iterator( Index + 1 );
 			else
 				return Empty;
 			end if;
 		end Iterator;
-		
 	begin
 		return Iterator( 1 );
 	end Elements_Array;
