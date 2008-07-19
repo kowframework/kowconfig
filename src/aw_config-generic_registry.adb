@@ -6,6 +6,7 @@
 --
 
 with Ada.Containers.Ordered_Maps;
+with Ada.Exceptions;
 with Ada.Text_IO;
 
 --
@@ -107,7 +108,16 @@ package body Aw_Config.Generic_Registry is
 
 			Factory := Factory_Registry.Get( Factory_Type );
 
-			Element := Factory.all( Name, Config );
+			begin
+				Element := Factory.all( Name, Config );
+			exception
+				when e : others =>
+					Ada.Text_IO.Put_Line(	
+						Ada.Text_IO.Standard_Error,
+						"Exception while processing the factory '" & Factory_Type & "'"
+						);
+					Ada.Exceptions.Reraise_Occurrence( e );
+			end;
 
 			Element_Maps.Include(
 				My_Map,
