@@ -1,17 +1,14 @@
-
-
-
---
--- Ada2005
---
+-------------
+-- Ada2005 --
+-------------
 
 with Ada.Containers.Ordered_Maps;
 with Ada.Exceptions;
 with Ada.Text_IO;
 
---
--- AdaWorks
---
+--------------
+-- AdaWorks --
+--------------
 
 with Aw_Config;
 with Aw_Lib;
@@ -26,7 +23,7 @@ package body Aw_Config.Generic_Registry is
 
 	protected body Factory_Registry is
 		-- Registro de Factories
-		-- Nota: ao criar o registro de elementos (ver Regitry a seguir) esse registro é usado
+		-- Nota: ao criar o registro de elementos (ver Registry a seguir) esse registro é usado
 		-- A factory a ser chamada depende do parâmetro de configuração "type".
 		-- Assim que a factory é localizada, 
 
@@ -34,13 +31,24 @@ package body Aw_Config.Generic_Registry is
 			-- Registra um novo factory
 			F_Type: Unbounded_String := To_Unbounded_String( Factory_Type );
 		begin
-			if Factory_Maps.Contains( My_Map, F_Type ) then
-				raise Duplicated_Factory with Factory_Type;
-			elsif Factory = Null then
-				raise Constraint_Error with Factory_Type &"'s factory is null!";
-			end if;
+			if F_Type /= Null_Unbounded_String then
+				if Factory_Maps.Contains( My_Map, F_Type ) then
+					raise DUPLICATED_FACTORY_TYPE with 
+						"Trying to add duplicated Factory_Type " &
+						Factory_Type & ", in map whose Relative_Path is " &
+						Relative_Path & ".";
+				elsif Factory = Null then
+					raise CONSTRAINT_ERROR with "Trying to register Factory_Type " &
+						 Factory_Type  & "with null factory " &
+						"in map whose Relative_Path is " & Relative_Path & ".";
+				end if;
 
-			Factory_Maps.Insert( My_Map, F_Type, Factory );
+				Factory_Maps.Insert( My_Map, F_Type, Factory );
+			else
+				raise INVALID_FACTORY_TYPE with 
+					"Trying to add Null_Unbounded_String Factory_Type " &
+					"in map whose Relative_Path is " & Relative_Path & "." ;
+			end if;
 		end Register;
 
 		function Get( Factory_Type: in String ) return Element_Factory is
@@ -53,7 +61,10 @@ package body Aw_Config.Generic_Registry is
 			-- Pega o factory informado.
 		begin
 			if not Factory_Maps.Contains( My_Map, Factory_Type ) then
-				raise CONSTRAINT_ERROR with "Invalid Factory Type :: " & To_String( Factory_Type );
+				raise CONSTRAINT_ERROR with "Factory_Type " &
+					To_String( Factory_Type ) &
+					" doesn't exist in map whose Relative_Path is " &
+					Relative_Path & ".";
 			end if;
 
 			return Factory_Maps.Element( My_Map, Factory_Type );
@@ -66,7 +77,8 @@ package body Aw_Config.Generic_Registry is
 
 	procedure Reload_Registry is
 		-- escaneia o diretório informado e recria o registro
-		Config_Map : Aw_Lib.UString_Ordered_Maps.Map := Aw_Config.Scan_Relative_Path( Relative_Path => Relative_Path, P => Parser );
+		Config_Map : Aw_Lib.UString_Ordered_Maps.Map := 
+			Aw_Config.Scan_Relative_Path( Relative_Path => Relative_Path, P => Parser );
 	begin
 		Path_Iterate( Config_Map, Parser );
 	end Reload_Registry;
@@ -82,13 +94,13 @@ package body Aw_Config.Generic_Registry is
 			function Get_Type return String is
 				My_Type: Unbounded_String;
 			begin
-				My_Type := Aw_Config.Element( Config, "type" );
+				My_Type := Aw_Config.Get_Compulsory_UString( Config, "type" );
 				return To_String( My_Type );
 			exception
 				when CONSTRAINT_ERROR =>
 					Aw_Config.Dump_Contents( Config );
 					raise CONSTRAINT_ERROR with 
-						"Tipo não declarado na configuração """
+						"Type didn't declare in configuration """
 						& Name 
 						& "@"
 						& Aw_Config.Get_File_Name( Config )
@@ -103,7 +115,10 @@ package body Aw_Config.Generic_Registry is
 			Element_Name	: Unbounded_String := To_Unbounded_String( Name );
 		begin
 			if Element_Maps.Contains( My_Map, Element_Name ) then
-				raise DUPLICATED_ELEMENT with Name;
+				raise DUPLICATED_ELEMENT with 
+					"Detected duplicated element " &
+					To_String(Element_Name) & " in " &
+					Aw_Config.Get_File_Name( Config );
 			end if;
 
 			Factory := Factory_Registry.Get( Factory_Type );
@@ -127,28 +142,25 @@ package body Aw_Config.Generic_Registry is
 		end Iterator;
 
 
-
-
-
-
-
 		function Get( Name: in String ) return Element_Type is
 			-- pega o elemento informado
 		begin
 			return Get( To_Unbounded_String( Name ) );
 		end Get;
 
+
 		function Get( Name: in Unbounded_String ) return Element_Type is
 			-- pega o elemento informado
 		begin
 			if not Element_Maps.Contains( My_Map, Name ) then
-				raise CONSTRAINT_ERROR with "Invalid Element :: " & To_String( Name );
+				raise CONSTRAINT_ERROR with "Element " &
+					To_String( Name ) &
+					" doesn't exist in map whose Relative_Path is " &
+					Relative_Path & ".";
 			end if;
 
 			return Element_Maps.Element( My_Map, Name );
 		end Get;
-
-
 
 	end Registry;
 

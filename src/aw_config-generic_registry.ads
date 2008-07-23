@@ -22,7 +22,8 @@ generic
 
 package Aw_Config.Generic_Registry is
 
-	DUPLICATED_FACTORY : Exception;
+	DUPLICATED_FACTORY_TYPE : Exception;
+	INVALID_FACTORY_TYPE : Exception;
 	DUPLICATED_ELEMENT : Exception;
 
 

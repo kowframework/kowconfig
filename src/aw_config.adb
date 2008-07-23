@@ -80,24 +80,32 @@ package body Aw_Config is
 	------------------------------------
 	-- Methods for Project Management --
 	------------------------------------
+	
+	procedure Set_Project_Name( Str: in Unbounded_String ) is
+		-- Set the project name so AdaConfig can find for 
+		-- config files search path
+		-- This will reset the config path
+	begin
+		if Str /= Null_Unbounded_String then
+			Project_Name := Str;
+			Reset_Config_Path;
+		else
+			raise INVALID_PARAMETER with
+				"Project_Name must not be " &
+				"Null_Unbounded_String";	   
+		end if;
+
+	end Set_Project_Name;
+
 
 	procedure Set_Project_Name( Str: in String ) is
 		-- Set the project name so AdaConfig can find for 
 		-- config files search path
 		-- This will reset the config path
 	begin
-		Project_Name := To_Unbounded_String( Str );
-		Reset_Config_Path;
+		Set_Project_Name( To_Unbounded_String( Str ) );
 	end Set_Project_Name;
 
-	procedure Set_Project_Name( Str: in Unbounded_String ) is
-		-- Set the project name so AdaConfig can find for 
-		-- config files search path
-		-- This will reset the config path
-	begin
-		Project_Name := Str;
-		Reset_Config_Path;
-	end Set_Project_Name;
 
 	function Get_Project_Name return String is
 		-- return the current project name
@@ -122,7 +130,7 @@ package body Aw_Config is
 				"_CONFIG_PATH" 	)
 				);
 	exception
-		when  CONSTRAINT_ERROR =>
+		when CONSTRAINT_ERROR =>
 			Config_Path := Aw_Lib.UString_Vectors.Empty_Vector;
 	end Reset_Config_Path;
 
@@ -307,11 +315,14 @@ package body Aw_Config is
 
 
 
-	function New_Config_File( N: in String; P: in Parser_Access; Is_Complete_Path: Boolean := False ) return Config_File is
+	function New_Config_File(	N: in String;
+					P: in Parser_Access; 
+					Is_Complete_Path: Boolean := False )
+		return Config_File is
+		
 		-- opens a new config file that will be handled by parser P
 		-- read it's contents and return an object representing it.
 		-- the file is closed right after it've been read
-
 
 		-- AW_Lib packages
 		use Aw_Lib.File_System;
@@ -327,10 +338,9 @@ package body Aw_Config is
 		-- controls if it did find the file already
 
 
-
 		File_Name : Unbounded_String;
 
-		-- Iteractors:
+		-- Iterators:
 		procedure Path_Iterator( C: Aw_Lib.UString_Vectors.Cursor ) is
 		begin
 			if FOUND_IT then
@@ -452,6 +462,118 @@ package body Aw_Config is
 	end Get_Section;
 
 
+
+	function Get_Optional_Boolean(	F	: Config_File;
+					Key	: String;
+					Default	: Boolean := FALSE ) return Boolean is
+		My_Value : Unbounded_String;
+	begin
+		My_Value := Element( F, Key );
+		return Boolean'Value( To_String( My_Value ) );
+	exception
+		when CONSTRAINT_ERROR =>
+			return Default;
+	end Get_Optional_Boolean;
+
+	
+	function Get_Optional_Float(	F	: Config_File;
+					Key	: String;
+					Default	: Float := 0.0 ) return Float is
+		My_Value : Unbounded_String;
+	begin
+		My_Value := Element( F, Key );
+		return Float'Value( To_String( My_Value ) );
+	exception
+		when CONSTRAINT_ERROR =>
+			return Default;
+	end Get_Optional_Float;
+
+
+	function Get_Optional_Integer(	F	: Config_File;
+					Key	: String;
+					Default	: Integer := 0 ) return Integer is
+		My_Value : Unbounded_String;
+	begin
+		My_Value := Element( F, Key );
+		return Integer'Value( To_String( My_Value ) );
+	exception
+		when CONSTRAINT_ERROR =>
+			return Default;
+	end Get_Optional_Integer;
+
+	
+	function Get_Optional_String(	F	: Config_File;
+					Key	: String;
+					Default	: String := "" ) return String is
+		My_Value : Unbounded_String;
+	begin
+		My_Value := Element( F, Key );
+		return To_String( My_Value );
+	exception
+		when CONSTRAINT_ERROR =>
+			return Default;
+	end Get_Optional_String;
+
+
+	function Get_Optional_UString(	F	: Config_File;
+					Key	: String;
+					Default	: String := "" ) return Unbounded_String is
+		My_Value : Unbounded_String;
+	begin
+		My_Value := Element( F, Key );
+		return My_Value;
+	exception
+		when CONSTRAINT_ERROR =>
+			return To_Unbounded_String( Default );
+	end Get_Optional_UString;
+
+
+	function Get_Compulsory_Boolean( F	: Config_File;
+					 Key	: String ) return Boolean is
+		My_Value : Unbounded_String;
+	begin
+		My_Value := Element( F, Key );
+		return Boolean'Value( To_String( My_Value ) );
+	end Get_Compulsory_Boolean;
+
+
+	function Get_Compulsory_Float(	F	: Config_File;
+					Key	: String ) return Float is
+		My_Value : Unbounded_String;
+	begin
+		My_Value := Element( F, Key );
+		return Float'Value( To_String( My_Value ) );
+	end Get_Compulsory_Float;
+
+
+	function Get_Compulsory_Integer( F	: Config_File;
+					 Key	: String ) return Integer is
+		My_Value : Unbounded_String;
+	begin
+		My_Value := Element( F, Key );
+		return Integer'Value( To_String( My_Value ) );
+	end Get_Compulsory_Integer;
+
+
+	function Get_Compulsory_String(	F	: Config_File;
+					Key	: String ) return String is
+		My_Value : Unbounded_String;
+	begin
+		My_Value := Element( F, Key );
+		return To_String( My_Value );
+	end Get_Compulsory_String;
+
+
+	function Get_Compulsory_UString(	F	: Config_File;
+						Key	: String ) return Unbounded_String  is
+		My_Value : Unbounded_String;
+	begin
+		My_Value := Element( F, Key );
+		return My_Value;
+	end Get_Compulsory_UString;
+
+
+
 	function Element( F: Config_File; Key: Unbounded_String ) return Unbounded_String is
 		-- return the value of element inside the current section with
 		-- key Key
@@ -462,8 +584,18 @@ package body Aw_Config is
 		if F.Current_Section = "" then
 			return Element( F.Contents, Key );
 		end if;
+	
 		return Element(	F.Contents,
 				F.Current_Section & '.' & Key );
+	exception
+		when CONSTRAINT_ERROR =>
+			Dump_Contents( F );
+			raise CONSTRAINT_ERROR with 
+				"Error when trying to get Key """ &
+				To_String( Key ) & 
+				""" in configuration file """
+				& Get_File_Name( F )
+				& """";
 	end Element;
 
 	function Element( F: Config_File; Key: String ) return Unbounded_String is
@@ -530,7 +662,7 @@ package body Aw_Config is
 	end Extract;
 
 	function Elements_Array( F: Config_File; Key: Unbounded_String ) return Config_File_Array is
-		-- return an array with elements withing the category named by:
+		-- return an array with elements within the category named by:
 		-- (THE_CURRENT_CATEGORY).Key.INDEX
 		-- where INDEX starts with 1.
 	begin
@@ -539,7 +671,7 @@ package body Aw_Config is
 
 
 	function Elements_Array( F: Config_File; Key: String ) return Config_File_Array is
-		-- return an array with elements withing the category named by:
+		-- return an array with elements within the category named by:
 		-- (THE_CURRENT_CATEGORY).Key.INDEX
 		-- where INDEX starts with 1.
 
@@ -580,4 +712,3 @@ package body Aw_Config is
 		return F.Contents;
 	end Get_Contents_Map;
 end Aw_Config;
-
