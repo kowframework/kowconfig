@@ -463,9 +463,9 @@ package body Aw_Config is
 
 
 
-	function Get_Optional_Boolean(	F	: Config_File;
-					Key	: String;
-					Default	: Boolean := FALSE ) return Boolean is
+	function Value(	F	: Config_File;
+			Key	: String;
+			Default	: Boolean := FALSE ) return Boolean is
 		My_Value : Unbounded_String;
 	begin
 		My_Value := Element( F, Key );
@@ -473,12 +473,12 @@ package body Aw_Config is
 	exception
 		when CONSTRAINT_ERROR =>
 			return Default;
-	end Get_Optional_Boolean;
+	end Value;
 
 	
-	function Get_Optional_Float(	F	: Config_File;
-					Key	: String;
-					Default	: Float := 0.0 ) return Float is
+	function Value(	F	: Config_File;
+			Key	: String;
+			Default	: Float := 0.0 ) return Float is
 		My_Value : Unbounded_String;
 	begin
 		My_Value := Element( F, Key );
@@ -486,12 +486,12 @@ package body Aw_Config is
 	exception
 		when CONSTRAINT_ERROR =>
 			return Default;
-	end Get_Optional_Float;
+	end Value;
 
 
-	function Get_Optional_Integer(	F	: Config_File;
-					Key	: String;
-					Default	: Integer := 0 ) return Integer is
+	function Value(	F	: Config_File;
+			Key	: String;
+			Default	: Integer := 0 ) return Integer is
 		My_Value : Unbounded_String;
 	begin
 		My_Value := Element( F, Key );
@@ -499,12 +499,12 @@ package body Aw_Config is
 	exception
 		when CONSTRAINT_ERROR =>
 			return Default;
-	end Get_Optional_Integer;
+	end Value;
 
 	
-	function Get_Optional_String(	F	: Config_File;
-					Key	: String;
-					Default	: String := "" ) return String is
+	function Value(	F	: Config_File;
+			Key	: String;
+			Default	: String := "" ) return String is
 		My_Value : Unbounded_String;
 	begin
 		My_Value := Element( F, Key );
@@ -512,12 +512,12 @@ package body Aw_Config is
 	exception
 		when CONSTRAINT_ERROR =>
 			return Default;
-	end Get_Optional_String;
+	end Value;
 
 
-	function Get_Optional_UString(	F	: Config_File;
-					Key	: String;
-					Default	: String := "" ) return Unbounded_String is
+	function Value(	F	: Config_File;
+			Key	: String;
+			Default	: String := "" ) return Unbounded_String is
 		My_Value : Unbounded_String;
 	begin
 		My_Value := Element( F, Key );
@@ -525,53 +525,43 @@ package body Aw_Config is
 	exception
 		when CONSTRAINT_ERROR =>
 			return To_Unbounded_String( Default );
-	end Get_Optional_UString;
+	end Value;
 
 
-	function Get_Compulsory_Boolean( F	: Config_File;
-					 Key	: String ) return Boolean is
-		My_Value : Unbounded_String;
+	function Element(	F	: Config_File;
+				Key	: String ) return Boolean is
+		My_Element : Unbounded_String;
 	begin
-		My_Value := Element( F, Key );
-		return Boolean'Value( To_String( My_Value ) );
-	end Get_Compulsory_Boolean;
+		My_Element := Element( F, Key );
+		return Boolean'Value( To_String( My_Element ) );
+	end Element;
 
 
-	function Get_Compulsory_Float(	F	: Config_File;
-					Key	: String ) return Float is
-		My_Value : Unbounded_String;
+	function Element(	F	: Config_File;
+				Key	: String ) return Float is
+		My_Element : Unbounded_String;
 	begin
-		My_Value := Element( F, Key );
-		return Float'Value( To_String( My_Value ) );
-	end Get_Compulsory_Float;
+		My_Element := Element( F, Key );
+		return Float'Value( To_String( My_Element ) );
+	end Element;
 
 
-	function Get_Compulsory_Integer( F	: Config_File;
-					 Key	: String ) return Integer is
-		My_Value : Unbounded_String;
+	function Element(	F	: Config_File;
+				Key	: String ) return Integer is
+		My_Element : Unbounded_String;
 	begin
-		My_Value := Element( F, Key );
-		return Integer'Value( To_String( My_Value ) );
-	end Get_Compulsory_Integer;
+		My_Element := Element( F, Key );
+		return Integer'Value( To_String( My_Element ) );
+	end Element;
 
 
-	function Get_Compulsory_String(	F	: Config_File;
-					Key	: String ) return String is
-		My_Value : Unbounded_String;
+	function Element(	F	: Config_File;
+				Key	: String ) return String is
+		My_Element : Unbounded_String;
 	begin
-		My_Value := Element( F, Key );
-		return To_String( My_Value );
-	end Get_Compulsory_String;
-
-
-	function Get_Compulsory_UString(	F	: Config_File;
-						Key	: String ) return Unbounded_String  is
-		My_Value : Unbounded_String;
-	begin
-		My_Value := Element( F, Key );
-		return My_Value;
-	end Get_Compulsory_UString;
-
+		My_Element := Element( F, Key );
+		return To_String( My_Element );
+	end Element;
 
 
 	function Element( F: Config_File; Key: Unbounded_String ) return Unbounded_String is

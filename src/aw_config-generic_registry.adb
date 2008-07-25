@@ -94,7 +94,7 @@ package body Aw_Config.Generic_Registry is
 			function Get_Type return String is
 				My_Type: Unbounded_String;
 			begin
-				My_Type := Aw_Config.Get_Compulsory_UString( Config, "type" );
+				My_Type := Aw_Config.Element( Config, "type" );
 				return To_String( My_Type );
 			exception
 				when CONSTRAINT_ERROR =>

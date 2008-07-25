@@ -207,63 +207,63 @@ package Aw_Config is
 	-- return the current section or "" if there is no section active
 
 
-	function Get_Optional_Boolean(	F	: Config_File;
-					Key	: String;
-					Default	: Boolean := FALSE ) return Boolean;
+	function Value(	F	: Config_File;
+			Key	: String;
+			Default	: Boolean := FALSE ) return Boolean;
 	-- returns the element value like the Element function, but converts it to
 	-- Boolean value and, if occurs a constraint error, returns the default value
 
-	function Get_Optional_Float(	F	: Config_File;
-					Key	: String;
-					Default	: Float := 0.0 ) return Float;
+	function Value(	F	: Config_File;
+			Key	: String;
+			Default	: Float := 0.0 ) return Float;
 	-- returns the element value like the Element function, but converts it to
 	-- Float value and, if occurs a constraint error, returns the default value
 
-	function Get_Optional_Integer(	F	: Config_File;
-					Key	: String;
-					Default	: Integer := 0 ) return Integer;
+	function Value(	F	: Config_File;
+			Key	: String;
+			Default	: Integer := 0 ) return Integer;
 	-- returns the element value like the Element function, but converts it to
 	-- Integer value and, if occurs a constraint error, returns the default value
 
 	
-	function Get_Optional_String(	F	: Config_File;
-					Key	: String;
-					Default	: String := "" ) return String;
+	function Value(	F	: Config_File;
+			Key	: String;
+			Default	: String := "" ) return String;
 	-- returns the element value like the Element function, but converts is to
 	-- String and, if occurs a constraint error, returns the default value
 
-	function Get_Optional_UString(	F	: Config_File;
-					Key	: String;
-					Default	: String := "" ) return Unbounded_String;
+	function Value(	F	: Config_File;
+			Key	: String;
+			Default	: String := "" ) return Unbounded_String;
 	
 	-- returns the element value like the Element function
 	-- if occurs a constraint error, returns the default value in Unbounded_String
 
-	function Get_Compulsory_Boolean( F	: Config_File;
-					 Key	: String ) return Boolean;
+	function Element(	F	: Config_File;
+				Key	: String ) return Boolean;
 	-- returns the element value like the Element function, but converts it to
 	-- Boolean value
 
-	function Get_Compulsory_Float(	F	: Config_File;
-					Key	: String ) return Float;
+	function Element(	F	: Config_File;
+				Key	: String ) return Float;
 	-- returns the element value like the Element function, but converts it to
 	-- Float value
 
-	function Get_Compulsory_Integer( F	: Config_File;
-					 Key	: String ) return Integer;
+	function Element(	F	: Config_File;
+				Key	: String ) return Integer;
 	-- returns the element value like the Element function, but converts it to
 	-- Integer value
 	
-	
-	function Get_Compulsory_String(	F	: Config_File;
-					Key	: String ) return String;
+	function Element(	F	: Config_File;
+				Key	: String ) return String;
 	-- returns the element value like the Element function, but converts is to
-	-- String 
+	---- String 
 
-	function Get_Compulsory_UString(	F	: Config_File;
-						Key	: String ) return Unbounded_String;
-	-- returns the element value like the Element function 
-
+	function Element( F: Config_File; Key: String ) return Unbounded_String;
+	-- return the value of element inside the current section with
+	-- key Key
+	-- if no current section active, return propertie relative
+	-- to root section; ie expects Key to be of the form "sectionName.key"
 
 	function Element( F: Config_File; Key: Unbounded_String ) return Unbounded_String;
 	-- return the value of element inside the current section with
@@ -271,12 +271,6 @@ package Aw_Config is
 	-- if no current section active, return propertie relative
 	-- to root section; ie expects Key to be of the form "sectionName.key"
 
-
-	function Element( F: Config_File; Key: String ) return Unbounded_String;
-	-- return the value of element inside the current section with
-	-- key Key
-	-- if no current section active, return propertie relative
-	-- to root section; ie expects Key to be of the form "sectionName.key"
 
 	function Extract( F: Config_File; Prefix: Unbounded_String ) return Config_File;
 	-- return a new config file with the data prefixed by the give prefix
