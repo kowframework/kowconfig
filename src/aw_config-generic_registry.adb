@@ -134,12 +134,23 @@ package body Aw_Config.Generic_Registry is
 					Ada.Exceptions.Reraise_Occurrence( e );
 			end;
 
+			Register( Element_Name, Element );
+		end Iterator;
+
+		procedure Register( Element_Name: in String; Element: in Element_Type ) is
+		begin
+			Register( To_Unbounded_String( Element_Name ), Element );
+		end Register;
+
+		procedure Register( Element_Name: in Unbounded_String; Element: in Element_type ) is
+		begin
 			Element_Maps.Include(
 				My_Map,
 				Element_Name,
 				Element
 				);
-		end Iterator;
+		end Register;
+
 
 
 		function Get( Name: in String ) return Element_Type is
@@ -162,6 +173,23 @@ package body Aw_Config.Generic_Registry is
 			return Element_Maps.Element( My_Map, Name );
 		end Get;
 
+		function Get_Names return Aw_Lib.String_Util.UString_Array is
+			Length: Integer := Integer( Element_Maps.Length( My_Map ) );
+		begin
+			declare
+				Ret_Val: Aw_Lib.String_Util.UString_Array(1 .. Length);
+				Ptr    : Integer := 1;
+				procedure Iterator( C: in Element_Maps.Cursor ) is
+				begin
+					Ret_Val( Ptr ) := Element_Maps.Key( C );
+					Ptr := Ptr + 1;
+				end Iterator;
+			begin
+				Element_Maps.Iterate( My_Map, Iterator'Access );
+
+				return Ret_Val;
+			end;
+		end Get_Names;
 	end Registry;
 
 end Aw_Config.Generic_Registry;

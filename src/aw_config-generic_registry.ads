@@ -10,7 +10,7 @@ with Ada.Containers.Ordered_Maps;
 --
 -- AdaWorks
 --
-
+with Aw_Lib.String_Util;
 with Aw_Config;
 
 
@@ -75,11 +75,23 @@ package Aw_Config.Generic_Registry is
 		-- Reload_Registry utilize this one to iterate over the configuration and call the factories
 
 
+		procedure Register( Element_Name: in String; Element: in Element_Type );
+		-- register a hand-made element into this registry
+
+		procedure Register( Element_Name: in Unbounded_String; Element: in Element_type );
+		-- register a hand-made element into this registry
+
+
+
 		function Get( Name: in String ) return Element_Type;
 		-- pega o elemento informado
 		
 		function Get( Name: in Unbounded_String ) return Element_Type;
 		-- pega o elemento informado
+
+
+		function Get_Names return Aw_Lib.String_Util.UString_Array;
+		-- list all the elements registered in here
 	private
 
 		My_Map: Element_Maps.Map;
