@@ -701,4 +701,13 @@ package body Aw_Config is
 	begin
 		return F.Contents;
 	end Get_Contents_Map;
+
+
+
+	procedure Set_Contents_Map( F: in out Config_File; Contents_Map: in Aw_Lib.UString_Ordered_Maps.Map ) is
+	begin
+		F.Contents := Contents_Map;
+	end Set_Contents_Map;
+
+
 end Aw_Config;

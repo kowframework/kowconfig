@@ -294,6 +294,7 @@ package Aw_Config is
 	-- return an ordered map of Unbounded_String => Unbounded_String
 	-- with all keys respecting the pattern "section.subSection.key"
 
+	procedure Set_Contents_Map( F: in out Config_File; Contents_Map: in Aw_Lib.UString_Ordered_Maps.Map );
 
 	-------------------------------------
 	-- Methods of the Parser_Interface --
