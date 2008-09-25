@@ -46,11 +46,12 @@
 with Ada.Containers.Ordered_Maps;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
+with Ada.Text_IO;			use Ada.Text_IO;
 
 -- Aw_Lib Packages
 with Aw_Lib.UString_Vectors;
 with Aw_Lib.UString_Ordered_Maps;
-
+with Aw_Lib.Locales;			use Aw_Lib.Locales;
 
 package Aw_Config is
 
@@ -69,8 +70,8 @@ package Aw_Config is
 	-- every parser got to derive from this type
 
 	type Parser_Access is Access all Parser_Interface'Class;
-	-- this type is used internally by AdaWorks but is visible just in case
-	-- the developer needs it.
+	-- this type is used internally by AdaWorks but is visible just in
+	-- case the developer needs it.
 
 	------------------------------
 	-- Sub Packages Declaration --
@@ -158,21 +159,30 @@ package Aw_Config is
 	-------------------
 
 
-	function Scan_Relative_Path( Relative_Path : in String; P: in Parser_Access) return AW_Lib.UString_Ordered_Maps.Map;
+	function Scan_Relative_Path(	Relative_Path : in String;
+					P: in Parser_Access)
+		return AW_Lib.UString_Ordered_Maps.Map;
 	-- Scan a given relative path within the Config_Path for the project.
-	-- Return all the config files found without the extension, indexed by
-	-- their relative name (inside the relative path) without the extension.
+	-- Return all the config files found without the extension,
+	-- indexed by their relative name (inside the relative path)
+	-- without the extensio.
 
 
 	generic
-		with procedure Path_Iterator( Name: in String; Config: in out Config_File );
-	procedure Generic_Iterate(	Map	: in Aw_Lib.UString_Ordered_Maps.Map;
-					P	: in Parser_Access ); 
+		with procedure Path_Iterator( Name: in String;
+			Config: in out Config_File );
+	procedure Generic_Iterate(
+		Map	: in Aw_Lib.UString_Ordered_Maps.Map;
+		P	: in Parser_Access ); 
 	-- Iterate over the elements returned by Scan_Relative_Path.
-	-- The parameters are the initialized config file and the config name within the relative_path parameter
+	-- The parameters are the initialized config file and the
+	-- config name within the relative_path parameter
 
 
-	function New_Config_File( N: in String; P: in Parser_Access; Is_Complete_Path: Boolean := False ) return Config_File;
+	function New_Config_File(	N: in String;
+					P: in Parser_Access;
+					Is_Complete_Path: Boolean := False )
+		return Config_File;
 	-- opens a new config file that will be handled by the parser P
 	-- read it's contents and return an object representing it.
 	-- the file is closed right after it've been read
@@ -185,7 +195,8 @@ package Aw_Config is
 
 	procedure Dump_Contents( Config: in Aw_Config.Config_File );
 	-- dumps the contents map into the std out
-
+	
+	
 	----------------------------------
 	-- Methods for Config Iteration --
 	----------------------------------
@@ -194,7 +205,8 @@ package Aw_Config is
 	pragma Inline( Set_Section );
 	-- set the current section of the config file.
 
-	procedure Set_Section( F: in out Config_File; S: in Unbounded_String );
+	procedure Set_Section(	F: in out Config_File; 
+				S: in Unbounded_String );
 	pragma Inline( Set_Section );
 	-- set the current section of the config file.
 
@@ -210,91 +222,111 @@ package Aw_Config is
 	function Value(	F	: Config_File;
 			Key	: String;
 			Default	: Boolean := FALSE ) return Boolean;
-	-- returns the element value like the Element function, but converts it to
-	-- Boolean value and, if occurs a constraint error, returns the default value
+	-- returns the element value like the Element function,
+	-- but converts it to Boolean value and, if occurs a
+	-- constraint error, returns the default value
 
 	function Value(	F	: Config_File;
 			Key	: String;
 			Default	: Float := 0.0 ) return Float;
-	-- returns the element value like the Element function, but converts it to
-	-- Float value and, if occurs a constraint error, returns the default value
+	-- returns the element value like the Element function, 
+	-- but converts it to Float value and, if occurs a constraint
+	-- error, returns the default value
 
 	function Value(	F	: Config_File;
 			Key	: String;
 			Default	: Integer := 0 ) return Integer;
-	-- returns the element value like the Element function, but converts it to
-	-- Integer value and, if occurs a constraint error, returns the default value
+	-- returns the element value like the Element function,
+	-- but converts it to Integer value and, if occurs a constraint
+	-- error, returns the default value
 
 	
 	function Value(	F	: Config_File;
 			Key	: String;
 			Default	: String := "" ) return String;
-	-- returns the element value like the Element function, but converts is to
-	-- String and, if occurs a constraint error, returns the default value
+	-- returns the element value like the Element function, but converts 
+	-- is to String and, if occurs a constraint error, returns the 
+	-- default value
 
 	function Value(	F	: Config_File;
 			Key	: String;
 			Default	: String := "" ) return Unbounded_String;
 	
 	-- returns the element value like the Element function
-	-- if occurs a constraint error, returns the default value in Unbounded_String
+	-- if occurs a constraint error, returns the default value in 
+	-- Unbounded_String
 
 	function Element(	F	: Config_File;
 				Key	: String ) return Boolean;
-	-- returns the element value like the Element function, but converts it to
-	-- Boolean value
+	-- returns the element value like the Element function, but 
+	-- converts it to Boolean value
 
 	function Element(	F	: Config_File;
 				Key	: String ) return Float;
-	-- returns the element value like the Element function, but converts it to
-	-- Float value
+	-- returns the element value like the Element function, 
+	-- but converts it to Float value
 
 	function Element(	F	: Config_File;
 				Key	: String ) return Integer;
-	-- returns the element value like the Element function, but converts it to
-	-- Integer value
+	-- returns the element value like the Element function, but
+	-- converts it to Integer value
 	
 	function Element(	F	: Config_File;
 				Key	: String ) return String;
-	-- returns the element value like the Element function, but converts is to
-	---- String 
+	-- returns the element value like the Element function, but 
+	-- converts is to String 
 
-	function Element( F: Config_File; Key: String ) return Unbounded_String;
+	function Element( F: Config_File; Key: String ) 
+		return Unbounded_String;
+	-- return the value of element inside the current section with
+	-- key Key if no current section active, return propertie relative
+	-- to root section; ie expects Key to be of the form "sectionName.key"
+
+	function Element( F: Config_File; Key: Unbounded_String )
+		return Unbounded_String;
 	-- return the value of element inside the current section with
 	-- key Key
 	-- if no current section active, return propertie relative
 	-- to root section; ie expects Key to be of the form "sectionName.key"
 
-	function Element( F: Config_File; Key: Unbounded_String ) return Unbounded_String;
+
+	function Element(	F	: Config_File;
+				Key	: Unbounded_String;
+				L_Code	: Aw_Lib.Locales.Locale_Code )
+		return Unbounded_String;
 	-- return the value of element inside the current section with
-	-- key Key
-	-- if no current section active, return propertie relative
-	-- to root section; ie expects Key to be of the form "sectionName.key"
-
-
-	function Extract( F: Config_File; Prefix: Unbounded_String ) return Config_File;
+	-- key 'Key:L_Code'
+	
+	
+	function Extract( F: Config_File; Prefix: Unbounded_String )
+		return Config_File;
 	-- return a new config file with the data prefixed by the give prefix
 
 	function Extract( F: Config_File; Prefix: String ) return Config_File;
 	-- return a new config file with the data prefixed by the give prefix
 
-	function Elements_Array( F: Config_File; Key: Unbounded_String ) return Config_File_Array;
+	function Elements_Array( F: Config_File; Key: Unbounded_String )
+		return Config_File_Array;
 	-- return an array with elements withing the category named by:
 	-- (THE_CURRENT_CATEGORY).Key.INDEX
 	-- where INDEX starts with 1.
 
-	function Elements_Array( F: Config_File; Key: String ) return Config_File_Array;
+	function Elements_Array( F: Config_File; Key: String ) 
+		return Config_File_Array;
 	-- return an array with elements withing the category named by:
 	-- (THE_CURRENT_CATEGORY).Key.INDEX
 	-- where INDEX starts with 1.
 
 
-	function Get_Contents_Map( F: in Config_File ) return Aw_Lib.UString_Ordered_Maps.Map;
+	function Get_Contents_Map( F: in Config_File ) 
+		return Aw_Lib.UString_Ordered_Maps.Map;
 	Pragma Inline( Get_Contents_Map );
 	-- return an ordered map of Unbounded_String => Unbounded_String
 	-- with all keys respecting the pattern "section.subSection.key"
 
-	procedure Set_Contents_Map( F: in out Config_File; Contents_Map: in Aw_Lib.UString_Ordered_Maps.Map );
+	procedure Set_Contents_Map(
+		F: in out Config_File;
+		Contents_Map: in Aw_Lib.UString_Ordered_Maps.Map );
 
 	-------------------------------------
 	-- Methods of the Parser_Interface --
@@ -314,22 +346,31 @@ package Aw_Config is
 	-- if not prepare the parser to return CONSTRAINT_ERROR
 	-- everytime Key and Value are called
 
-	function Key( P: in Parser_Interface ) return Unbounded_String is abstract;
+	function Key( P: in Parser_Interface ) 
+		return Unbounded_String is abstract;
 	-- return the key of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
-	function Element( P: in Parser_Interface ) return Unbounded_String is abstract;
+	function Element( P: in Parser_Interface ) 
+		return Unbounded_String is abstract;
 	-- return the value of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
-	function Get_File_Name( P: in Parser_Interface; Original: in String ) return String is abstract;
+	function Get_File_Name( P: in Parser_Interface; Original: in String )
+		return String is abstract;
 	-- returns the filename Original with expected extension
 	-- ie, Original & ".cfg" in case of Text Parser
 
-	function File_To_Config_Name( P: in Parser_Interface; File_Name: in String ) return String is abstract;
+	function File_To_Config_Name(	P: in Parser_Interface; 
+					File_Name: in String )
+		return String is abstract;
 	-- Convert the file name to a config name.
 	-- Raises NOT_MY_FILE if it's not a supported config file
 
+	procedure Save( P : in Parser_Interface;
+			Config: in Aw_Config.Config_File; 
+			File : in File_Type ) is abstract;
+	-- save config file
 private
 
 	Config_Path: Aw_Lib.UString_Vectors.Vector;

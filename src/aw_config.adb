@@ -35,7 +35,6 @@
 -- Here you'll find the types you should use in your application and all    -- 
 -- visible procedures and functions.                                        --
 ------------------------------------------------------------------------------
-with ada.text_io;
 
 with Ada.Containers.Ordered_Maps;
 with Ada.Directories;
@@ -49,6 +48,7 @@ with Aw_Lib.File_System;
 with Aw_Lib.String_Util;
 with Aw_Lib.UString_Vectors;
 with Aw_Lib.UString_Ordered_Maps;
+
 
 package body Aw_Config is
 
@@ -138,7 +138,7 @@ package body Aw_Config is
 	procedure Add_Config_Path( Str: in String ) is
 		-- add Str to config path.
 	begin
-		Aw_Lib.UString_Vectors.Append( Config_Path, To_Unbounded_String( Str ) );
+		Add_Config_Path( To_Unbounded_String( Str ) );
 	end Add_Config_Path;
 
 	procedure Add_Config_Path( Str: in Unbounded_String ) is
@@ -159,7 +159,9 @@ package body Aw_Config is
 	-------------------
 
 
-	function Scan_Relative_Path( Relative_Path : in String; P: in Parser_Access ) return AW_Lib.UString_Ordered_Maps.Map is
+	function Scan_Relative_Path(	Relative_Path : in String;
+					P: in Parser_Access )
+		return AW_Lib.UString_Ordered_Maps.Map is
 		-- Scan a given relative path within the Config_Path for the project.
 		-- Return all the config files found without the extension.
 		
@@ -239,7 +241,8 @@ package body Aw_Config is
 					AND 
 					Simple_Name( Directory_Entry ) /= ".."
 					then
-					Aw_Lib.UString_Vectors.Append( To_Scan_Path, To_Unbounded_String( Full_Name( Directory_Entry ) ) );
+					Aw_Lib.UString_Vectors.Append( To_Scan_Path,
+						To_Unbounded_String( Full_Name( Directory_Entry ) ) );
 				end if;
 			end if;
 		end Process_Search;
@@ -251,8 +254,8 @@ package body Aw_Config is
 
 			Current_Root_Path : String := Full_Name( To_String( Element( C ) ) );
 			Current_Root_With_Relative_Path: String :=  Full_Name( 
-				Current_Root_Path	&
-				Separator		&
+				Current_Root_Path		&
+				Aw_Lib.File_System.Separator	&
 				Relative_Path );
 		begin
 			Current_Root_Path_Length := Current_Root_Path'Length;
@@ -261,7 +264,7 @@ package body Aw_Config is
 			Append(
 				To_Scan_Path,
 				To_Unbounded_String(
-					 Current_Root_Path & Separator & Relative_Path
+					 Current_Root_Path & Aw_Lib.File_System.Separator & Relative_Path
 					)
 				);
 
@@ -289,7 +292,8 @@ package body Aw_Config is
 					P	: in Parser_Access 
 				) is
 		-- Iterate over the elements returned by Scan_Relative_Path.
-		-- The parameters are the initialized config file and the config name within the relative_path parameter
+		-- The parameters are the initialized config file and
+		-- the config name within the relative_path parameter
 
 
 		use Aw_Lib.UString_Ordered_Maps;
@@ -301,7 +305,8 @@ package body Aw_Config is
 
 		begin
 			declare
-				My_Key : Unbounded_String := Aw_Lib.UString_Ordered_Maps.Key( C );
+				My_Key : Unbounded_String :=
+					Aw_Lib.UString_Ordered_Maps.Key( C );
 			begin
 				Path_Iterator(
 					Name	=> To_String( My_Key ),
@@ -319,7 +324,6 @@ package body Aw_Config is
 					P: in Parser_Access; 
 					Is_Complete_Path: Boolean := False )
 		return Config_File is
-		
 		-- opens a new config file that will be handled by parser P
 		-- read it's contents and return an object representing it.
 		-- the file is closed right after it've been read
@@ -347,14 +351,15 @@ package body Aw_Config is
 				return;
 			end if;
 
-			F.File_Name := Element( C ) & Separator;
+			F.File_Name := Element( C ) & Aw_Lib.File_System.Separator;
 			F.File_Name := F.File_Name & File_Name;
 
 			declare
 				use Ada.Directories;
 				S_File_Name: String := To_String( F.File_Name );
 			begin
-				if Exists( S_File_Name ) AND Kind( S_File_Name ) = Ordinary_File then
+				if Exists( S_File_Name ) AND Kind( S_File_Name ) =
+					Ordinary_File then
 					F.My_Parser := P;
 					FOUND_IT := TRUE;
 					-- tell the main unit that we've found a winner! :)
@@ -385,26 +390,72 @@ package body Aw_Config is
 		return F;
 	end New_Config_File;
 
-	procedure Reload_Config( F: in out Config_File ) is
-		-- reloads the configuration from the flie. :D
-		use Aw_Lib.UString_Ordered_Maps;
+	function Create_Localed_Key( Key : Unbounded_String;
+		Code : Unbounded_String ) return Unbounded_String is
 	begin
+		if Code /= Null_Unbounded_String then
+			return Key & ":" & Code;
+		else
+			return Key;
+		end if;
+	end Create_Localed_Key;
+
+	procedure Reload_Config( F: in out Config_File ) is
+		-- reloads the configuration from the file. :D
+		use Aw_Lib.UString_Ordered_Maps;
+		use Aw_Lib.Locales;
+
+		Locales_Cursor : Locale_Tables.Cursor;
+
+
+		procedure File_Loader( File_Name: in String; L_Code: in Unbounded_String ) is
+			use Ada.Directories;
+
+		begin
+			if Exists( File_Name ) then
+				begin
+					Prepare( F.My_Parser.All, File_Name );
+					loop
+						Include(
+							F.Contents,
+							Create_Localed_Key( 
+								Key( F.My_Parser.All ),
+								L_Code ),
+							Element( F.My_Parser.All )
+						);
+						Next( F.My_Parser.All );
+					end loop;
+				exception
+					when CONSTRAINT_ERROR =>
+					-- the file has reached the end
+					Finish( F.My_Parser.all );
+				end;				
+			end if;
+
+		end;
+	begin
+		Locales_Cursor := Locale_Tables.First( Supported_Locales );
+
 		F.Contents := Empty_Map;
-
-		Prepare( F.My_Parser.All, To_String( F.File_Name ) );
-
-		loop
-			Include(	F.Contents,
-					Key( F.My_Parser.All ),
-					Element( F.My_Parser.All )
-				);
-			Next( F.My_Parser.All );
+		
+		-- loads locale files and puts keys in the map like key:ll_cc_ll
+		while Locale_Tables.Has_Element( Locales_Cursor ) loop
+			declare
+				L_Code : Unbounded_String := 
+					Locale_Tables.Key( Locales_Cursor );
+				Config_Name : String := File_To_Config_Name( 
+					F.My_Parser.all, To_String( F.File_Name ) );
+				File_Name : String := Get_File_Name( F.My_Parser.all,
+					To_String( Config_Name & "_" & L_Code ) );
+			begin	
+				File_Loader( File_Name, L_Code );	
+			end;
+			
+			Locale_Tables.Next( Locales_Cursor );
 		end loop;
 
-	exception
-		when CONSTRAINT_ERROR =>
-			-- the file has reached the end
-			Finish( F.My_Parser.all );
+		File_Loader( To_String( F.File_Name ), Null_Unbounded_String );
+	
 	end Reload_Config;
 
 
@@ -432,7 +483,9 @@ package body Aw_Config is
 		);
 	end Dump_Contents;
 
+	
 
+	
 	----------------------------------
 	-- Methods for Config Iteration --
 	----------------------------------
@@ -564,28 +617,65 @@ package body Aw_Config is
 	end Element;
 
 
-	function Element( F: Config_File; Key: Unbounded_String ) return Unbounded_String is
+	function Find_Localed_Key(	F	: Config_File;
+					Key	: Unbounded_String;
+					L_Code	: Aw_Lib.Locales.Locale_Code )
+		return Unbounded_String is
+		
+		use Aw_Lib.UString_Ordered_Maps;
+	
+		Code_Tmp : Unbounded_String := L_Code;
+	
+	begin
+		while not Contains( F.Contents, Key & ":" & Code_Tmp ) 
+		loop
+			if ( Length( Code_Tmp ) - 3 ) > 1 then
+				Code_Tmp := Head( Code_Tmp, ( Length(Code_Tmp)- 3 ) );
+			else
+				return Key;
+			end if;		
+		end loop;
+
+		return Key & ":" & Code_Tmp;
+	end Find_Localed_Key;
+
+
+	function Element(	F	: Config_File;
+				Key	: Unbounded_String;
+				L_Code	: Aw_Lib.Locales.Locale_Code ) return Unbounded_String is
 		-- return the value of element inside the current section with
 		-- key Key
 		-- if no current section active, return propertie relative
 		-- to root section; ie expects Key to be of the form "sectionName.key"
 		use Aw_Lib.UString_Ordered_Maps;
+		Localed_Key : Unbounded_String;
 	begin
 		if F.Current_Section = "" then
-			return Element( F.Contents, Key );
+			Localed_Key :=  Find_Localed_Key( F, Key, L_Code ); 
+		else
+			Localed_Key := 	Find_Localed_Key( F, F.Current_Section &
+				'.' & Key, L_Code ); 
 		end if;
 	
-		return Element(	F.Contents,
-				F.Current_Section & '.' & Key );
+		return Element(	F.Contents, Localed_Key );
 	exception
 		when CONSTRAINT_ERROR =>
 			Dump_Contents( F );
 			raise CONSTRAINT_ERROR with 
 				"Error when trying to get Key """ &
-				To_String( Key ) & 
+				To_String( Localed_Key ) & 
 				""" in configuration file """
 				& Get_File_Name( F )
 				& """";
+	end Element;
+		
+
+	function Element( F: Config_File; Key: Unbounded_String ) return Unbounded_String is
+	begin
+		return Element( F, Key, Get_Environment_Locale.CODE );
+	exception
+		when others =>
+			return Element( F, Key, Null_Unbounded_String );
 	end Element;
 
 	function Element( F: Config_File; Key: String ) return Unbounded_String is
@@ -651,7 +741,8 @@ package body Aw_Config is
 		return My_File;
 	end Extract;
 
-	function Elements_Array( F: Config_File; Key: Unbounded_String ) return Config_File_Array is
+	function Elements_Array( F: Config_File; Key: Unbounded_String )
+		return Config_File_Array is
 		-- return an array with elements within the category named by:
 		-- (THE_CURRENT_CATEGORY).Key.INDEX
 		-- where INDEX starts with 1.
