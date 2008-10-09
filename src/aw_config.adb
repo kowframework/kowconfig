@@ -50,6 +50,9 @@ with Aw_Lib.UString_Vectors;
 with Aw_Lib.UString_Ordered_Maps;
 
 
+--debug
+with Ada.Text_IO;
+
 package body Aw_Config is
 
 
@@ -801,4 +804,17 @@ package body Aw_Config is
 	end Set_Contents_Map;
 
 
+
+	-- save the config file.
+	procedure Save( F: in out Config_File ) is
+		Output_File : file_type;
+		--FileName : String := Get_File_Name( F.My_Parser.All, To_String(F.File_Name));
+	Begin	
+						
+		--Ada.Text_IO.Put_Line("*************************************************************************");
+		--Ada.Text_IO.Put_Line("Nome do Arquivo: " & FileName & " Nome original: " & To_String(F.File_Name));
+		--Ada.Text_IO.Put_Line("*************************************************************************");		
+		Create( Output_File, Out_File, To_String(F.File_Name));
+		Save( F.My_Parser.All, F, Output_File );
+	end Save;
 end Aw_Config;
