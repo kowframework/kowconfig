@@ -574,14 +574,25 @@ package body Aw_Config is
 	function Value(	F	: Config_File;
 			Key	: String;
 			Default	: String := "" ) return Unbounded_String is
+		Pragma Inline( Value );
+	begin
+		return Value( F, Key, To_Unbounded_String( Default ) );
+	end Value;
+
+	function Value(	F	: Config_File;
+			Key	: String;
+			Default	: Unbounded_String := Null_Unbounded_String ) return Unbounded_String is
 		My_Value : Unbounded_String;
 	begin
 		My_Value := Element( F, Key );
 		return My_Value;
 	exception
 		when CONSTRAINT_ERROR =>
-			return To_Unbounded_String( Default );
+			return Default;
+
+
 	end Value;
+
 
 
 	function Element(	F	: Config_File;

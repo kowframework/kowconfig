@@ -262,6 +262,15 @@ package Aw_Config is
 	-- if occurs a constraint error, returns the default value in 
 	-- Unbounded_String
 
+
+	function Value(	F	: Config_File;
+			Key	: String;
+			Default	: Unbounded_String := Null_Unbounded_String ) return Unbounded_String;
+	-- returns the element value like the Element function
+	-- if occurs a constraint error, returns the default value in 
+	-- Unbounded_String
+
+
 	function Element(	F	: Config_File;
 				Key	: String ) return Boolean;
 	-- returns the element value like the Element function, but 
