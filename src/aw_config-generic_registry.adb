@@ -12,6 +12,7 @@ with Ada.Text_IO;
 
 with Aw_Config;
 with Aw_Lib;
+with Aw_Lib.String_Util;		use Aw_Lib.String_Util;
 with Aw_Lib.UString_Ordered_Maps;
 
 
@@ -139,7 +140,7 @@ package body Aw_Config.Generic_Registry is
 
 		procedure Register( Element_Name: in String; Element: in Element_Type ) is
 		begin
-			Register( To_Unbounded_String( Element_Name ), Element );
+			Register( Str_Replace( "//", "/", Element_Name ), Element );
 		end Register;
 
 		procedure Register( Element_Name: in Unbounded_String; Element: in Element_type ) is
@@ -156,7 +157,7 @@ package body Aw_Config.Generic_Registry is
 		function Get( Name: in String ) return Element_Type is
 			-- pega o elemento informado
 		begin
-			return Get( To_Unbounded_String( Name ) );
+			return Get( Str_Replace( "//", "/", Name ) );
 		end Get;
 
 
