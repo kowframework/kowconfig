@@ -256,7 +256,7 @@ package Aw_Config is
 
 	function Value(	F	: Config_File;
 			Key	: String;
-			Default	: String := "" ) return Unbounded_String;
+			Default	: String ) return Unbounded_String;
 	
 	-- returns the element value like the Element function
 	-- if occurs a constraint error, returns the default value in 

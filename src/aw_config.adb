@@ -573,7 +573,7 @@ package body Aw_Config is
 
 	function Value(	F	: Config_File;
 			Key	: String;
-			Default	: String := "" ) return Unbounded_String is
+			Default	: String ) return Unbounded_String is
 		Pragma Inline( Value );
 	begin
 		return Value( F, Key, To_Unbounded_String( Default ) );
