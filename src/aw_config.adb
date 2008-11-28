@@ -312,7 +312,7 @@ package body Aw_Config is
 					Aw_Lib.UString_Ordered_Maps.Key( C );
 			begin
 				Path_Iterator(
-					Name	=> To_String( My_Key ),
+					Name	=> Aw_Lib.File_System.To_Unix_Path( To_String( My_Key ) ),
 					Config	=> Config
 					);
 			end;
