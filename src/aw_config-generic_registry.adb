@@ -70,6 +70,39 @@ package body Aw_Config.Generic_Registry is
 
 			return Factory_Maps.Element( My_Map, Factory_Type );
 		end Get;
+
+
+		function Get_Names return Aw_Lib.String_Util.UString_Array is
+			Length: Integer := Integer( Factory_Maps.Length( My_Map ) );
+		begin
+			declare
+				Ret_Val: Aw_Lib.String_Util.UString_Array(1 .. Length);
+				Ptr    : Integer := 1;
+				procedure Iterator( C: in Factory_Maps.Cursor ) is
+				begin
+					Ret_Val( Ptr ) := Factory_Maps.Key( C );
+					Ptr := Ptr + 1;
+				end Iterator;
+			begin
+				Factory_Maps.Iterate( My_Map, Iterator'Access );
+
+				return Ret_Val;
+			end;
+		end Get_Names;
+
+
+		function Get_Names return Aw_Lib.UString_Vectors.Vector is
+			Ret_Val : Aw_Lib.UString_Vectors.Vector;
+
+			procedure Iterator( C : Factory_Maps.Cursor ) is
+			begin
+				Aw_Lib.Ustring_Vectors.Append( Ret_Val, Factory_Maps.Key( C ) );
+			end Iterator;
+		begin
+			Factory_Maps.Iterate( My_Map, Iterator'Access );
+			return Ret_Val;
+		end Get_Names;
+
 	end Factory_Registry;
 
 
@@ -191,6 +224,21 @@ package body Aw_Config.Generic_Registry is
 				return Ret_Val;
 			end;
 		end Get_Names;
+
+
+		function Get_Names return Aw_Lib.UString_Vectors.Vector is
+			Ret_Val : Aw_Lib.UString_Vectors.Vector;
+
+			procedure Iterator( C : Element_Maps.Cursor ) is
+			begin
+				Aw_Lib.Ustring_Vectors.Append( Ret_Val, Element_Maps.Key( C ) );
+			end Iterator;
+		begin
+			Element_Maps.Iterate( My_Map, Iterator'Access );
+			return Ret_Val;
+		end Get_Names;
+
+
 	end Registry;
 
 end Aw_Config.Generic_Registry;

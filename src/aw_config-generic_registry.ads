@@ -52,6 +52,12 @@ package Aw_Config.Generic_Registry is
 		
 		function Get( Factory_Type: in Unbounded_String ) return Element_Factory;
 		-- Pega o factory informado.
+		
+		function Get_Names return Aw_Lib.String_Util.UString_Array;
+		-- list all the elements registered in here
+		
+		function Get_Names return Aw_Lib.UString_Vectors.Vector;
+		-- list all the elements registered in here
 
 	private
 		My_Map: Factory_Maps.Map;
@@ -91,6 +97,9 @@ package Aw_Config.Generic_Registry is
 
 
 		function Get_Names return Aw_Lib.String_Util.UString_Array;
+		-- list all the elements registered in here
+		
+		function Get_Names return Aw_Lib.UString_Vectors.Vector;
 		-- list all the elements registered in here
 	private
 
