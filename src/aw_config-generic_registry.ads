@@ -81,6 +81,12 @@ package Aw_Config.Generic_Registry is
 		-- Reload_Registry utilize this one to iterate over the configuration and call the factories
 
 
+		procedure Register_And_Save( Element_Name: in String; Config: in out Aw_Config.Config_File );
+		-- register a new element from it's config file.
+		-- also, write this new element to disk;
+
+		procedure Delete( Element_Name: in String );
+
 		procedure Register( Element_Name: in String; Element: in Element_Type );
 		-- register a hand-made element into this registry
 

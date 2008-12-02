@@ -187,7 +187,6 @@ package Aw_Config is
 	-- read it's contents and return an object representing it.
 	-- the file is closed right after it've been read
 
-	-- TODO:
 	procedure Save( F: in out Config_File );
 	-- save the config file.
 	-- it has to be a file that was loaded directly from a file.

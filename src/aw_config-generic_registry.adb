@@ -3,6 +3,7 @@
 -------------
 
 with Ada.Containers.Ordered_Maps;
+with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Text_IO;
 
@@ -12,6 +13,7 @@ with Ada.Text_IO;
 
 with Aw_Config;
 with Aw_Lib;
+with Aw_Lib.File_System;
 with Aw_Lib.String_Util;		use Aw_Lib.String_Util;
 with Aw_Lib.UString_Ordered_Maps;
 
@@ -170,6 +172,68 @@ package body Aw_Config.Generic_Registry is
 
 			Register( Element_Name, Element );
 		end Iterator;
+		
+		
+		procedure Register_And_Save( Element_Name: in String; Config: in out Aw_Config.Config_File ) is
+			-- register a new element from it's config file.
+			-- also, write this new element to disk;
+			use Ada.Text_IO;
+
+			Output_Dir_Name		: Unbounded_String;
+			Output_File_Name	: Unbounded_String;
+			Output_FIle		: File_Type;
+
+		begin
+			
+			Output_Dir_Name := Aw_Lib.UString_Vectors.Element( Aw_Config.Get_Config_Path, 1 );
+			-- we aways save to the first element in the config path.
+
+			Output_Dir_Name := Output_Dir_Name & To_Unbounded_String( '/' & Relative_Path & '/' );
+
+			Output_File_Name := Output_Dir_Name & To_Unbounded_String( Element_Name );
+
+			Iterator( Element_Name, Config );
+
+			-- if it got here, no exception has been raised... so we can safelly save it to disk.
+			
+			declare
+				F_Name : String := Aw_Lib.File_System.To_System_Path(
+							Aw_Config.Get_File_Name( Parser.all, To_String( Output_File_Name ) )
+						);
+			begin
+
+				-- First we make sure the destination directory exists..
+				
+			        Ada.Directories.Create_Path( Ada.Directories.Containing_Directory( F_Name ) );
+
+
+				-- Then the file must be created..
+
+				Create( Output_File, Out_File, F_Name );
+			end;
+
+			Aw_Config.Save(
+				p	=> Parser.all,
+				Config	=> Config,
+				File	=> Output_File
+				);
+
+			Close( Output_File );
+		end Register_And_Save;
+
+
+		procedure Delete( Element_Name: in String ) is
+			use Aw_Config;
+			F: Config_File := New_Config_File( Relative_Path & Aw_Lib.File_System.Separator & Element_Name, Parser ); 
+			
+		begin
+			Element_Maps.Delete( My_Map, To_Unbounded_String( Element_Name ) );
+
+			Ada.Directories.Delete_File( Get_File_Name( F ) );
+
+		end Delete;
+
+
 
 		procedure Register( Element_Name: in String; Element: in Element_Type ) is
 		begin
