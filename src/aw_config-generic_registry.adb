@@ -185,7 +185,7 @@ package body Aw_Config.Generic_Registry is
 
 		begin
 			
-			Output_Dir_Name := Aw_Lib.UString_Vectors.Element( Aw_Config.Get_Config_Path, 1 );
+			Output_Dir_Name := Aw_Lib.UString_Vectors.Element( Aw_Config.Get_Config_Path, 0 );
 			-- we aways save to the first element in the config path.
 
 			Output_Dir_Name := Output_Dir_Name & To_Unbounded_String( '/' & Relative_Path & '/' );
