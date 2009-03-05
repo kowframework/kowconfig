@@ -251,6 +251,13 @@ package body Aw_Config.Generic_Registry is
 		end Register;
 
 
+		function Contains( Id: in String ) return Boolean is
+			-- checks if the element is available
+		begin
+			return Element_Maps.Contains( My_Map, Str_Replace( "//", "/", Id ) );
+		end Contains;
+
+
 
 		function Get( Id: in String ) return Element_Type is
 			-- pega o elemento informado

@@ -100,6 +100,8 @@ package Aw_Config.Generic_Registry is
 		-- register a hand-made element into this registry
 
 
+		function Contains( Id: in String ) return Boolean;
+		-- checks if the element is available
 
 		function Get( Id: in String ) return Element_Type;
 		-- pega o elemento informado
