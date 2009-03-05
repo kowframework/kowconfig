@@ -116,6 +116,9 @@ package Aw_Config.Generic_Registry is
 
 
 
+		function Get_Ids_by_Type( Factory_Type : in String ) return Aw_Lib.UString_Vectors.Vector;
+		-- get the Id for all elements fabricated using the Factory_Type type;
+
 		function Get_Ids_by_Type( Factory_Type : in Unbounded_String ) return Aw_Lib.UString_Vectors.Vector;
 		-- get the Id for all elements fabricated using the Factory_Type type
 

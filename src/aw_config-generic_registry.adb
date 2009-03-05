@@ -303,6 +303,13 @@ package body Aw_Config.Generic_Registry is
 			return Ret_Val;
 		end Get_Ids;
 
+
+		function Get_Ids_by_Type( Factory_Type : in String ) return Aw_Lib.UString_Vectors.Vector is
+			-- get the Id for all elements fabricated using the Factory_Type type;
+		begin
+			return Get_Ids_by_Type( To_Unbounded_String( Factory_Type ) );
+		end Get_Ids_by_Type;
+
 		function Get_Ids_by_Type( Factory_Type : in Unbounded_String ) return Aw_Lib.UString_Vectors.Vector is
 			-- get the Id for all elements fabricated using the Factory_Type type
 		begin
