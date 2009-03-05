@@ -127,11 +127,11 @@ package body Aw_Config.Generic_Registry is
 			-- Reload_Registry utilize this one to iterate over the configuration and call the factories
 			
 			
-			function Get_Type return String is
+			function Get_Type return Unbounded_String is
 				My_Type: Unbounded_String;
 			begin
 				My_Type := Aw_Config.Element( Config, "type" );
-				return To_String( My_Type );
+				return My_Type;
 			exception
 				when CONSTRAINT_ERROR =>
 					Aw_Config.Dump_Contents( Config );
@@ -144,7 +144,7 @@ package body Aw_Config.Generic_Registry is
 			end Get_Type;
 			
 			Factory		: Element_Factory;
-			Factory_Type	: String := Get_Type;
+			Factory_Type	: Unbounded_String := Get_Type;
 
 			Element		: Element_Type;
 
@@ -165,12 +165,13 @@ package body Aw_Config.Generic_Registry is
 				when e : others =>
 					Ada.Text_IO.Put_Line(	
 						Ada.Text_IO.Standard_Error,
-						"Exception while processing the factory '" & Factory_Type & "'"
+						"Exception while processing the factory '" & To_String( Factory_Type ) & "'"
 						);
 					Ada.Exceptions.Reraise_Occurrence( e );
 			end;
 
 			Register( Element_Id, Element );
+			Create_Factory_Type_Index( Factory_Type, Element_Id );
 		end Iterator;
 		
 		
@@ -226,11 +227,11 @@ package body Aw_Config.Generic_Registry is
 			use Aw_Config;
 			F: Config_File := New_Config_File( Relative_Path & Aw_Lib.File_System.Separator & Element_Id, Parser ); 
 			
+			UElement_Id : Unbounded_String := To_Unbounded_String( Element_Id );
 		begin
-			Element_Maps.Delete( My_Map, To_Unbounded_String( Element_Id ) );
-
+			Element_Maps.Delete( My_Map, UElement_Id );
+			Remove_Factory_Type_Index( Element_Id => UElement_Id );
 			Ada.Directories.Delete_File( Get_File_Name( F ) );
-
 		end Delete;
 
 
@@ -302,6 +303,88 @@ package body Aw_Config.Generic_Registry is
 			return Ret_Val;
 		end Get_Ids;
 
+		function Get_Ids_by_Type( Factory_Type : in Unbounded_String ) return Aw_Lib.UString_Vectors.Vector is
+			-- get the Id for all elements fabricated using the Factory_Type type
+		begin
+			if Element_Index_Maps.Contains( My_Indexes, Factory_Type ) then
+				return Element_Index_Maps.Element( My_Indexes, Factory_Type );
+			else
+				declare
+					Empty : Aw_Lib.UString_Vectors.Vector;
+				begin
+					return Empty;
+				end;
+			end if;
+		end Get_Ids_by_Type;
+
+		procedure Create_Factory_Type_Index( Factory_Type : in Unbounded_String; Element_Id : in Unbounded_String ) is
+			-- create an entry in the element type index for this element.
+
+			use Aw_Lib.UString_Vectors;
+
+			My_Ids: Aw_Lib.UString_Vectors.Vector;
+		begin
+			if Element_Index_Maps.Contains( My_Indexes, Factory_Type ) then
+				My_Ids := Element_Index_Maps.Element( My_Indexes, Factory_Type );
+			end if;
+
+			if Find( My_Ids, Element_Id ) = No_Element then
+				-- we only add the index if it's not already there
+				-- no exception os raised otherwise
+				Append( My_Ids, Element_Id );
+				Element_Index_Maps.Include( My_Indexes, Factory_Type, My_Ids );
+			end if;
+		end Create_Factory_Type_Index;
+
+		procedure Remove_Factory_Type_Index( Factory_Type : in Unbounded_String; Element_Id : in Unbounded_String ) is
+			-- remove the index, knowing he factory type
+			My_Ids	: Aw_Lib.UString_Vectors.Vector;
+			C	: Aw_Lib.UString_Vectors.Cursor;
+		begin
+		
+			if not Element_Index_Maps.Contains( My_Indexes, Factory_Type ) then
+				raise INVALID_FACTORY_TYPE with "There is no such factory :: """ & To_String( Factory_Type ) & """";
+			end if;
+
+			My_Ids := Element_Index_Maps.Element( My_Indexes, Factory_Type );
+			C := Aw_Lib.UString_Vectors.Find( My_Ids, Element_Id );
+			Aw_Lib.UString_Vectors.Delete( My_Ids, C );
+
+			-- substituimos todos os indices ::
+
+			Element_Index_Maps.Include( My_Indexes, Factory_Type, My_Ids );
+		exception
+			when CONSTRAINT_ERROR =>
+				raise CONSTRAINT_ERROR with "Element not found :: """ & To_String( Element_id ) & """";
+		end Remove_Factory_Type_Index;
+		
+		procedure Remove_Factory_Type_Index( Element_Id : in Unbounded_String ) is
+			-- remove the index, not knowing the factory type (quite slow though) 
+
+			Found		: Boolean := False;
+			Found_At	: Unbounded_String;
+			My_Ids		: Aw_Lib.UString_Vectors.Vector;
+			procedure Factory_Iterator( C : Element_Index_Maps.Cursor ) is
+				use Element_Index_Maps;
+				use Aw_Lib.UString_Vectors;
+				EC	: Aw_Lib.UString_Vectors.Cursor;
+			begin
+				if not Found then
+					My_Ids	:= Element( C );
+					EC	:= Find( My_Ids, Element_Id );
+					if EC /= Aw_Lib.UString_Vectors.No_Element then
+						Found_At := Key( C );
+						Delete( My_Ids, EC );
+						Found := True;
+					end if;
+				end if;
+			end Factory_Iterator;
+		begin
+			Element_Index_Maps.Iterate( My_Indexes, Factory_Iterator'Access );
+			if Found then
+				Element_Index_Maps.Include( My_Indexes, Found_At, My_Ids );
+			end if;
+		end Remove_Factory_Type_Index;
 
 	end Registry;
 

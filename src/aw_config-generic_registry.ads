@@ -10,8 +10,9 @@ with Ada.Containers.Ordered_Maps;
 --
 -- AdaWorks
 --
-with Aw_Lib.String_Util;
 with Aw_Config;
+with Aw_Lib.String_Util;
+with Aw_Lib.UString_Vectors;	use Aw_Lib.UString_Vectors;
 
 
 -- Esse pacote é para ser usado para gerar um registro de elementos que nunca serão desalocados.
@@ -68,6 +69,11 @@ package Aw_Config.Generic_Registry is
 			Key_Type	=> Unbounded_String,
 			Element_Type	=> Element_Type );
 
+	package Element_Index_Maps is new Ada.Containers.Ordered_Maps(
+			Key_Type	=> Unbounded_String,
+			Element_Type	=> Aw_Lib.UString_Vectors.Vector );
+	-- NOTE: I know that another structure would be a LOT faster and easier to use.
+	-- But by the time I realized that I had already implemented almost everything.
 
 
 	procedure Reload_Registry;
@@ -107,9 +113,25 @@ package Aw_Config.Generic_Registry is
 		
 		function Get_Ids return Aw_Lib.UString_Vectors.Vector;
 		-- list all the elements registered in here
+
+
+
+		function Get_Ids_by_Type( Factory_Type : in Unbounded_String ) return Aw_Lib.UString_Vectors.Vector;
+		-- get the Id for all elements fabricated using the Factory_Type type
+
+		procedure Create_Factory_Type_Index( Factory_Type : in Unbounded_String; Element_Id : in Unbounded_String );
+		-- create an entry in the element type index for this element.
+
+		procedure Remove_Factory_Type_Index( Factory_Type : in Unbounded_String; Element_Id : in Unbounded_String );
+		-- remove the index, knowing he factory type
+		
+		procedure Remove_Factory_Type_Index( Element_Id : in Unbounded_String );
+		-- remove the index, not knowing the factory type (quite slow though) 
+
 	private
 
-		My_Map: Element_Maps.Map;
+		My_Map		: Element_Maps.Map;
+		My_Indexes	: Element_Index_Maps.Map;
 	end Registry;
 
 end Aw_Config.Generic_Registry;
