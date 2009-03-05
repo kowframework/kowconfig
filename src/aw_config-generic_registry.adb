@@ -74,7 +74,7 @@ package body Aw_Config.Generic_Registry is
 		end Get;
 
 
-		function Get_Names return Aw_Lib.String_Util.UString_Array is
+		function Get_Ids return Aw_Lib.String_Util.UString_Array is
 			Length: Integer := Integer( Factory_Maps.Length( My_Map ) );
 		begin
 			declare
@@ -90,10 +90,10 @@ package body Aw_Config.Generic_Registry is
 
 				return Ret_Val;
 			end;
-		end Get_Names;
+		end Get_Ids;
 
 
-		function Get_Names return Aw_Lib.UString_Vectors.Vector is
+		function Get_Ids return Aw_Lib.UString_Vectors.Vector is
 			Ret_Val : Aw_Lib.UString_Vectors.Vector;
 
 			procedure Iterator( C : Factory_Maps.Cursor ) is
@@ -103,7 +103,7 @@ package body Aw_Config.Generic_Registry is
 		begin
 			Factory_Maps.Iterate( My_Map, Iterator'Access );
 			return Ret_Val;
-		end Get_Names;
+		end Get_Ids;
 
 	end Factory_Registry;
 
@@ -122,7 +122,7 @@ package body Aw_Config.Generic_Registry is
 
 	protected body Registry is
 
-		procedure Iterator( Name: in String; Config: in out Aw_Config.Config_File ) is
+		procedure Iterator( Id: in String; Config: in out Aw_Config.Config_File ) is
 			-- this procedure is used internally and shouldn't be used anywhere else!
 			-- Reload_Registry utilize this one to iterate over the configuration and call the factories
 			
@@ -137,7 +137,7 @@ package body Aw_Config.Generic_Registry is
 					Aw_Config.Dump_Contents( Config );
 					raise CONSTRAINT_ERROR with 
 						"Type didn't declare in configuration """
-						& Name 
+						& Id 
 						& "@"
 						& Aw_Config.Get_File_Name( Config )
 						& """";
@@ -148,19 +148,19 @@ package body Aw_Config.Generic_Registry is
 
 			Element		: Element_Type;
 
-			Element_Name	: Unbounded_String := To_Unbounded_String( Name );
+			Element_Id	: Unbounded_String := To_Unbounded_String( Id );
 		begin
-			if Element_Maps.Contains( My_Map, Element_Name ) then
+			if Element_Maps.Contains( My_Map, Element_Id ) then
 				raise DUPLICATED_ELEMENT with 
 					"Detected duplicated element " &
-					To_String(Element_Name) & " in " &
+					To_String(Element_Id) & " in " &
 					Aw_Config.Get_File_Name( Config );
 			end if;
 
 			Factory := Factory_Registry.Get( Factory_Type );
 
 			begin
-				Element := Factory.all( Name, Config );
+				Element := Factory.all( Id, Config );
 			exception
 				when e : others =>
 					Ada.Text_IO.Put_Line(	
@@ -170,11 +170,11 @@ package body Aw_Config.Generic_Registry is
 					Ada.Exceptions.Reraise_Occurrence( e );
 			end;
 
-			Register( Element_Name, Element );
+			Register( Element_Id, Element );
 		end Iterator;
 		
 		
-		procedure Register_And_Save( Element_Name: in String; Config: in out Aw_Config.Config_File ) is
+		procedure Register_And_Save( Element_Id: in String; Config: in out Aw_Config.Config_File ) is
 			-- register a new element from it's config file.
 			-- also, write this new element to disk;
 			use Ada.Text_IO;
@@ -190,26 +190,26 @@ package body Aw_Config.Generic_Registry is
 
 			Output_Dir_Name := Output_Dir_Name & To_Unbounded_String( '/' & Relative_Path & '/' );
 
-			Output_File_Name := Output_Dir_Name & To_Unbounded_String( Element_Name );
+			Output_File_Name := Output_Dir_Name & To_Unbounded_String( Element_Id );
 
-			Iterator( Element_Name, Config );
+			Iterator( Element_Id, Config );
 
 			-- if it got here, no exception has been raised... so we can safelly save it to disk.
 			
 			declare
-				F_Name : String := Aw_Lib.File_System.To_System_Path(
+				F_Id : String := Aw_Lib.File_System.To_System_Path(
 							Aw_Config.Get_File_Name( Parser.all, To_String( Output_File_Name ) )
 						);
 			begin
 
 				-- First we make sure the destination directory exists..
 				
-			        Ada.Directories.Create_Path( Ada.Directories.Containing_Directory( F_Name ) );
+			        Ada.Directories.Create_Path( Ada.Directories.Containing_Directory( F_Id ) );
 
 
 				-- Then the file must be created..
 
-				Create( Output_File, Out_File, F_Name );
+				Create( Output_File, Out_File, F_Id );
 			end;
 
 			Aw_Config.Save(
@@ -222,12 +222,12 @@ package body Aw_Config.Generic_Registry is
 		end Register_And_Save;
 
 
-		procedure Delete( Element_Name: in String ) is
+		procedure Delete( Element_Id: in String ) is
 			use Aw_Config;
-			F: Config_File := New_Config_File( Relative_Path & Aw_Lib.File_System.Separator & Element_Name, Parser ); 
+			F: Config_File := New_Config_File( Relative_Path & Aw_Lib.File_System.Separator & Element_Id, Parser ); 
 			
 		begin
-			Element_Maps.Delete( My_Map, To_Unbounded_String( Element_Name ) );
+			Element_Maps.Delete( My_Map, To_Unbounded_String( Element_Id ) );
 
 			Ada.Directories.Delete_File( Get_File_Name( F ) );
 
@@ -235,43 +235,43 @@ package body Aw_Config.Generic_Registry is
 
 
 
-		procedure Register( Element_Name: in String; Element: in Element_Type ) is
+		procedure Register( Element_Id: in String; Element: in Element_Type ) is
 		begin
-			Register( Str_Replace( "//", "/", Element_Name ), Element );
+			Register( Str_Replace( "//", "/", Element_Id ), Element );
 		end Register;
 
-		procedure Register( Element_Name: in Unbounded_String; Element: in Element_type ) is
+		procedure Register( Element_Id: in Unbounded_String; Element: in Element_type ) is
 		begin
 			Element_Maps.Include(
 				My_Map,
-				Element_Name,
+				Element_Id,
 				Element
 				);
 		end Register;
 
 
 
-		function Get( Name: in String ) return Element_Type is
+		function Get( Id: in String ) return Element_Type is
 			-- pega o elemento informado
 		begin
-			return Get( Str_Replace( "//", "/", Name ) );
+			return Get( Str_Replace( "//", "/", Id ) );
 		end Get;
 
 
-		function Get( Name: in Unbounded_String ) return Element_Type is
+		function Get( Id: in Unbounded_String ) return Element_Type is
 			-- pega o elemento informado
 		begin
-			if not Element_Maps.Contains( My_Map, Name ) then
+			if not Element_Maps.Contains( My_Map, Id ) then
 				raise CONSTRAINT_ERROR with "Element " &
-					To_String( Name ) &
+					To_String( Id ) &
 					" doesn't exist in map whose Relative_Path is " &
 					Relative_Path & ".";
 			end if;
 
-			return Element_Maps.Element( My_Map, Name );
+			return Element_Maps.Element( My_Map, Id );
 		end Get;
 
-		function Get_Names return Aw_Lib.String_Util.UString_Array is
+		function Get_Ids return Aw_Lib.String_Util.UString_Array is
 			Length: Integer := Integer( Element_Maps.Length( My_Map ) );
 		begin
 			declare
@@ -287,10 +287,10 @@ package body Aw_Config.Generic_Registry is
 
 				return Ret_Val;
 			end;
-		end Get_Names;
+		end Get_Ids;
 
 
-		function Get_Names return Aw_Lib.UString_Vectors.Vector is
+		function Get_Ids return Aw_Lib.UString_Vectors.Vector is
 			Ret_Val : Aw_Lib.UString_Vectors.Vector;
 
 			procedure Iterator( C : Element_Maps.Cursor ) is
@@ -300,7 +300,7 @@ package body Aw_Config.Generic_Registry is
 		begin
 			Element_Maps.Iterate( My_Map, Iterator'Access );
 			return Ret_Val;
-		end Get_Names;
+		end Get_Ids;
 
 
 	end Registry;

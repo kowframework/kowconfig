@@ -27,7 +27,7 @@ package Aw_Config.Generic_Registry is
 	DUPLICATED_ELEMENT : Exception;
 
 
-	type Element_Factory is access function( Name: in String; Config: in Aw_Config.Config_File ) return Element_Type;
+	type Element_Factory is access function( Id: in String; Config: in Aw_Config.Config_File ) return Element_Type;
 	-- Função usada para criar os elementos.
 	-- Para cada tipo ( a ser registrado no Factory_Registry ) o usuário ( desenvolvedor ) deve criar um factory
 	-- e registrar o access no Factory_Registry a seguir
@@ -53,10 +53,10 @@ package Aw_Config.Generic_Registry is
 		function Get( Factory_Type: in Unbounded_String ) return Element_Factory;
 		-- Pega o factory informado.
 		
-		function Get_Names return Aw_Lib.String_Util.UString_Array;
+		function Get_Ids return Aw_Lib.String_Util.UString_Array;
 		-- list all the elements registered in here
 		
-		function Get_Names return Aw_Lib.UString_Vectors.Vector;
+		function Get_Ids return Aw_Lib.UString_Vectors.Vector;
 		-- list all the elements registered in here
 
 	private
@@ -76,36 +76,36 @@ package Aw_Config.Generic_Registry is
 
 	protected Registry is
 
-		procedure Iterator( Name: in String; Config: in out Aw_Config.Config_File );
+		procedure Iterator( Id: in String; Config: in out Aw_Config.Config_File );
 		-- procedure is used internally and shouldn't be used anywhere else!
 		-- Reload_Registry utilize this one to iterate over the configuration and call the factories
 
 
-		procedure Register_And_Save( Element_Name: in String; Config: in out Aw_Config.Config_File );
+		procedure Register_And_Save( Element_Id: in String; Config: in out Aw_Config.Config_File );
 		-- register a new element from it's config file.
 		-- also, write this new element to disk;
 
-		procedure Delete( Element_Name: in String );
+		procedure Delete( Element_Id: in String );
 
-		procedure Register( Element_Name: in String; Element: in Element_Type );
+		procedure Register( Element_Id: in String; Element: in Element_Type );
 		-- register a hand-made element into this registry
 
-		procedure Register( Element_Name: in Unbounded_String; Element: in Element_type );
+		procedure Register( Element_Id: in Unbounded_String; Element: in Element_type );
 		-- register a hand-made element into this registry
 
 
 
-		function Get( Name: in String ) return Element_Type;
+		function Get( Id: in String ) return Element_Type;
 		-- pega o elemento informado
 		
-		function Get( Name: in Unbounded_String ) return Element_Type;
+		function Get( Id: in Unbounded_String ) return Element_Type;
 		-- pega o elemento informado
 
 
-		function Get_Names return Aw_Lib.String_Util.UString_Array;
+		function Get_Ids return Aw_Lib.String_Util.UString_Array;
 		-- list all the elements registered in here
 		
-		function Get_Names return Aw_Lib.UString_Vectors.Vector;
+		function Get_Ids return Aw_Lib.UString_Vectors.Vector;
 		-- list all the elements registered in here
 	private
 
