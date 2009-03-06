@@ -311,6 +311,14 @@ package Aw_Config is
 	-- return the value of element inside the current section with
 	-- key 'Key:L_Code'
 	
+
+	function Element(	F	: Config_File;
+				Key	: String;
+				L_Code	: Aw_Lib.Locales.Locale_Code )
+		return String;
+	-- return the value of element inside the current section with
+	-- key 'Key:L_Code'
+
 	
 	function Extract( F: Config_File; Prefix: Unbounded_String )
 		return Config_File;

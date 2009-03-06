@@ -683,6 +683,24 @@ package body Aw_Config is
 				& """";
 	end Element;
 		
+	function Element(	F	: Config_File;
+				Key	: String;
+				L_Code	: Aw_Lib.Locales.Locale_Code )
+		return String is
+		-- return the value of element inside the current section with
+		-- key 'Key:L_Code'
+	begin
+		return To_String(
+			Element(
+				F	=> F,
+				Key	=> To_Unbounded_String( Key ),
+				L_Code	=> L_Code
+				)
+			);
+	end Element;
+
+
+
 
 	function Element( F: Config_File; Key: Unbounded_String ) return Unbounded_String is
 	begin
