@@ -14,14 +14,29 @@ with Ada.Text_IO;
 with Aw_Config;
 with Aw_Lib;
 with Aw_Lib.File_System;
+with Aw_Lib.Log;
 with Aw_Lib.String_Util;		use Aw_Lib.String_Util;
 with Aw_Lib.UString_Ordered_Maps;
 
 
 package body Aw_Config.Generic_Registry is
+	Logger : Aw_Lib.Log.Logger_Type := 
+			Aw_Lib.Log.Get_Logger( "Aw_Config.Generic_Registry[" & Relative_Path & "]" );
+	
+
+	procedure Log(
+			Message : in String;
+			Level : Aw_Lib.Log.Log_Level := Aw_lib.Log.Level_Info
+		) is
+	begin
+		Aw_lib.Log.Log(
+				Logger	=> Logger,
+				Level	=> Level,
+				Message	=> "[SYSTEM] :: " & Message -- [SYSTEM] here is a recomendation where to put your users..
+			);
+	end Log;
 
 
-	procedure pl(Str: in String ) renames Ada.Text_IO.Put_Line;
 
 
 	protected body Factory_Registry is
@@ -163,9 +178,9 @@ package body Aw_Config.Generic_Registry is
 				Element := Factory.all( Id, Config );
 			exception
 				when e : others =>
-					Ada.Text_IO.Put_Line(	
-						Ada.Text_IO.Standard_Error,
-						"Exception while processing the factory '" & To_String( Factory_Type ) & "'"
+					Log(
+						"Exception while processing the factory '" & To_String( Factory_Type ) & "'",
+						Aw_Lib.Log.Level_Error
 						);
 					Ada.Exceptions.Reraise_Occurrence( e );
 			end;

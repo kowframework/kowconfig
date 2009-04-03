@@ -45,6 +45,7 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
 
 with Aw_Lib.File_System;
+with Aw_Lib.Log;
 with Aw_Lib.String_Util;
 with Aw_Lib.UString_Vectors;
 with Aw_Lib.UString_Ordered_Maps;
@@ -55,8 +56,24 @@ with Ada.Text_IO;
 
 package body Aw_Config is
 
+	Logger : Aw_Lib.Log.Logger_Type := 
+			Aw_Lib.Log.Get_Logger( "Aw_Config" );
+	
 
-	procedure pl(str: in string) renames ada.text_io.put_line;
+	procedure Log(
+			Message : in String;
+			Level : Aw_Lib.Log.Log_Level := Aw_lib.Log.Level_Info
+		) is
+	begin
+		Aw_lib.Log.Log(
+				Logger	=> Logger,
+				Level	=> Level,
+				Message	=> "[SYSTEM] :: " & Message -- [SYSTEM] here is a recomendation where to put your users..
+			);
+	end Log;
+
+
+
 	------------------------
 	-- Exception Handling --
 	------------------------
@@ -474,10 +491,7 @@ package body Aw_Config is
 		use Aw_Lib.UString_Ordered_Maps;
 		procedure My_Iterator( C: in Aw_Lib.UString_Ordered_Maps.Cursor ) is
 		begin
-			Put( To_String( Key( C ) ) );
-			Put( " => " );
-			Put( To_String( Element( C ) ) );
-			New_Line;
+			Log( To_String( Key( C ) ) & " => " & To_String( Element( C ) ) );
 		end My_Iterator;
 	begin
 		Iterate(
@@ -837,12 +851,9 @@ package body Aw_Config is
 	-- save the config file.
 	procedure Save( F: in out Config_File ) is
 		Output_File : file_type;
-		--FileName : String := Get_File_Name( F.My_Parser.All, To_String(F.File_Name));
+		File_Name : String := Get_File_Name( F.My_Parser.All, To_String(F.File_Name));
 	Begin	
-						
-		--Ada.Text_IO.Put_Line("*************************************************************************");
-		--Ada.Text_IO.Put_Line("Nome do Arquivo: " & FileName & " Nome original: " & To_String(F.File_Name));
-		--Ada.Text_IO.Put_Line("*************************************************************************");		
+		Log( "Saving to file :: " & File_Name & " :: " & To_String( F.File_Name ), Aw_Lib.Log.Level_Debug );			
 		Create( Output_File, Out_File, To_String(F.File_Name));
 		Save( F.My_Parser.All, F, Output_File );
 	end Save;
