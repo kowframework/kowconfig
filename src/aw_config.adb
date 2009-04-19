@@ -501,7 +501,22 @@ package body Aw_Config is
 	end Dump_Contents;
 
 	
+	function Merge_Configs( Parent, Child : in Config_File ) return Config_File is
+		-- merge two config files, overriding all parent's keys by the child's ones
 
+
+		use Aw_Lib.UString_Ordered_Maps;
+		Cfg: Config_File := Child;
+
+		procedure Iterator( C: in Cursor ) is
+		begin
+			Include( Cfg.Contents, Key( C ), Element( C ) );
+		end Iterator;
+	begin
+		Cfg.Contents := Parent.Contents;
+		Iterate( Child.Contents, Iterator'Access );
+		return Cfg;
+	end Merge_Configs;
 	
 	----------------------------------
 	-- Methods for Config Iteration --

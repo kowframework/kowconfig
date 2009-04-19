@@ -202,6 +202,9 @@ package Aw_Config is
 	-- dumps the contents map into the std out
 	
 	
+	function Merge_Configs( Parent, Child : in Config_File ) return Config_File;
+	-- merge two config files, overriding all parent's keys by the child's ones
+
 	----------------------------------
 	-- Methods for Config Iteration --
 	----------------------------------
