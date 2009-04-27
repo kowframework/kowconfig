@@ -871,5 +871,6 @@ package body Aw_Config is
 		Log( "Saving to file :: " & File_Name & " :: " & To_String( F.File_Name ), Aw_Lib.Log.Level_Debug );			
 		Create( Output_File, Out_File, To_String(F.File_Name));
 		Save( F.My_Parser.All, F, Output_File );
+		Close( Output_File );
 	end Save;
 end Aw_Config;
