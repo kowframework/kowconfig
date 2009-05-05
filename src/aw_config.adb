@@ -491,7 +491,7 @@ package body Aw_Config is
 		use Aw_Lib.UString_Ordered_Maps;
 		procedure My_Iterator( C: in Aw_Lib.UString_Ordered_Maps.Cursor ) is
 		begin
-			Log( To_String( Key( C ) ) & " => " & To_String( Element( C ) ) );
+			Log( To_String( Key( C ) ) & " => " & To_String( Element( C ) ), Aw_lib.Log.Level_Debug );
 		end My_Iterator;
 	begin
 		Iterate(
