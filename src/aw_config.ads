@@ -307,10 +307,11 @@ package Aw_Config is
 	-- to root section; ie expects Key to be of the form "sectionName.key"
 
 
-	function Element(	F	: Config_File;
-				Key	: Unbounded_String;
-				L_Code	: Aw_Lib.Locales.Locale_Code )
-		return Unbounded_String;
+	function Element(	F		: Config_File;
+				Key		: Unbounded_String;
+				L_Code		: Aw_Lib.Locales.Locale_Code;
+				Dump_On_Error	: Boolean := False
+			) return Unbounded_String;
 	-- return the value of element inside the current section with
 	-- key 'Key:L_Code'
 	

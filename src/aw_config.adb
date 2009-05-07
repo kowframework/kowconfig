@@ -683,9 +683,11 @@ package body Aw_Config is
 	end Find_Localed_Key;
 
 
-	function Element(	F	: Config_File;
-				Key	: Unbounded_String;
-				L_Code	: Aw_Lib.Locales.Locale_Code ) return Unbounded_String is
+	function Element(	F		: Config_File;
+				Key		: Unbounded_String;
+				L_Code		: Aw_Lib.Locales.Locale_Code;
+				Dump_On_Error	: Boolean := False
+			) return Unbounded_String is
 		-- return the value of element inside the current section with
 		-- key Key
 		-- if no current section active, return propertie relative
@@ -703,7 +705,9 @@ package body Aw_Config is
 		return Element(	F.Contents, Localed_Key );
 	exception
 		when CONSTRAINT_ERROR =>
-			Dump_Contents( F );
+			if Dump_on_Error then
+				Dump_Contents( F );
+			end if;
 			raise CONSTRAINT_ERROR with 
 				"Error when trying to get Key """ &
 				To_String( Localed_Key ) & 
