@@ -283,6 +283,9 @@ package body Aw_Config.Generic_Registry is
 
 		function Get( Id: in Unbounded_String ) return Element_Type is
 			-- pega o elemento informado
+			I : Integer := Integer( Element_Maps.Length( My_Map ) );
+			
+			C : Element_Maps.Cursor := Element_Maps.First( My_Map );
 		begin
 			if not Element_Maps.Contains( My_Map, Id ) then
 				raise CONSTRAINT_ERROR with "Element " &
