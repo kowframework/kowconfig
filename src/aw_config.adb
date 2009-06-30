@@ -623,6 +623,25 @@ package body Aw_Config is
 	end Value;
 
 
+	function Has_Element(	F	: Config_File;
+				Key	: String ) return Boolean is
+		-- check if the element exists in the config file
+	begin
+		return Has_Element( F, To_Unbounded_String( Key ) );
+	end Has_Element;
+
+	function Has_Element(	F	: Config_File;
+				Key	: Unbounded_String ) return Boolean is
+		-- check if the element exists in the config file
+	begin
+		if F.Current_Section = "" then
+			return Aw_Lib.UString_Ordered_Maps.Contains( F.Contents, Key );
+		else
+			return Aw_Lib.UString_Ordered_Maps.Contains( F.Contents, F.Current_Section & '.' & Key );
+		end if;
+	end Has_Element;
+
+
 
 	function Element(	F	: Config_File;
 				Key	: String ) return Boolean is

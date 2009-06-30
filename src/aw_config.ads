@@ -272,6 +272,14 @@ package Aw_Config is
 	-- if occurs a constraint error, returns the default value in 
 	-- Unbounded_String
 
+	function Has_Element(	F	: Config_File;
+				Key	: String ) return Boolean;
+	-- check if the element exists in the config file
+	
+	function Has_Element(	F	: Config_File;
+				Key	: Unbounded_String ) return Boolean;
+	-- check if the element exists in the config file
+
 
 	function Element(	F	: Config_File;
 				Key	: String ) return Boolean;
