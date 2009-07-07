@@ -10,10 +10,10 @@
 all: libs
 
 libs:
-	gnatmake -P awconfig.gpr
+	gnatmake -P kowconfig.gpr
 
 clean: 
-	gnatclean -P awconfig.gpr
+	gnatclean -P kowconfig.gpr
 	@echo "All clean"
 
 docs:

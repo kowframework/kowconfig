@@ -11,25 +11,25 @@ with Ada.Text_IO;
 -- AdaWorks --
 --------------
 
-with Aw_Config;
-with Aw_Lib;
-with Aw_Lib.File_System;
-with Aw_Lib.Log;
-with Aw_Lib.String_Util;		use Aw_Lib.String_Util;
-with Aw_Lib.UString_Ordered_Maps;
+with KOW_Config;
+with KOW_Lib;
+with KOW_Lib.File_System;
+with KOW_Lib.Log;
+with KOW_Lib.String_Util;		use KOW_Lib.String_Util;
+with KOW_Lib.UString_Ordered_Maps;
 
 
-package body Aw_Config.Generic_Registry is
-	Logger : Aw_Lib.Log.Logger_Type := 
-			Aw_Lib.Log.Get_Logger( "Aw_Config.Generic_Registry[" & Relative_Path & "]" );
+package body KOW_Config.Generic_Registry is
+	Logger : KOW_Lib.Log.Logger_Type := 
+			KOW_Lib.Log.Get_Logger( "KOW_Config.Generic_Registry[" & Relative_Path & "]" );
 	
 
 	procedure Log(
 			Message : in String;
-			Level : Aw_Lib.Log.Log_Level := Aw_lib.Log.Level_Info
+			Level : KOW_Lib.Log.Log_Level := KOW_lib.Log.Level_Info
 		) is
 	begin
-		Aw_lib.Log.Log(
+		KOW_lib.Log.Log(
 				Logger	=> Logger,
 				Level	=> Level,
 				Message	=> "[SYSTEM] :: " & Message -- [SYSTEM] here is a recomendation where to put your users..
@@ -89,11 +89,11 @@ package body Aw_Config.Generic_Registry is
 		end Get;
 
 
-		function Get_Ids return Aw_Lib.String_Util.UString_Array is
+		function Get_Ids return KOW_Lib.String_Util.UString_Array is
 			Length: Integer := Integer( Factory_Maps.Length( My_Map ) );
 		begin
 			declare
-				Ret_Val: Aw_Lib.String_Util.UString_Array(1 .. Length);
+				Ret_Val: KOW_Lib.String_Util.UString_Array(1 .. Length);
 				Ptr    : Integer := 1;
 				procedure Iterator( C: in Factory_Maps.Cursor ) is
 				begin
@@ -108,12 +108,12 @@ package body Aw_Config.Generic_Registry is
 		end Get_Ids;
 
 
-		function Get_Ids return Aw_Lib.UString_Vectors.Vector is
-			Ret_Val : Aw_Lib.UString_Vectors.Vector;
+		function Get_Ids return KOW_Lib.UString_Vectors.Vector is
+			Ret_Val : KOW_Lib.UString_Vectors.Vector;
 
 			procedure Iterator( C : Factory_Maps.Cursor ) is
 			begin
-				Aw_Lib.Ustring_Vectors.Append( Ret_Val, Factory_Maps.Key( C ) );
+				KOW_Lib.Ustring_Vectors.Append( Ret_Val, Factory_Maps.Key( C ) );
 			end Iterator;
 		begin
 			Factory_Maps.Iterate( My_Map, Iterator'Access );
@@ -123,13 +123,13 @@ package body Aw_Config.Generic_Registry is
 	end Factory_Registry;
 
 
-	procedure Path_Iterate is new Aw_Config.Generic_Iterate( Path_Iterator => Registry.Iterator );
+	procedure Path_Iterate is new KOW_Config.Generic_Iterate( Path_Iterator => Registry.Iterator );
 
 
 	procedure Reload_Registry is
 		-- escaneia o diretório informado e recria o registro
-		Config_Map : Aw_Lib.UString_Ordered_Maps.Map := 
-			Aw_Config.Scan_Relative_Path( Relative_Path => Relative_Path, P => Parser );
+		Config_Map : KOW_Lib.UString_Ordered_Maps.Map := 
+			KOW_Config.Scan_Relative_Path( Relative_Path => Relative_Path, P => Parser );
 	begin
 		Path_Iterate( Config_Map, Parser );
 	end Reload_Registry;
@@ -137,7 +137,7 @@ package body Aw_Config.Generic_Registry is
 
 	protected body Registry is
 
-		procedure Iterator( Id: in String; Config: in out Aw_Config.Config_File ) is
+		procedure Iterator( Id: in String; Config: in out KOW_Config.Config_File ) is
 			-- this procedure is used internally and shouldn't be used anywhere else!
 			-- Reload_Registry utilize this one to iterate over the configuration and call the factories
 			
@@ -145,16 +145,16 @@ package body Aw_Config.Generic_Registry is
 			function Get_Type return Unbounded_String is
 				My_Type: Unbounded_String;
 			begin
-				My_Type := Aw_Config.Element( Config, "type" );
+				My_Type := KOW_Config.Element( Config, "type" );
 				return My_Type;
 			exception
 				when CONSTRAINT_ERROR =>
-					Aw_Config.Dump_Contents( Config );
+					KOW_Config.Dump_Contents( Config );
 					raise CONSTRAINT_ERROR with 
 						"Type didn't declare in configuration """
 						& Id 
 						& "@"
-						& Aw_Config.Get_File_Name( Config )
+						& KOW_Config.Get_File_Name( Config )
 						& """";
 			end Get_Type;
 			
@@ -169,7 +169,7 @@ package body Aw_Config.Generic_Registry is
 				raise DUPLICATED_ELEMENT with 
 					"Detected duplicated element " &
 					To_String(Element_Id) & " in " &
-					Aw_Config.Get_File_Name( Config );
+					KOW_Config.Get_File_Name( Config );
 			end if;
 
 			Factory := Factory_Registry.Get( Factory_Type );
@@ -180,7 +180,7 @@ package body Aw_Config.Generic_Registry is
 				when e : others =>
 					Log(
 						"Exception while processing the factory '" & To_String( Factory_Type ) & "'",
-						Aw_Lib.Log.Level_Error
+						KOW_Lib.Log.Level_Error
 						);
 					Ada.Exceptions.Reraise_Occurrence( e );
 			end;
@@ -190,7 +190,7 @@ package body Aw_Config.Generic_Registry is
 		end Iterator;
 		
 		
-		procedure Register_And_Save( Element_Id: in String; Config: in out Aw_Config.Config_File ) is
+		procedure Register_And_Save( Element_Id: in String; Config: in out KOW_Config.Config_File ) is
 			-- register a new element from it's config file.
 			-- also, write this new element to disk;
 			use Ada.Text_IO;
@@ -201,7 +201,7 @@ package body Aw_Config.Generic_Registry is
 
 		begin
 			
-			Output_Dir_Name := Aw_Lib.UString_Vectors.Element( Aw_Config.Get_Config_Path, 0 );
+			Output_Dir_Name := KOW_Lib.UString_Vectors.Element( KOW_Config.Get_Config_Path, 0 );
 			-- we aways save to the first element in the config path.
 
 			Output_Dir_Name := Output_Dir_Name & To_Unbounded_String( '/' & Relative_Path & '/' );
@@ -213,8 +213,8 @@ package body Aw_Config.Generic_Registry is
 			-- if it got here, no exception has been raised... so we can safelly save it to disk.
 			
 			declare
-				F_Id : String := Aw_Lib.File_System.To_System_Path(
-							Aw_Config.Get_File_Name( Parser.all, To_String( Output_File_Name ) )
+				F_Id : String := KOW_Lib.File_System.To_System_Path(
+							KOW_Config.Get_File_Name( Parser.all, To_String( Output_File_Name ) )
 						);
 			begin
 
@@ -228,7 +228,7 @@ package body Aw_Config.Generic_Registry is
 				Create( Output_File, Out_File, F_Id );
 			end;
 
-			Aw_Config.Save(
+			KOW_Config.Save(
 				p	=> Parser.all,
 				Config	=> Config,
 				File	=> Output_File
@@ -239,8 +239,8 @@ package body Aw_Config.Generic_Registry is
 
 
 		procedure Delete( Element_Id: in String ) is
-			use Aw_Config;
-			F: Config_File := New_Config_File( Relative_Path & Aw_Lib.File_System.Separator & Element_Id, Parser ); 
+			use KOW_Config;
+			F: Config_File := New_Config_File( Relative_Path & KOW_Lib.File_System.Separator & Element_Id, Parser ); 
 			
 			UElement_Id : Unbounded_String := To_Unbounded_String( Element_Id );
 		begin
@@ -297,11 +297,11 @@ package body Aw_Config.Generic_Registry is
 			return Element_Maps.Element( My_Map, Id );
 		end Get;
 
-		function Get_Ids return Aw_Lib.String_Util.UString_Array is
+		function Get_Ids return KOW_Lib.String_Util.UString_Array is
 			Length: Integer := Integer( Element_Maps.Length( My_Map ) );
 		begin
 			declare
-				Ret_Val: Aw_Lib.String_Util.UString_Array(1 .. Length);
+				Ret_Val: KOW_Lib.String_Util.UString_Array(1 .. Length);
 				Ptr    : Integer := 1;
 				procedure Iterator( C: in Element_Maps.Cursor ) is
 				begin
@@ -316,12 +316,12 @@ package body Aw_Config.Generic_Registry is
 		end Get_Ids;
 
 
-		function Get_Ids return Aw_Lib.UString_Vectors.Vector is
-			Ret_Val : Aw_Lib.UString_Vectors.Vector;
+		function Get_Ids return KOW_Lib.UString_Vectors.Vector is
+			Ret_Val : KOW_Lib.UString_Vectors.Vector;
 
 			procedure Iterator( C : Element_Maps.Cursor ) is
 			begin
-				Aw_Lib.Ustring_Vectors.Append( Ret_Val, Element_Maps.Key( C ) );
+				KOW_Lib.Ustring_Vectors.Append( Ret_Val, Element_Maps.Key( C ) );
 			end Iterator;
 		begin
 			Element_Maps.Iterate( My_Map, Iterator'Access );
@@ -329,20 +329,20 @@ package body Aw_Config.Generic_Registry is
 		end Get_Ids;
 
 
-		function Get_Ids_by_Type( Factory_Type : in String ) return Aw_Lib.UString_Vectors.Vector is
+		function Get_Ids_by_Type( Factory_Type : in String ) return KOW_Lib.UString_Vectors.Vector is
 			-- get the Id for all elements fabricated using the Factory_Type type;
 		begin
 			return Get_Ids_by_Type( To_Unbounded_String( Factory_Type ) );
 		end Get_Ids_by_Type;
 
-		function Get_Ids_by_Type( Factory_Type : in Unbounded_String ) return Aw_Lib.UString_Vectors.Vector is
+		function Get_Ids_by_Type( Factory_Type : in Unbounded_String ) return KOW_Lib.UString_Vectors.Vector is
 			-- get the Id for all elements fabricated using the Factory_Type type
 		begin
 			if Element_Index_Maps.Contains( My_Indexes, Factory_Type ) then
 				return Element_Index_Maps.Element( My_Indexes, Factory_Type );
 			else
 				declare
-					Empty : Aw_Lib.UString_Vectors.Vector;
+					Empty : KOW_Lib.UString_Vectors.Vector;
 				begin
 					return Empty;
 				end;
@@ -352,9 +352,9 @@ package body Aw_Config.Generic_Registry is
 		procedure Create_Factory_Type_Index( Factory_Type : in Unbounded_String; Element_Id : in Unbounded_String ) is
 			-- create an entry in the element type index for this element.
 
-			use Aw_Lib.UString_Vectors;
+			use KOW_Lib.UString_Vectors;
 
-			My_Ids: Aw_Lib.UString_Vectors.Vector;
+			My_Ids: KOW_Lib.UString_Vectors.Vector;
 		begin
 			if Element_Index_Maps.Contains( My_Indexes, Factory_Type ) then
 				My_Ids := Element_Index_Maps.Element( My_Indexes, Factory_Type );
@@ -370,8 +370,8 @@ package body Aw_Config.Generic_Registry is
 
 		procedure Remove_Factory_Type_Index( Factory_Type : in Unbounded_String; Element_Id : in Unbounded_String ) is
 			-- remove the index, knowing he factory type
-			My_Ids	: Aw_Lib.UString_Vectors.Vector;
-			C	: Aw_Lib.UString_Vectors.Cursor;
+			My_Ids	: KOW_Lib.UString_Vectors.Vector;
+			C	: KOW_Lib.UString_Vectors.Cursor;
 		begin
 		
 			if not Element_Index_Maps.Contains( My_Indexes, Factory_Type ) then
@@ -379,8 +379,8 @@ package body Aw_Config.Generic_Registry is
 			end if;
 
 			My_Ids := Element_Index_Maps.Element( My_Indexes, Factory_Type );
-			C := Aw_Lib.UString_Vectors.Find( My_Ids, Element_Id );
-			Aw_Lib.UString_Vectors.Delete( My_Ids, C );
+			C := KOW_Lib.UString_Vectors.Find( My_Ids, Element_Id );
+			KOW_Lib.UString_Vectors.Delete( My_Ids, C );
 
 			-- substituimos todos os indices ::
 
@@ -395,16 +395,16 @@ package body Aw_Config.Generic_Registry is
 
 			Found		: Boolean := False;
 			Found_At	: Unbounded_String;
-			My_Ids		: Aw_Lib.UString_Vectors.Vector;
+			My_Ids		: KOW_Lib.UString_Vectors.Vector;
 			procedure Factory_Iterator( C : Element_Index_Maps.Cursor ) is
 				use Element_Index_Maps;
-				use Aw_Lib.UString_Vectors;
-				EC	: Aw_Lib.UString_Vectors.Cursor;
+				use KOW_Lib.UString_Vectors;
+				EC	: KOW_Lib.UString_Vectors.Cursor;
 			begin
 				if not Found then
 					My_Ids	:= Element( C );
 					EC	:= Find( My_Ids, Element_Id );
-					if EC /= Aw_Lib.UString_Vectors.No_Element then
+					if EC /= KOW_Lib.UString_Vectors.No_Element then
 						Found_At := Key( C );
 						Delete( My_Ids, EC );
 						Found := True;
@@ -420,4 +420,4 @@ package body Aw_Config.Generic_Registry is
 
 	end Registry;
 
-end Aw_Config.Generic_Registry;
+end KOW_Config.Generic_Registry;

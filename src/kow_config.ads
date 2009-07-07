@@ -9,14 +9,14 @@
 --               Copyright (C) 2007-2009, Ada Works Project                 --
 --                                                                          --
 --                                                                          --
--- Aw_Lib is free library;  you can redistribute it  and/or modify it under --
+-- KOW_Lib is free library;  you can redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
 -- ware  Foundation;  either version 2,  or (at your option) any later ver- --
--- sion. Aw_Lib is distributed in the hope that it will be useful, but WITH---
+-- sion. KOW_Lib is distributed in the hope that it will be useful, but WITH---
 -- OUT ANY WARRANTY;  without even the  implied warranty of MERCHANTABILITY --
 -- or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License --
 -- for  more details.  You should have  received  a copy of the GNU General --
--- Public License  distributed with Aw_Lib; see file COPYING. If not, write --
+-- Public License  distributed with KOW_Lib; see file COPYING. If not, write --
 -- to  the Free Software Foundation,  59 Temple Place - Suite 330,  Boston, --
 -- MA 02111-1307, USA.                                                      --
 --                                                                          --
@@ -29,9 +29,9 @@
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
--- This is the Aw_Config package                                            --
+-- This is the KOW_Config package                                            --
 --                                                                          --
--- This is the main AwConfig package.                                       --
+-- This is the main KOWConfig package.                                       --
 -- Here you'll find the types you should use in your application and all    --
 -- visible procedures and functions.                                        --
 --                                                                          --
@@ -48,12 +48,12 @@ with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
 with Ada.Text_IO;			use Ada.Text_IO;
 
--- Aw_Lib Packages
-with Aw_Lib.UString_Vectors;
-with Aw_Lib.UString_Ordered_Maps;
-with Aw_Lib.Locales;			use Aw_Lib.Locales;
+-- KOW_Lib Packages
+with KOW_Lib.UString_Vectors;
+with KOW_Lib.UString_Ordered_Maps;
+with KOW_Lib.Locales;			use KOW_Lib.Locales;
 
-package Aw_Config is
+package KOW_Config is
 
 
 	-----------------------
@@ -122,13 +122,13 @@ package Aw_Config is
 
 	procedure Set_Project_Name( Str: in String );
 	pragma Inline( Set_Project_Name );
-	-- Set the project name so AwConfig can find for 
+	-- Set the project name so KOWConfig can find for 
 	-- config files search path
 	-- This will reset the config path
 
 	procedure Set_Project_Name( Str: in Unbounded_String );
 	pragma Inline( Set_Project_Name );
-	-- Set the project name so AwConfig can find for 
+	-- Set the project name so KOWConfig can find for 
 	-- config files search path
 	-- This will reset the config path
 
@@ -150,7 +150,7 @@ package Aw_Config is
 	procedure Add_Config_Path( Str: in Unbounded_String );
 	-- add Str to config path.
 
-	function Get_Config_Path return Aw_Lib.UString_Vectors.Vector;
+	function Get_Config_Path return KOW_Lib.UString_Vectors.Vector;
 	pragma Inline( Get_Config_Path );
 	-- return the current config path
 
@@ -161,7 +161,7 @@ package Aw_Config is
 
 	function Scan_Relative_Path(	Relative_Path : in String;
 					P: in Parser_Access)
-		return AW_Lib.UString_Ordered_Maps.Map;
+		return KOW_Lib.UString_Ordered_Maps.Map;
 	-- Scan a given relative path within the Config_Path for the project.
 	-- Return all the config files found without the extension,
 	-- indexed by their relative name (inside the relative path)
@@ -172,7 +172,7 @@ package Aw_Config is
 		with procedure Path_Iterator( Name: in String;
 			Config: in out Config_File );
 	procedure Generic_Iterate(
-		Map	: in Aw_Lib.UString_Ordered_Maps.Map;
+		Map	: in KOW_Lib.UString_Ordered_Maps.Map;
 		P	: in Parser_Access ); 
 	-- Iterate over the elements returned by Scan_Relative_Path.
 	-- The parameters are the initialized config file and the
@@ -198,7 +198,7 @@ package Aw_Config is
 	function Get_File_Name( F: in Config_File ) return String;
 	-- return the file name used for this config file.
 
-	procedure Dump_Contents( Config: in Aw_Config.Config_File );
+	procedure Dump_Contents( Config: in KOW_Config.Config_File );
 	-- dumps the contents map into the std out
 	
 	
@@ -317,7 +317,7 @@ package Aw_Config is
 
 	function Element(	F		: Config_File;
 				Key		: Unbounded_String;
-				L_Code		: Aw_Lib.Locales.Locale_Code;
+				L_Code		: KOW_Lib.Locales.Locale_Code;
 				Dump_On_Error	: Boolean := False
 			) return Unbounded_String;
 	-- return the value of element inside the current section with
@@ -326,7 +326,7 @@ package Aw_Config is
 
 	function Element(	F	: Config_File;
 				Key	: String;
-				L_Code	: Aw_Lib.Locales.Locale_Code )
+				L_Code	: KOW_Lib.Locales.Locale_Code )
 		return String;
 	-- return the value of element inside the current section with
 	-- key 'Key:L_Code'
@@ -353,14 +353,14 @@ package Aw_Config is
 
 
 	function Get_Contents_Map( F: in Config_File ) 
-		return Aw_Lib.UString_Ordered_Maps.Map;
+		return KOW_Lib.UString_Ordered_Maps.Map;
 	Pragma Inline( Get_Contents_Map );
 	-- return an ordered map of Unbounded_String => Unbounded_String
 	-- with all keys respecting the pattern "section.subSection.key"
 
 	procedure Set_Contents_Map(
 		F: in out Config_File;
-		Contents_Map: in Aw_Lib.UString_Ordered_Maps.Map );
+		Contents_Map: in KOW_Lib.UString_Ordered_Maps.Map );
 
 	-------------------------------------
 	-- Methods of the Parser_Interface --
@@ -402,20 +402,20 @@ package Aw_Config is
 	-- Raises NOT_MY_FILE if it's not a supported config file
 
 	procedure Save( P : in Parser_Interface;
-			Config: in Aw_Config.Config_File; 
+			Config: in KOW_Config.Config_File; 
 			File : in File_Type ) is abstract;
 	-- save config file
 private
 
-	Config_Path: Aw_Lib.UString_Vectors.Vector;
+	Config_Path: KOW_Lib.UString_Vectors.Vector;
 
 	Project_Name: Unbounded_String;
 
 	type Config_File is record
 		File_Name: Unbounded_String;
 		Current_Section: Unbounded_String;
-		Contents: Aw_Lib.UString_Ordered_Maps.Map;
+		Contents: KOW_Lib.UString_Ordered_Maps.Map;
 		My_Parser: Parser_Access;
 	end record;
 
-end Aw_Config;
+end KOW_Config;

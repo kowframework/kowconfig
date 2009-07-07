@@ -9,12 +9,12 @@
 
 
 
-with "awlib.gpr";
-with "awconfig.gpr";
+with "kowlib.gpr";
+with "kowconfig.gpr";
 
-project AwConfig.Samples is
+project KOWConfig.Samples is
 
-   Version := AwConfig.Version;
+   Version := KOWConfig.Version;
    
    type Supported_OS is ("Windows_NT", "GNU/Linux");
 
@@ -25,7 +25,7 @@ project AwConfig.Samples is
 
    -- LIBRARY
    for Library_Dir use "lib";
-   for Library_Name use "awconfigsamples";
+   for Library_Name use "kowconfigsamples";
    case target is
 		when "Windows_NT" =>
 			for Library_Kind use "dynamic";
@@ -33,9 +33,9 @@ project AwConfig.Samples is
 		when "GNU/Linux" =>
 			for Library_Kind use "dynamic";
 	end case;
-   for Library_Version use "libawconfigsamples.so." & Version;
+   for Library_Version use "libkowconfigsamples.so." & Version;
 
-   package Compiler renames AwLib.Compiler;
+   package Compiler renames KOWLib.Compiler;
 
-end AwConfig.Samples;
+end KOWConfig.Samples;
 

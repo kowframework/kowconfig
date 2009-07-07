@@ -9,14 +9,14 @@
 --               Copyright (C) 2007-2009, Ada Works Project                 --
 --                                                                          --
 --                                                                          --
--- Aw_Lib is free library;  you can redistribute it  and/or modify it under --
+-- KOW_Lib is free library;  you can redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
 -- ware  Foundation;  either version 2,  or (at your option) any later ver- --
--- sion. Aw_Lib is distributed in the hope that it will be useful, but WITH---
+-- sion. KOW_Lib is distributed in the hope that it will be useful, but WITH---
 -- OUT ANY WARRANTY;  without even the  implied warranty of MERCHANTABILITY --
 -- or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License --
 -- for  more details.  You should have  received  a copy of the GNU General --
--- Public License  distributed with Aw_Lib; see file COPYING. If not, write --
+-- Public License  distributed with KOW_Lib; see file COPYING. If not, write --
 -- to  the Free Software Foundation,  59 Temple Place - Suite 330,  Boston, --
 -- MA 02111-1307, USA.                                                      --
 --                                                                          --
@@ -29,7 +29,7 @@
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
--- This is the Aw_Config package                                            --
+-- This is the KOW_Config package                                            --
 --                                                                          --
 -- This is the main AdaConfig package.                                      --
 -- Here you'll find the types you should use in your application and all    -- 
@@ -44,28 +44,28 @@ with Ada.IO_Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
 
-with Aw_Lib.File_System;
-with Aw_Lib.Log;
-with Aw_Lib.String_Util;
-with Aw_Lib.UString_Vectors;
-with Aw_Lib.UString_Ordered_Maps;
+with KOW_Lib.File_System;
+with KOW_Lib.Log;
+with KOW_Lib.String_Util;
+with KOW_Lib.UString_Vectors;
+with KOW_Lib.UString_Ordered_Maps;
 
 
 --debug
 with Ada.Text_IO;
 
-package body Aw_Config is
+package body KOW_Config is
 
-	Logger : Aw_Lib.Log.Logger_Type := 
-			Aw_Lib.Log.Get_Logger( "Aw_Config" );
+	Logger : KOW_Lib.Log.Logger_Type := 
+			KOW_Lib.Log.Get_Logger( "KOW_Config" );
 	
 
 	procedure Log(
 			Message : in String;
-			Level : Aw_Lib.Log.Log_Level := Aw_lib.Log.Level_Info
+			Level : KOW_Lib.Log.Log_Level := KOW_lib.Log.Level_Info
 		) is
 	begin
-		Aw_lib.Log.Log(
+		KOW_lib.Log.Log(
 				Logger	=> Logger,
 				Level	=> Level,
 				Message	=> "[SYSTEM] :: " & Message -- [SYSTEM] here is a recomendation where to put your users..
@@ -142,16 +142,16 @@ package body Aw_Config is
 	procedure Reset_Config_Path is
 		-- reset the config path using the environment variable:
 		-- [PROJECT_NAME]_CONFIG_PATH
-		use Aw_Lib.String_Util;
+		use KOW_Lib.String_Util;
 	begin
-		Config_Path := Aw_Lib.File_System.To_Vector (
+		Config_Path := KOW_Lib.File_System.To_Vector (
 			Ada.Environment_Variables.Value(
 				Str_Replace( ' ', '_', To_String( Project_Name ) ) &
 				"_CONFIG_PATH" 	)
 				);
 	exception
 		when CONSTRAINT_ERROR =>
-			Config_Path := Aw_Lib.UString_Vectors.Empty_Vector;
+			Config_Path := KOW_Lib.UString_Vectors.Empty_Vector;
 	end Reset_Config_Path;
 
 
@@ -164,10 +164,10 @@ package body Aw_Config is
 	procedure Add_Config_Path( Str: in Unbounded_String ) is
 		-- add Str to config path.
 	begin
-		Aw_Lib.UString_Vectors.Append( Config_Path, Str );
+		KOW_Lib.UString_Vectors.Append( Config_Path, Str );
 	end Add_Config_Path;
 
-	function Get_Config_Path return Aw_Lib.UString_Vectors.Vector is
+	function Get_Config_Path return KOW_Lib.UString_Vectors.Vector is
 		-- return the current config path
 	begin
 		return Config_Path;
@@ -181,12 +181,12 @@ package body Aw_Config is
 
 	function Scan_Relative_Path(	Relative_Path : in String;
 					P: in Parser_Access )
-		return AW_Lib.UString_Ordered_Maps.Map is
+		return KOW_Lib.UString_Ordered_Maps.Map is
 		-- Scan a given relative path within the Config_Path for the project.
 		-- Return all the config files found without the extension.
 		
 		use Ada.Directories;
-		My_Map: Aw_Lib.UString_Ordered_Maps.Map;
+		My_Map: KOW_Lib.UString_Ordered_Maps.Map;
 
 
 		-- the 1 is for the directory separator
@@ -219,7 +219,7 @@ package body Aw_Config is
 				Config_Name	: Unbounded_String := Get_Config_Name( Name );
 				Relative_Path	: Unbounded_String := Get_Relative_Path( Name );
 			begin
-				Aw_Lib.UString_Ordered_Maps.Include(
+				KOW_Lib.UString_Ordered_Maps.Include(
 					My_Map,
 					Config_Name,
 					Relative_Path
@@ -248,7 +248,7 @@ package body Aw_Config is
 		end Search;
 
 
-		To_Scan_Path : Aw_Lib.UString_Vectors.Vector;
+		To_Scan_Path : KOW_Lib.UString_Vectors.Vector;
 
 		procedure Process_Search( Directory_Entry : Directory_Entry_Type ) is
 		begin
@@ -261,21 +261,21 @@ package body Aw_Config is
 					AND 
 					Simple_Name( Directory_Entry ) /= ".."
 					then
-					Aw_Lib.UString_Vectors.Append( To_Scan_Path,
+					KOW_Lib.UString_Vectors.Append( To_Scan_Path,
 						To_Unbounded_String( Full_Name( Directory_Entry ) ) );
 				end if;
 			end if;
 		end Process_Search;
 
-		procedure Path_Iterator( C : Aw_Lib.UString_Vectors.Cursor ) is
-			use Aw_Lib.UString_Vectors;
-			use Aw_Lib.File_System;
+		procedure Path_Iterator( C : KOW_Lib.UString_Vectors.Cursor ) is
+			use KOW_Lib.UString_Vectors;
+			use KOW_Lib.File_System;
 			use Ada.Directories;
 
 			Current_Root_Path : String := Full_Name( To_String( Element( C ) ) );
 			Current_Root_With_Relative_Path: String :=  Full_Name( 
 				Current_Root_Path		&
-				Aw_Lib.File_System.Separator	&
+				KOW_Lib.File_System.Separator	&
 				Relative_Path );
 		begin
 			Current_Root_Path_Length := Current_Root_Path'Length;
@@ -284,7 +284,7 @@ package body Aw_Config is
 			Append(
 				To_Scan_Path,
 				To_Unbounded_String(
-					 Current_Root_Path & Aw_Lib.File_System.Separator & Relative_Path
+					 Current_Root_Path & KOW_Lib.File_System.Separator & Relative_Path
 					)
 				);
 
@@ -295,7 +295,7 @@ package body Aw_Config is
 
 		end Path_Iterator;
 
-		use Aw_Lib.UString_Vectors;
+		use KOW_Lib.UString_Vectors;
 		use Ada.Containers;
 
 	begin
@@ -308,7 +308,7 @@ package body Aw_Config is
 
 
 
-	procedure Generic_Iterate(	Map	: in Aw_Lib.UString_Ordered_Maps.Map;
+	procedure Generic_Iterate(	Map	: in KOW_Lib.UString_Ordered_Maps.Map;
 					P	: in Parser_Access 
 				) is
 		-- Iterate over the elements returned by Scan_Relative_Path.
@@ -316,7 +316,7 @@ package body Aw_Config is
 		-- the config name within the relative_path parameter
 
 
-		use Aw_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Ordered_Maps;
 		
 		procedure Inner_Iterator( C: in Cursor ) is
 			Config: Config_File := New_Config_File( 
@@ -326,10 +326,10 @@ package body Aw_Config is
 		begin
 			declare
 				My_Key : Unbounded_String :=
-					Aw_Lib.UString_Ordered_Maps.Key( C );
+					KOW_Lib.UString_Ordered_Maps.Key( C );
 			begin
 				Path_Iterator(
-					Name	=> Aw_Lib.File_System.To_Unix_Path( To_String( My_Key ) ),
+					Name	=> KOW_Lib.File_System.To_Unix_Path( To_String( My_Key ) ),
 					Config	=> Config
 					);
 			end;
@@ -348,9 +348,9 @@ package body Aw_Config is
 		-- read it's contents and return an object representing it.
 		-- the file is closed right after it've been read
 
-		-- AW_Lib packages
-		use Aw_Lib.File_System;
-		use Aw_Lib.UString_Vectors;
+		-- KOW_Lib packages
+		use KOW_Lib.File_System;
+		use KOW_Lib.UString_Vectors;
 		
 
 		-- this is used to check when the file has been found
@@ -365,13 +365,13 @@ package body Aw_Config is
 		File_Name : Unbounded_String;
 
 		-- Iterators:
-		procedure Path_Iterator( C: Aw_Lib.UString_Vectors.Cursor ) is
+		procedure Path_Iterator( C: KOW_Lib.UString_Vectors.Cursor ) is
 		begin
 			if FOUND_IT then
 				return;
 			end if;
 
-			F.File_Name := Element( C ) & Aw_Lib.File_System.Separator;
+			F.File_Name := Element( C ) & KOW_Lib.File_System.Separator;
 			F.File_Name := F.File_Name & File_Name;
 
 			declare
@@ -422,8 +422,8 @@ package body Aw_Config is
 
 	procedure Reload_Config( F: in out Config_File ) is
 		-- reloads the configuration from the file. :D
-		use Aw_Lib.UString_Ordered_Maps;
-		use Aw_Lib.Locales;
+		use KOW_Lib.UString_Ordered_Maps;
+		use KOW_Lib.Locales;
 
 		Locales_Cursor : Locale_Tables.Cursor;
 
@@ -485,17 +485,17 @@ package body Aw_Config is
 		return To_String( F.File_Name );
 	end Get_File_Name;
 
-	procedure Dump_Contents( Config: in Aw_Config.Config_File ) is
+	procedure Dump_Contents( Config: in KOW_Config.Config_File ) is
 		-- dumps the contents map into the std out
 		use Ada.Text_IO;
-		use Aw_Lib.UString_Ordered_Maps;
-		procedure My_Iterator( C: in Aw_Lib.UString_Ordered_Maps.Cursor ) is
+		use KOW_Lib.UString_Ordered_Maps;
+		procedure My_Iterator( C: in KOW_Lib.UString_Ordered_Maps.Cursor ) is
 		begin
-			Log( To_String( Key( C ) ) & " => " & To_String( Element( C ) ), Aw_lib.Log.Level_Debug );
+			Log( To_String( Key( C ) ) & " => " & To_String( Element( C ) ), KOW_lib.Log.Level_Debug );
 		end My_Iterator;
 	begin
 		Iterate(
-			Aw_Config.Get_Contents_Map( Config ),
+			KOW_Config.Get_Contents_Map( Config ),
 			My_Iterator'Access
 		);
 	end Dump_Contents;
@@ -505,7 +505,7 @@ package body Aw_Config is
 		-- merge two config files, overriding all parent's keys by the child's ones
 
 
-		use Aw_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Ordered_Maps;
 		Cfg: Config_File := Child;
 
 		procedure Iterator( C: in Cursor ) is
@@ -635,9 +635,9 @@ package body Aw_Config is
 		-- check if the element exists in the config file
 	begin
 		if F.Current_Section = "" then
-			return Aw_Lib.UString_Ordered_Maps.Contains( F.Contents, Key );
+			return KOW_Lib.UString_Ordered_Maps.Contains( F.Contents, Key );
 		else
-			return Aw_Lib.UString_Ordered_Maps.Contains( F.Contents, F.Current_Section & '.' & Key );
+			return KOW_Lib.UString_Ordered_Maps.Contains( F.Contents, F.Current_Section & '.' & Key );
 		end if;
 	end Has_Element;
 
@@ -681,10 +681,10 @@ package body Aw_Config is
 
 	function Find_Localed_Key(	F	: Config_File;
 					Key	: Unbounded_String;
-					L_Code	: Aw_Lib.Locales.Locale_Code )
+					L_Code	: KOW_Lib.Locales.Locale_Code )
 		return Unbounded_String is
 		
-		use Aw_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Ordered_Maps;
 	
 		Code_Tmp : Unbounded_String := L_Code;
 	
@@ -704,14 +704,14 @@ package body Aw_Config is
 
 	function Element(	F		: Config_File;
 				Key		: Unbounded_String;
-				L_Code		: Aw_Lib.Locales.Locale_Code;
+				L_Code		: KOW_Lib.Locales.Locale_Code;
 				Dump_On_Error	: Boolean := False
 			) return Unbounded_String is
 		-- return the value of element inside the current section with
 		-- key Key
 		-- if no current section active, return propertie relative
 		-- to root section; ie expects Key to be of the form "sectionName.key"
-		use Aw_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Ordered_Maps;
 		Localed_Key : Unbounded_String;
 	begin
 		if F.Current_Section = "" then
@@ -737,7 +737,7 @@ package body Aw_Config is
 		
 	function Element(	F	: Config_File;
 				Key	: String;
-				L_Code	: Aw_Lib.Locales.Locale_Code )
+				L_Code	: KOW_Lib.Locales.Locale_Code )
 		return String is
 		-- return the value of element inside the current section with
 		-- key 'Key:L_Code'
@@ -783,7 +783,7 @@ package body Aw_Config is
 		-- return a new config file with the data prefixed by the give prefix
 		
 		
-		use Aw_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Ordered_Maps;
 		
 		My_File: Config_File;
 		-- Notice this config file won't have any special property except for the
@@ -841,7 +841,7 @@ package body Aw_Config is
 		-- where INDEX starts with 1.
 
 		use Ada.Containers;
-		use Aw_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Ordered_Maps;
 		function Iterator( Index: in Positive ) return Config_File_Array is
 
 			function Get_Index return String is
@@ -860,7 +860,7 @@ package body Aw_Config is
 
 		begin
 			My_Config.File_Name := F.File_Name & To_Unbounded_String( ":" & Key );
-			if Aw_Lib.UString_Ordered_Maps.Length( My_Config.Contents ) > 0 then
+			if KOW_Lib.UString_Ordered_Maps.Length( My_Config.Contents ) > 0 then
 				return  My_Config & Iterator( Index + 1 );
 			else
 				return Empty;
@@ -870,7 +870,7 @@ package body Aw_Config is
 		return Iterator( 1 );
 	end Elements_Array;
 
-	function Get_Contents_Map( F: in Config_File ) return Aw_Lib.UString_Ordered_Maps.Map is
+	function Get_Contents_Map( F: in Config_File ) return KOW_Lib.UString_Ordered_Maps.Map is
 	-- return an ordered map of Unbounded_String => Unbounded_String
 	-- with all keys respecting the pattern "section.subSection.key"
 	begin
@@ -879,7 +879,7 @@ package body Aw_Config is
 
 
 
-	procedure Set_Contents_Map( F: in out Config_File; Contents_Map: in Aw_Lib.UString_Ordered_Maps.Map ) is
+	procedure Set_Contents_Map( F: in out Config_File; Contents_Map: in KOW_Lib.UString_Ordered_Maps.Map ) is
 	begin
 		F.Contents := Contents_Map;
 	end Set_Contents_Map;
@@ -891,9 +891,9 @@ package body Aw_Config is
 		Output_File : file_type;
 		File_Name : String := Get_File_Name( F.My_Parser.All, To_String(F.File_Name));
 	Begin	
-		Log( "Saving to file :: " & File_Name & " :: " & To_String( F.File_Name ), Aw_Lib.Log.Level_Debug );			
+		Log( "Saving to file :: " & File_Name & " :: " & To_String( F.File_Name ), KOW_Lib.Log.Level_Debug );			
 		Create( Output_File, Out_File, To_String(F.File_Name));
 		Save( F.My_Parser.All, F, Output_File );
 		Close( Output_File );
 	end Save;
-end Aw_Config;
+end KOW_Config;

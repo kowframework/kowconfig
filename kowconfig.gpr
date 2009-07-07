@@ -9,9 +9,9 @@
 
 
 
-with "awlib.gpr";
+with "kowlib.gpr";
 
-project AwConfig is
+project KOWConfig is
 
    Version := "0.1.0";
    
@@ -24,7 +24,7 @@ project AwConfig is
 
    -- LIBRARY
    for Library_Dir use "lib";
-   for Library_Name use "awconfig";
+   for Library_Name use "kowconfig";
    case target is
 		when "Windows_NT" =>
 			for Library_Kind use "dynamic";
@@ -32,7 +32,7 @@ project AwConfig is
 		when "GNU/Linux" =>
 			for Library_Kind use "dynamic";
 	end case;
-   for Library_Version use "libawconfig.so." & Version;
+   for Library_Version use "libkowconfig.so." & Version;
 
 
    package Compiler is
@@ -40,9 +40,9 @@ project AwConfig is
    end Compiler;
 
 
-   package Linker renames AwLib.Linker;
+   package Linker renames KOWLib.Linker;
 
 
-end AwConfig;
+end KOWConfig;
 
 

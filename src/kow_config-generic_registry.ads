@@ -9,14 +9,14 @@
 --               Copyright (C) 2007-2009, Ada Works Project                 --
 --                                                                          --
 --                                                                          --
--- Aw_Lib is free library;  you can redistribute it  and/or modify it under --
+-- KOW_Lib is free library;  you can redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
 -- ware  Foundation;  either version 2,  or (at your option) any later ver- --
--- sion. Aw_Lib is distributed in the hope that it will be useful, but WITH---
+-- sion. KOW_Lib is distributed in the hope that it will be useful, but WITH---
 -- OUT ANY WARRANTY;  without even the  implied warranty of MERCHANTABILITY --
 -- or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License --
 -- for  more details.  You should have  received  a copy of the GNU General --
--- Public License  distributed with Aw_Lib; see file COPYING. If not, write --
+-- Public License  distributed with KOW_Lib; see file COPYING. If not, write --
 -- to  the Free Software Foundation,  59 Temple Place - Suite 330,  Boston, --
 -- MA 02111-1307, USA.                                                      --
 --                                                                          --
@@ -39,25 +39,25 @@ with Ada.Containers.Ordered_Maps;
 --
 -- AdaWorks
 --
-with Aw_Config;
-with Aw_Lib.String_Util;
-with Aw_Lib.UString_Vectors;	use Aw_Lib.UString_Vectors;
+with KOW_Config;
+with KOW_Lib.String_Util;
+with KOW_Lib.UString_Vectors;	use KOW_Lib.UString_Vectors;
 
 
 -- Esse pacote é para ser usado para gerar um registro de elementos que nunca serão desalocados.
 generic
 	type Element_Type is private;
 	Relative_Path: String;
-	Parser : Aw_Config.Parser_Access;
+	Parser : KOW_Config.Parser_Access;
 
-package Aw_Config.Generic_Registry is
+package KOW_Config.Generic_Registry is
 
 	DUPLICATED_FACTORY_TYPE : Exception;
 	INVALID_FACTORY_TYPE : Exception;
 	DUPLICATED_ELEMENT : Exception;
 
 
-	type Element_Factory is access function( Id: in String; Config: in Aw_Config.Config_File ) return Element_Type;
+	type Element_Factory is access function( Id: in String; Config: in KOW_Config.Config_File ) return Element_Type;
 	-- Função usada para criar os elementos.
 	-- Para cada tipo ( a ser registrado no Factory_Registry ) o usuário ( desenvolvedor ) deve criar um factory
 	-- e registrar o access no Factory_Registry a seguir
@@ -83,10 +83,10 @@ package Aw_Config.Generic_Registry is
 		function Get( Factory_Type: in Unbounded_String ) return Element_Factory;
 		-- Pega o factory informado.
 		
-		function Get_Ids return Aw_Lib.String_Util.UString_Array;
+		function Get_Ids return KOW_Lib.String_Util.UString_Array;
 		-- list all the elements registered in here
 		
-		function Get_Ids return Aw_Lib.UString_Vectors.Vector;
+		function Get_Ids return KOW_Lib.UString_Vectors.Vector;
 		-- list all the elements registered in here
 
 	private
@@ -100,7 +100,7 @@ package Aw_Config.Generic_Registry is
 
 	package Element_Index_Maps is new Ada.Containers.Ordered_Maps(
 			Key_Type	=> Unbounded_String,
-			Element_Type	=> Aw_Lib.UString_Vectors.Vector );
+			Element_Type	=> KOW_Lib.UString_Vectors.Vector );
 	-- NOTE: I know that another structure would be a LOT faster and easier to use.
 	-- But by the time I realized that I had already implemented almost everything.
 
@@ -111,12 +111,12 @@ package Aw_Config.Generic_Registry is
 
 	protected Registry is
 
-		procedure Iterator( Id: in String; Config: in out Aw_Config.Config_File );
+		procedure Iterator( Id: in String; Config: in out KOW_Config.Config_File );
 		-- procedure is used internally and shouldn't be used anywhere else!
 		-- Reload_Registry utilize this one to iterate over the configuration and call the factories
 
 
-		procedure Register_And_Save( Element_Id: in String; Config: in out Aw_Config.Config_File );
+		procedure Register_And_Save( Element_Id: in String; Config: in out KOW_Config.Config_File );
 		-- register a new element from it's config file.
 		-- also, write this new element to disk;
 
@@ -139,18 +139,18 @@ package Aw_Config.Generic_Registry is
 		-- pega o elemento informado
 
 
-		function Get_Ids return Aw_Lib.String_Util.UString_Array;
+		function Get_Ids return KOW_Lib.String_Util.UString_Array;
 		-- list all the elements registered in here
 		
-		function Get_Ids return Aw_Lib.UString_Vectors.Vector;
+		function Get_Ids return KOW_Lib.UString_Vectors.Vector;
 		-- list all the elements registered in here
 
 
 
-		function Get_Ids_by_Type( Factory_Type : in String ) return Aw_Lib.UString_Vectors.Vector;
+		function Get_Ids_by_Type( Factory_Type : in String ) return KOW_Lib.UString_Vectors.Vector;
 		-- get the Id for all elements fabricated using the Factory_Type type;
 
-		function Get_Ids_by_Type( Factory_Type : in Unbounded_String ) return Aw_Lib.UString_Vectors.Vector;
+		function Get_Ids_by_Type( Factory_Type : in Unbounded_String ) return KOW_Lib.UString_Vectors.Vector;
 		-- get the Id for all elements fabricated using the Factory_Type type
 
 		procedure Create_Factory_Type_Index( Factory_Type : in Unbounded_String; Element_Id : in Unbounded_String );
@@ -168,4 +168,4 @@ package Aw_Config.Generic_Registry is
 		My_Indexes	: Element_Index_Maps.Map;
 	end Registry;
 
-end Aw_Config.Generic_Registry;
+end KOW_Config.Generic_Registry;
