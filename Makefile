@@ -5,7 +5,7 @@
 ifndef ($(PREFIX))
 	PREFIX=/usr/local
 endif
-INCLUDE_PREFIX=$(PREFIX)/include/kowconfig-text
+INCLUDE_PREFIX=$(PREFIX)/include/kowconfig
 LIB_PREFIX=$(PREFIX)/lib
 GPR_PREFIX=$(LIB_PREFIX)/gnat
 
