@@ -5,9 +5,17 @@
 ifndef ($(PREFIX))
 	PREFIX=/usr/local
 endif
-INCLUDE_PREFIX=$(PREFIX)/include/kowconfig
-LIB_PREFIX=$(PREFIX)/lib
-GPR_PREFIX=$(LIB_PREFIX)/gnat
+
+ifndef ($(INCLUDE_PREFIX))
+	INCLUDE_PREFIX=$(PREFIX)/include/kowconfig
+endif
+
+ifndef ($(LIB_PREFIX))
+	LIB_PREFIX=$(PREFIX)/lib
+endif
+ifndef ($(GPR_PREFIX)) 
+	GPR_PREFIX=$(LIB_PREFIX)/gnat 
+endif
 
 
 ################
@@ -30,6 +38,8 @@ gprfile:
 	@echo "Preparing GPR file.."
 	@echo version:=\"$(VERSION)\" > gpr/kowconfig.def
 	@echo prefix:=\"$(PREFIX)\" >> gpr/kowconfig.def
+	@echo lib_prefix:=\"$(LIB_PREFIX)\" >> gpr/apq.def
+	@echo include_prefix:=\"$(INCLUDE_PREFIX)\" >> gpr/apq.def
 	@gnatprep gpr/kowconfig.gpr.in gpr/kowconfig.gpr gpr/kowconfig.def
 
 gprclean:
