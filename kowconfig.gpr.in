@@ -9,12 +9,11 @@
 
 
 
-with "kow_framework_setup.gpr";
 with "kowlib.gpr";
 
 project KOWConfig is
 
-	Version := KOW_Framework_Setup.Version;
+	Version := $version;
 
 	for Source_Dirs use ( "src" );
 	for Object_Dir use "obj";
@@ -22,7 +21,7 @@ project KOWConfig is
 	-- LIBRARY
 	for Library_Dir use "lib";
 	for Library_Name use "kowconfig";
-	for Library_Kind use KOW_Framework_Setup'Library_Kind;
+	for Library_Kind use KOWLib'Library_Kind;
 	for Library_Version use "libkowconfig.so." & Version;
 
 
