@@ -41,7 +41,7 @@ with Ada.Text_IO;		use Ada.Text_IO;
 
 package KOW_Config.Parsers is
 
-	type Parser is private;
+	type Parser is limited private;
 
 
 	procedure Prepare(	P: in out Parser;
@@ -87,7 +87,7 @@ package KOW_Config.Parsers is
 	type File_Blocks is ( B_NONE, B_SECTION, B_KEY, B_ELEMENT );
 	-- represents the known structures in the file
 
-	type Parser is record
+	type Parser is limited record
 		First_Key_Value_Pair: Boolean := True;
 		-- controls if it's the 1st pair to be read
 		Current_Block: File_Blocks := B_NONE;

@@ -129,9 +129,9 @@ package body KOW_Config.Generic_Registry is
 	procedure Reload_Registry is
 		-- escaneia o diretório informado e recria o registro
 		Config_Map : KOW_Lib.UString_Ordered_Maps.Map := 
-			KOW_Config.Scan_Relative_Path( Relative_Path => Relative_Path, P => Parser );
+			KOW_Config.Scan_Relative_Path( Relative_Path => Relative_Path );
 	begin
-		Path_Iterate( Config_Map, Parser );
+		Path_Iterate( Config_Map );
 	end Reload_Registry;
 
 
@@ -214,7 +214,7 @@ package body KOW_Config.Generic_Registry is
 			
 			declare
 				F_Id : String := KOW_Lib.File_System.To_System_Path(
-							KOW_Config.Get_File_Name( Parser.all, To_String( Output_File_Name ) )
+							KOW_Config.Parsers.Get_File_Name( My_Parser, To_String( Output_File_Name ) )
 						);
 			begin
 
@@ -228,10 +228,10 @@ package body KOW_Config.Generic_Registry is
 				Create( Output_File, Out_File, F_Id );
 			end;
 
-			KOW_Config.Save(
-				p	=> Parser.all,
-				Config	=> Config,
-				File	=> Output_File
+			KOW_Config.Parsers.Save(
+					P	=> My_Parser,
+					Config	=> Config,
+					File	=> Output_File
 				);
 
 			Close( Output_File );
@@ -240,7 +240,7 @@ package body KOW_Config.Generic_Registry is
 
 		procedure Delete( Element_Id: in String ) is
 			use KOW_Config;
-			F: Config_File := New_Config_File( Relative_Path & KOW_Lib.File_System.Separator & Element_Id, Parser ); 
+			F: Config_File := New_Config_File( Relative_Path & KOW_Lib.File_System.Separator & Element_Id ); 
 			
 			UElement_Id : Unbounded_String := To_Unbounded_String( Element_Id );
 		begin

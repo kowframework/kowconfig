@@ -40,6 +40,7 @@ with Ada.Containers.Ordered_Maps;
 -- AdaWorks
 --
 with KOW_Config;
+with KOW_Config.Parsers;
 with KOW_Lib.String_Util;
 with KOW_Lib.UString_Vectors;	use KOW_Lib.UString_Vectors;
 
@@ -47,9 +48,7 @@ with KOW_Lib.UString_Vectors;	use KOW_Lib.UString_Vectors;
 -- Esse pacote é para ser usado para gerar um registro de elementos que nunca serão desalocados.
 generic
 	type Element_Type is private;
-	Relative_Path: String;
-	Parser : KOW_Config.Parser_Access;
-
+	Relative_Path : String;
 package KOW_Config.Generic_Registry is
 
 	DUPLICATED_FACTORY_TYPE : Exception;
@@ -164,6 +163,7 @@ package KOW_Config.Generic_Registry is
 
 	private
 
+		My_Parser	: KOW_Config.Parsers.Parser;
 		My_Map		: Element_Maps.Map;
 		My_Indexes	: Element_Index_Maps.Map;
 	end Registry;

@@ -216,9 +216,11 @@ package body KOW_Config is
 		procedure Check_File( Path: in String ) is
 		begin
 			declare
-				Name: String := File_To_Config_Name(
-					P.all,
-					Path );
+				P : KOW_Config.Parsers.Parser;
+				Name: String := KOW_Config.Parsers.File_To_Config_Name(
+								P,
+								Path
+							);
 				Config_Name	: Unbounded_String := Get_Config_Name( Name );
 				Relative_Path	: Unbounded_String := Get_Relative_Path( Name );
 			begin
@@ -320,9 +322,7 @@ package body KOW_Config is
 		use KOW_Lib.UString_Ordered_Maps;
 		
 		procedure Inner_Iterator( C: in Cursor ) is
-			Config: Config_File := New_Config_File( 
-				To_String( Element( C ) ),
-				P );
+			Config: Config_File := New_Config_File( To_String( Element( C ) ) );
 
 		begin
 			declare
