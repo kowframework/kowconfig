@@ -51,6 +51,9 @@ with KOW_Lib.UString_Vectors;
 with KOW_Lib.UString_Ordered_Maps;
 
 
+with KOW_Config.Parsers;
+
+
 --debug
 with Ada.Text_IO;
 
@@ -179,9 +182,9 @@ package body KOW_Config is
 	-------------------
 
 
-	function Scan_Relative_Path(	Relative_Path : in String;
-					P: in Parser_Access )
-		return KOW_Lib.UString_Ordered_Maps.Map is
+	function Scan_Relative_Path(
+				Relative_Path : in String
+			) return KOW_Lib.UString_Ordered_Maps.Map is
 		-- Scan a given relative path within the Config_Path for the project.
 		-- Return all the config files found without the extension.
 		
@@ -308,9 +311,7 @@ package body KOW_Config is
 
 
 
-	procedure Generic_Iterate(	Map	: in KOW_Lib.UString_Ordered_Maps.Map;
-					P	: in Parser_Access 
-				) is
+	procedure Generic_Iterate( Map : in KOW_Lib.UString_Ordered_Maps.Map ) is
 		-- Iterate over the elements returned by Scan_Relative_Path.
 		-- The parameters are the initialized config file and
 		-- the config name within the relative_path parameter
@@ -340,11 +341,10 @@ package body KOW_Config is
 
 
 
-	function New_Config_File(	N: in String;
-					P: in Parser_Access; 
-					Is_Complete_Path: Boolean := False )
-		return Config_File is
-		-- opens a new config file that will be handled by parser P
+	function New_Config_File(	N		: in String;
+					Is_Complete_Path: Boolean := False
+			) return Config_File is
+		-- opens a new config file 
 		-- read it's contents and return an object representing it.
 		-- the file is closed right after it've been read
 
@@ -380,7 +380,6 @@ package body KOW_Config is
 			begin
 				if Exists( S_File_Name ) AND Kind( S_File_Name ) =
 					Ordinary_File then
-					F.My_Parser := P;
 					FOUND_IT := TRUE;
 					-- tell the main unit that we've found a winner! :)
 				end if;
@@ -389,6 +388,7 @@ package body KOW_Config is
 			end;
 		end Path_Iterator;
 
+		P : KOW_Config.Parsers.Parser;
 	begin
 		if Is_Empty( Config_Path ) then
 			raise NO_CONFIG_PATH;
@@ -397,7 +397,7 @@ package body KOW_Config is
 		if Is_Complete_Path then
 			File_Name := To_Unbounded_String( N );
 		else
-			File_Name := To_Unbounded_String( Get_File_Name( P.all, N ) );
+			File_Name := To_Unbounded_String( KOW_Config.Parsers.Get_File_Name( P, N ) );
 		end if;
 		
 		Iterate( Config_Path, Path_Iterator'Access );
@@ -424,8 +424,10 @@ package body KOW_Config is
 		-- reloads the configuration from the file. :D
 		use KOW_Lib.UString_Ordered_Maps;
 		use KOW_Lib.Locales;
+		use KOW_Config.Parsers;
 
 		Locales_Cursor : Locale_Tables.Cursor;
+		P : Parser;
 
 
 		procedure File_Loader( File_Name: in String; L_Code: in Unbounded_String ) is
@@ -434,21 +436,19 @@ package body KOW_Config is
 		begin
 			if Exists( File_Name ) then
 				begin
-					Prepare( F.My_Parser.All, File_Name );
+					Prepare( P, File_Name );
 					loop
 						Include(
 							F.Contents,
-							Create_Localed_Key( 
-								Key( F.My_Parser.All ),
-								L_Code ),
-							Element( F.My_Parser.All )
+							Create_Localed_Key( Key( P ), L_Code ),
+							Element( P )
 						);
-						Next( F.My_Parser.All );
+						Next( P );
 					end loop;
 				exception
 					when CONSTRAINT_ERROR =>
-					-- the file has reached the end
-					Finish( F.My_Parser.all );
+						-- the file has reached the end
+						Finish( P );
 				end;				
 			end if;
 
@@ -461,12 +461,12 @@ package body KOW_Config is
 		-- loads locale files and puts keys in the map like key:ll_cc_ll
 		while Locale_Tables.Has_Element( Locales_Cursor ) loop
 			declare
-				L_Code : Unbounded_String := 
-					Locale_Tables.Key( Locales_Cursor );
-				Config_Name : String := File_To_Config_Name( 
-					F.My_Parser.all, To_String( F.File_Name ) );
-				File_Name : String := Get_File_Name( F.My_Parser.all,
-					To_String( Config_Name & "_" & L_Code ) );
+				L_Code		: Unbounded_String :=  Locale_Tables.Key( Locales_Cursor );
+				Config_Name	: String := File_To_Config_Name( P, To_String( F.File_Name ) );
+				File_Name	: String := Get_File_Name(
+									P,
+									To_String( Config_Name & "_" & L_Code )
+								);
 			begin	
 				File_Loader( File_Name, L_Code );	
 			end;
@@ -475,7 +475,6 @@ package body KOW_Config is
 		end loop;
 
 		File_Loader( To_String( F.File_Name ), Null_Unbounded_String );
-	
 	end Reload_Config;
 
 
@@ -888,12 +887,16 @@ package body KOW_Config is
 
 	-- save the config file.
 	procedure Save( F: in out Config_File ) is
-		Output_File : file_type;
-		File_Name : String := Get_File_Name( F.My_Parser.All, To_String(F.File_Name));
+		use KOW_Config.Parsers;
+
+		Output_File	: File_Type;
+		P		: Parser;
+
+		File_Name : String := Get_File_Name( P, To_String( F.File_Name ) );
 	Begin	
 		Log( "Saving to file :: " & File_Name & " :: " & To_String( F.File_Name ), KOW_Lib.Log.Level_Debug );			
 		Create( Output_File, Out_File, To_String(F.File_Name));
-		Save( F.My_Parser.All, F, Output_File );
+		Save( P, F, Output_File );
 		Close( Output_File );
 	end Save;
 end KOW_Config;

@@ -66,20 +66,6 @@ package KOW_Config is
 	type Config_File_Array is Array( Positive range<> ) of Config_File;
 	-- one array of config files
 
-	type Parser_Interface is abstract tagged limited null record;
-	-- every parser got to derive from this type
-
-	type Parser_Access is Access all Parser_Interface'Class;
-	-- this type is used internally by AdaWorks but is visible just in
-	-- case the developer needs it.
-
-	------------------------------
-	-- Sub Packages Declaration --
-	------------------------------
-	package Parser_Vectors is new Ada.Containers.Vectors(
-			Index_Type   => Natural,
-			Element_Type => Parser_Access );
-
 
 	----------------
 	-- Exceptions --
@@ -96,12 +82,6 @@ package KOW_Config is
 
 	NO_CONFIG_PATH: Exception;
 	-- when there is no config path set
-
-	NO_PARSER: Exception;
-	-- when there is no parser set and it's trying to access config files
-
-	NOT_MY_FILE: Exception;
-	-- when the file passed to the parser is not his responsability
 
 
 	------------------------
@@ -159,9 +139,7 @@ package KOW_Config is
 	-------------------
 
 
-	function Scan_Relative_Path(	Relative_Path : in String;
-					P: in Parser_Access)
-		return KOW_Lib.UString_Ordered_Maps.Map;
+	function Scan_Relative_Path( Relative_Path : in String ) return KOW_Lib.UString_Ordered_Maps.Map;
 	-- Scan a given relative path within the Config_Path for the project.
 	-- Return all the config files found without the extension,
 	-- indexed by their relative name (inside the relative path)
@@ -169,21 +147,23 @@ package KOW_Config is
 
 
 	generic
-		with procedure Path_Iterator( Name: in String;
-			Config: in out Config_File );
+		with procedure Path_Iterator(
+				Name	: in String;
+				Config	: in out Config_File
+			);
 	procedure Generic_Iterate(
-		Map	: in KOW_Lib.UString_Ordered_Maps.Map;
-		P	: in Parser_Access ); 
+			Map	: in KOW_Lib.UString_Ordered_Maps.Map
+		);
 	-- Iterate over the elements returned by Scan_Relative_Path.
 	-- The parameters are the initialized config file and the
 	-- config name within the relative_path parameter
 
 
-	function New_Config_File(	N: in String;
-					P: in Parser_Access;
-					Is_Complete_Path: Boolean := False )
-		return Config_File;
-	-- opens a new config file that will be handled by the parser P
+	function New_Config_File(
+				N		: in String;
+				Is_Complete_Path: Boolean := False
+			) return Config_File;
+	-- opens a new config file 
 	-- read it's contents and return an object representing it.
 	-- the file is closed right after it've been read
 
@@ -362,49 +342,6 @@ package KOW_Config is
 		F: in out Config_File;
 		Contents_Map: in KOW_Lib.UString_Ordered_Maps.Map );
 
-	-------------------------------------
-	-- Methods of the Parser_Interface --
-	-------------------------------------
-
-	procedure Prepare(	P: in out Parser_Interface;
-				File_Name: in String ) is abstract;
-	-- prepare the parser to parse the file with the
-	-- absolute path File_Name.
-	-- read the 1st field
-
-	procedure Finish( P: in out Parser_Interface ) is abstract;
-	-- close the file and do whatever it's needed to finish it.
-
-	procedure Next( P: in out Parser_Interface ) is abstract;
-	-- move the parser to the next field, if it exists
-	-- if not prepare the parser to return CONSTRAINT_ERROR
-	-- everytime Key and Value are called
-
-	function Key( P: in Parser_Interface ) 
-		return Unbounded_String is abstract;
-	-- return the key of the current field
-	-- raise CONSTRAINT_ERROR if there is nothing else to read
-
-	function Element( P: in Parser_Interface ) 
-		return Unbounded_String is abstract;
-	-- return the value of the current field
-	-- raise CONSTRAINT_ERROR if there is nothing else to read
-
-	function Get_File_Name( P: in Parser_Interface; Original: in String )
-		return String is abstract;
-	-- returns the filename Original with expected extension
-	-- ie, Original & ".cfg" in case of Text Parser
-
-	function File_To_Config_Name(	P: in Parser_Interface; 
-					File_Name: in String )
-		return String is abstract;
-	-- Convert the file name to a config name.
-	-- Raises NOT_MY_FILE if it's not a supported config file
-
-	procedure Save( P : in Parser_Interface;
-			Config: in KOW_Config.Config_File; 
-			File : in File_Type ) is abstract;
-	-- save config file
 private
 
 	Config_Path: KOW_Lib.UString_Vectors.Vector;
@@ -415,7 +352,6 @@ private
 		File_Name: Unbounded_String;
 		Current_Section: Unbounded_String;
 		Contents: KOW_Lib.UString_Ordered_Maps.Map;
-		My_Parser: Parser_Access;
 	end record;
 
 end KOW_Config;
