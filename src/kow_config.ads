@@ -172,8 +172,9 @@ package KOW_Config is
 		with procedure Path_Iterator( Name: in String;
 			Config: in out Config_File );
 	procedure Generic_Iterate(
-		Map	: in KOW_Lib.UString_Ordered_Maps.Map;
-		P	: in Parser_Access ); 
+			Map	: in KOW_Lib.UString_Ordered_Maps.Map;
+			P	: in Parser_Access
+		); 
 	-- Iterate over the elements returned by Scan_Relative_Path.
 	-- The parameters are the initialized config file and the
 	-- config name within the relative_path parameter
