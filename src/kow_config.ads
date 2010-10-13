@@ -84,6 +84,10 @@ package KOW_Config is
 	-- when there is no config path set
 
 
+	NOT_MY_FILE : Exception;
+	-- when the file name is wrong or something like that
+	-- used by the parser
+
 	------------------------
 	-- Exception Handling --
 	------------------------
