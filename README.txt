@@ -14,3 +14,16 @@
 #	For installation instructions, pleas read the file manual.pdf	#
 #########################################################################
 
+This is the new version of the KOW_Config module.
+
+Now there is support for only .cfg files - no more XML files. In the other
+hand we will implement support for:
+
+variables inside the configuration files, such as
+
+
+some_key="value"
+some_other_key="${some_key} is the value of the some_key key"
+
+and so on
+

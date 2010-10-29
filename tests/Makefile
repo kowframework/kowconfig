@@ -4,7 +4,7 @@
 
 
 
-PROJECT=awconfig-samples
+PROJECT=kowconfig-tests
 
 TCP=$(PWD)/data	
 
