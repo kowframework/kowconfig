@@ -216,11 +216,9 @@ package body KOW_Config is
 		procedure Check_File( Path: in String ) is
 		begin
 			declare
-				P : KOW_Config.Parsers.Parser;
 				Name: String := KOW_Config.Parsers.File_To_Config_Name(
-								P,
-								Path
-							);
+										Path
+									);
 				Config_Name	: Unbounded_String := Get_Config_Name( Name );
 				Relative_Path	: Unbounded_String := Get_Relative_Path( Name );
 			begin
@@ -388,7 +386,6 @@ package body KOW_Config is
 			end;
 		end Path_Iterator;
 
-		P : KOW_Config.Parsers.Parser;
 	begin
 		if Is_Empty( Config_Path ) then
 			raise NO_CONFIG_PATH;
@@ -397,7 +394,7 @@ package body KOW_Config is
 		if Is_Complete_Path then
 			File_Name := To_Unbounded_String( N );
 		else
-			File_Name := To_Unbounded_String( KOW_Config.Parsers.Get_File_Name( P, N ) );
+			File_Name := To_Unbounded_String( KOW_Config.Parsers.Get_File_Name( N ) );
 		end if;
 		
 		Iterate( Config_Path, Path_Iterator'Access );
@@ -462,11 +459,8 @@ package body KOW_Config is
 		while Locale_Tables.Has_Element( Locales_Cursor ) loop
 			declare
 				L_Code		: Unbounded_String :=  Locale_Tables.Key( Locales_Cursor );
-				Config_Name	: String := File_To_Config_Name( P, To_String( F.File_Name ) );
-				File_Name	: String := Get_File_Name(
-									P,
-									To_String( Config_Name & "_" & L_Code )
-								);
+				Config_Name	: String := File_To_Config_Name( To_String( F.File_Name ) );
+				File_Name	: String := Get_File_Name( To_String( Config_Name & "_" & L_Code ) );
 			begin	
 				File_Loader( File_Name, L_Code );	
 			end;
@@ -890,13 +884,12 @@ package body KOW_Config is
 		use KOW_Config.Parsers;
 
 		Output_File	: File_Type;
-		P		: Parser;
 
-		File_Name : String := Get_File_Name( P, To_String( F.File_Name ) );
+		File_Name : String := Get_File_Name( To_String( F.File_Name ) );
 	Begin	
 		Log( "Saving to file :: " & File_Name & " :: " & To_String( F.File_Name ), KOW_Lib.Log.Level_Debug );			
 		Create( Output_File, Out_File, To_String(F.File_Name));
-		Save( P, F, Output_File );
+		Save( F, Output_File );
 		Close( Output_File );
 	end Save;
 end KOW_Config;

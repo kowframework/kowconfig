@@ -68,16 +68,17 @@ package KOW_Config.Parsers is
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
 	
-	function Get_File_Name( P: in Parser; Original: in String ) return String;
+	function Get_File_Name( Original: in String ) return String;
 	-- returns the filename Original with expected extension
 	-- ie, Original & ".cfg" in case of Text Parser
 
 
-	function File_To_Config_Name( P: in Parser; File_Name: in String ) return String;
+	function File_To_Config_Name( File_Name: in String ) return String;
 
-	procedure Save( P : in Parser;
-			Config: in KOW_Config.Config_File; 
-			File : in File_Type );
+	procedure Save(
+			Config	: in KOW_Config.Config_File; 
+			File	: in File_Type
+		);
 	-- save config file
 
 	private

@@ -390,12 +390,12 @@ package body KOW_Config.Parsers is
 	end Element;
 
 	
-	function Get_File_Name( P: in Parser; Original: in String ) return String is
+	function Get_File_Name( Original: in String ) return String is
 	begin
 		return Original & Ext;
 	end Get_File_Name;
 
-	function File_To_Config_Name( P: in Parser; File_Name: in String ) return String is
+	function File_To_Config_Name( File_Name: in String ) return String is
 		-- Convert the file name to a config name.
 		-- Raises NOT_MY_FILE if it's not a supported config file
 
@@ -411,9 +411,10 @@ package body KOW_Config.Parsers is
 		return File_Name( File_Name'First .. File_Name'Last - Ext'Length );
 	end File_To_Config_Name;
 
-	procedure Save( P : in Parser;
-			Config: in KOW_Config.Config_File; 
-			File : in File_Type ) is 
+	procedure Save(
+			Config	: in KOW_Config.Config_File; 
+			File	: in File_Type
+		) is 
 		-- save config file
 		use Ada.Text_IO;
 		use KOW_Lib.UString_Ordered_Maps;

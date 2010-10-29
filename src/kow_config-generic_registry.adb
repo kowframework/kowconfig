@@ -213,9 +213,7 @@ package body KOW_Config.Generic_Registry is
 			-- if it got here, no exception has been raised... so we can safelly save it to disk.
 			
 			declare
-				F_Id : String := KOW_Lib.File_System.To_System_Path(
-							KOW_Config.Parsers.Get_File_Name( My_Parser, To_String( Output_File_Name ) )
-						);
+				F_Id : String := KOW_Lib.File_System.To_System_Path( KOW_Config.Parsers.Get_File_Name( To_String( Output_File_Name ) ) );
 			begin
 
 				-- First we make sure the destination directory exists..
@@ -229,7 +227,6 @@ package body KOW_Config.Generic_Registry is
 			end;
 
 			KOW_Config.Parsers.Save(
-					P	=> My_Parser,
 					Config	=> Config,
 					File	=> Output_File
 				);
