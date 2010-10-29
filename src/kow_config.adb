@@ -36,7 +36,7 @@
 -- visible procedures and functions.                                        --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Ordered_Maps;
+with Ada.Containers.Hashed_Maps;
 with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Exceptions;
@@ -48,7 +48,7 @@ with KOW_Lib.File_System;
 with KOW_Lib.Log;
 with KOW_Lib.String_Util;
 with KOW_Lib.UString_Vectors;
-with KOW_Lib.UString_Ordered_Maps;
+with KOW_Lib.UString_Hashed_Maps;
 
 
 with KOW_Config.Parsers;
@@ -184,12 +184,12 @@ package body KOW_Config is
 
 	function Scan_Relative_Path(
 				Relative_Path : in String
-			) return KOW_Lib.UString_Ordered_Maps.Map is
+			) return KOW_Lib.UString_Hashed_Maps.Map is
 		-- Scan a given relative path within the Config_Path for the project.
 		-- Return all the config files found without the extension.
 		
 		use Ada.Directories;
-		My_Map: KOW_Lib.UString_Ordered_Maps.Map;
+		My_Map: KOW_Lib.UString_Hashed_Maps.Map;
 
 
 		-- the 1 is for the directory separator
@@ -222,7 +222,7 @@ package body KOW_Config is
 				Config_Name	: Unbounded_String := Get_Config_Name( Name );
 				Relative_Path	: Unbounded_String := Get_Relative_Path( Name );
 			begin
-				KOW_Lib.UString_Ordered_Maps.Include(
+				KOW_Lib.UString_Hashed_Maps.Include(
 					My_Map,
 					Config_Name,
 					Relative_Path
@@ -311,13 +311,13 @@ package body KOW_Config is
 
 
 
-	procedure Generic_Iterate( Map : in KOW_Lib.UString_Ordered_Maps.Map ) is
+	procedure Generic_Iterate( Map : in KOW_Lib.UString_Hashed_Maps.Map ) is
 		-- Iterate over the elements returned by Scan_Relative_Path.
 		-- The parameters are the initialized config file and
 		-- the config name within the relative_path parameter
 
 
-		use KOW_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Hashed_Maps;
 		
 		procedure Inner_Iterator( C: in Cursor ) is
 			Config: Config_File := New_Config_File( To_String( Element( C ) ) );
@@ -325,7 +325,7 @@ package body KOW_Config is
 		begin
 			declare
 				My_Key : Unbounded_String :=
-					KOW_Lib.UString_Ordered_Maps.Key( C );
+					KOW_Lib.UString_Hashed_Maps.Key( C );
 			begin
 				Path_Iterator(
 					Name	=> KOW_Lib.File_System.To_Unix_Path( To_String( My_Key ) ),
@@ -419,7 +419,7 @@ package body KOW_Config is
 
 	procedure Reload_Config( F: in out Config_File ) is
 		-- reloads the configuration from the file. :D
-		use KOW_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Hashed_Maps;
 		use KOW_Lib.Locales;
 		use KOW_Config.Parsers;
 
@@ -481,8 +481,8 @@ package body KOW_Config is
 	procedure Dump_Contents( Config: in KOW_Config.Config_File ) is
 		-- dumps the contents map into the std out
 		use Ada.Text_IO;
-		use KOW_Lib.UString_Ordered_Maps;
-		procedure My_Iterator( C: in KOW_Lib.UString_Ordered_Maps.Cursor ) is
+		use KOW_Lib.UString_Hashed_Maps;
+		procedure My_Iterator( C: in KOW_Lib.UString_Hashed_Maps.Cursor ) is
 		begin
 			Log( To_String( Key( C ) ) & " => " & To_String( Element( C ) ), KOW_lib.Log.Level_Debug );
 		end My_Iterator;
@@ -498,7 +498,7 @@ package body KOW_Config is
 		-- merge two config files, overriding all parent's keys by the child's ones
 
 
-		use KOW_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Hashed_Maps;
 		Cfg: Config_File := Child;
 
 		procedure Iterator( C: in Cursor ) is
@@ -628,9 +628,9 @@ package body KOW_Config is
 		-- check if the element exists in the config file
 	begin
 		if F.Current_Section = "" then
-			return KOW_Lib.UString_Ordered_Maps.Contains( F.Contents, Key );
+			return KOW_Lib.UString_Hashed_Maps.Contains( F.Contents, Key );
 		else
-			return KOW_Lib.UString_Ordered_Maps.Contains( F.Contents, F.Current_Section & '.' & Key );
+			return KOW_Lib.UString_Hashed_Maps.Contains( F.Contents, F.Current_Section & '.' & Key );
 		end if;
 	end Has_Element;
 
@@ -677,7 +677,7 @@ package body KOW_Config is
 					L_Code	: KOW_Lib.Locales.Locale_Code )
 		return Unbounded_String is
 		
-		use KOW_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Hashed_Maps;
 	
 		Code_Tmp : Unbounded_String := L_Code;
 	
@@ -704,7 +704,7 @@ package body KOW_Config is
 		-- key Key
 		-- if no current section active, return propertie relative
 		-- to root section; ie expects Key to be of the form "sectionName.key"
-		use KOW_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Hashed_Maps;
 		Localed_Key : Unbounded_String;
 	begin
 		if F.Current_Section = "" then
@@ -776,7 +776,7 @@ package body KOW_Config is
 		-- return a new config file with the data prefixed by the give prefix
 		
 		
-		use KOW_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Hashed_Maps;
 		
 		My_File: Config_File;
 		-- Notice this config file won't have any special property except for the
@@ -834,7 +834,7 @@ package body KOW_Config is
 		-- where INDEX starts with 1.
 
 		use Ada.Containers;
-		use KOW_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Hashed_Maps;
 		function Iterator( Index: in Positive ) return Config_File_Array is
 
 			function Get_Index return String is
@@ -853,7 +853,7 @@ package body KOW_Config is
 
 		begin
 			My_Config.File_Name := F.File_Name & To_Unbounded_String( ":" & Key );
-			if KOW_Lib.UString_Ordered_Maps.Length( My_Config.Contents ) > 0 then
+			if KOW_Lib.UString_Hashed_Maps.Length( My_Config.Contents ) > 0 then
 				return  My_Config & Iterator( Index + 1 );
 			else
 				return Empty;
@@ -863,8 +863,8 @@ package body KOW_Config is
 		return Iterator( 1 );
 	end Elements_Array;
 
-	function Get_Contents_Map( F: in Config_File ) return KOW_Lib.UString_Ordered_Maps.Map is
-	-- return an ordered map of Unbounded_String => Unbounded_String
+	function Get_Contents_Map( F: in Config_File ) return KOW_Lib.UString_Hashed_Maps.Map is
+	-- return an Hashed map of Unbounded_String => Unbounded_String
 	-- with all keys respecting the pattern "section.subSection.key"
 	begin
 		return F.Contents;
@@ -872,7 +872,7 @@ package body KOW_Config is
 
 
 
-	procedure Set_Contents_Map( F: in out Config_File; Contents_Map: in KOW_Lib.UString_Ordered_Maps.Map ) is
+	procedure Set_Contents_Map( F: in out Config_File; Contents_Map: in KOW_Lib.UString_Hashed_Maps.Map ) is
 	begin
 		F.Contents := Contents_Map;
 	end Set_Contents_Map;

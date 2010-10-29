@@ -2,7 +2,7 @@
 -- Ada2005 --
 -------------
 
-with Ada.Containers.Ordered_Maps;
+with Ada.Containers.Hashed_Maps;
 with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Text_IO;
@@ -16,7 +16,7 @@ with KOW_Lib;
 with KOW_Lib.File_System;
 with KOW_Lib.Log;
 with KOW_Lib.String_Util;		use KOW_Lib.String_Util;
-with KOW_Lib.UString_Ordered_Maps;
+with KOW_Lib.UString_Hashed_Maps;
 
 
 package body KOW_Config.Generic_Registry is
@@ -128,7 +128,7 @@ package body KOW_Config.Generic_Registry is
 
 	procedure Reload_Registry is
 		-- escaneia o diretório informado e recria o registro
-		Config_Map : KOW_Lib.UString_Ordered_Maps.Map := 
+		Config_Map : KOW_Lib.UString_Hashed_Maps.Map := 
 			KOW_Config.Scan_Relative_Path( Relative_Path => Relative_Path );
 	begin
 		Path_Iterate( Config_Map );

@@ -43,14 +43,14 @@
 
 
 -- Ada Packages
-with Ada.Containers.Ordered_Maps;
+with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
 with Ada.Text_IO;			use Ada.Text_IO;
 
 -- KOW_Lib Packages
 with KOW_Lib.UString_Vectors;
-with KOW_Lib.UString_Ordered_Maps;
+with KOW_Lib.UString_Hashed_Maps;
 with KOW_Lib.Locales;			use KOW_Lib.Locales;
 
 package KOW_Config is
@@ -143,7 +143,7 @@ package KOW_Config is
 	-------------------
 
 
-	function Scan_Relative_Path( Relative_Path : in String ) return KOW_Lib.UString_Ordered_Maps.Map;
+	function Scan_Relative_Path( Relative_Path : in String ) return KOW_Lib.UString_Hashed_Maps.Map;
 	-- Scan a given relative path within the Config_Path for the project.
 	-- Return all the config files found without the extension,
 	-- indexed by their relative name (inside the relative path)
@@ -156,7 +156,7 @@ package KOW_Config is
 				Config	: in out Config_File
 			);
 	procedure Generic_Iterate(
-			Map	: in KOW_Lib.UString_Ordered_Maps.Map
+			Map	: in KOW_Lib.UString_Hashed_Maps.Map
 		);
 	-- Iterate over the elements returned by Scan_Relative_Path.
 	-- The parameters are the initialized config file and the
@@ -337,14 +337,14 @@ package KOW_Config is
 
 
 	function Get_Contents_Map( F: in Config_File ) 
-		return KOW_Lib.UString_Ordered_Maps.Map;
+		return KOW_Lib.UString_Hashed_Maps.Map;
 	Pragma Inline( Get_Contents_Map );
-	-- return an ordered map of Unbounded_String => Unbounded_String
+	-- return an Hashed map of Unbounded_String => Unbounded_String
 	-- with all keys respecting the pattern "section.subSection.key"
 
 	procedure Set_Contents_Map(
 		F: in out Config_File;
-		Contents_Map: in KOW_Lib.UString_Ordered_Maps.Map );
+		Contents_Map: in KOW_Lib.UString_Hashed_Maps.Map );
 
 private
 
@@ -355,7 +355,7 @@ private
 	type Config_File is record
 		File_Name: Unbounded_String;
 		Current_Section: Unbounded_String;
-		Contents: KOW_Lib.UString_Ordered_Maps.Map;
+		Contents: KOW_Lib.UString_Hashed_Maps.Map;
 	end record;
 
 end KOW_Config;

@@ -417,7 +417,7 @@ package body KOW_Config.Parsers is
 		) is 
 		-- save config file
 		use Ada.Text_IO;
-		use KOW_Lib.UString_Ordered_Maps;
+		use KOW_Lib.UString_Hashed_Maps;
 		
 		function Get_Handled_String( Element : String ) 
 			return String is
@@ -435,7 +435,7 @@ package body KOW_Config.Parsers is
 			return To_String( Handled_String );
 		end Get_Handled_String;
 		
-		procedure My_Iterator( C: in KOW_Lib.UString_Ordered_Maps.Cursor ) is
+		procedure My_Iterator( C: in KOW_Lib.UString_Hashed_Maps.Cursor ) is
 		begin
 			Put( File, To_String( Key( C ) ) );
 			Put( File, " = " );
