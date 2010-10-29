@@ -1,0 +1,28 @@
+-- This is the AdaConfig GNAT Project file.
+--
+-- author Marcelo Coraça de Freitas <marcelo.batera@gmail.com> 
+--
+-- Repository information:
+-- $Date: 2007-02-24 00:12:54 -0200 (Sáb, 24 Fev 2007) $
+-- $Revision: 147 $
+-- $Author: ogro $
+
+
+
+with "kowlib.gpr";
+with "kowconfig.gpr";
+
+project KOWConfig.Tests is
+
+   Version := KOWConfig.Version;
+   
+   for Source_Dirs use ( "src" );
+   for Object_Dir use "obj";
+   for Exec_Dir use ".";
+   for Main use ( "runtests" );
+
+
+
+
+end KOWConfig.Tests;
+
