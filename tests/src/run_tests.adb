@@ -4,7 +4,7 @@ with Tests;
 
 
 
-procedure runtest is
+procedure Run_Tests is
 begin
 	Tests.Run_Tests;
-end runtest;
+end;

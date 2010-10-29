@@ -19,8 +19,9 @@ project KOWConfig.Tests is
    for Source_Dirs use ( "src" );
    for Object_Dir use "obj";
    for Exec_Dir use ".";
-   for Main use ( "runtests" );
+   for Main use ( "run_tests" );
 
+   package Linker renames KOWLib.Linker;
 
 
 
