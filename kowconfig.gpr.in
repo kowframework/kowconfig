@@ -30,8 +30,6 @@ project KOWConfig is
 	end Compiler;
 
 
-	package Linker renames KOWLib.Linker;
-
 
 end KOWConfig;
 
