@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---               Copyright (C) 2007-2011, KOW Framework Project             --
+--            Copyright (C) 2009 .. 2011 KOW Framework Project              --
 --                                                                          --
 --                                                                          --
 -- KOW Config is free software; you can redistribute it  and/or modify it   --
@@ -40,9 +40,9 @@ with Ada.Characters.Latin_1;	use Ada.Characters.Latin_1;
 with Ada.Text_IO;		use Ada.Text_IO;
 
 
----------------
--- Ada Works --
----------------
+-------------------
+-- KOW Framework --
+-------------------
 with KOW_Lib.Log;
 package body KOW_Config.Parsers is
 
