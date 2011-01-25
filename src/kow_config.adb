@@ -298,8 +298,10 @@ package body KOW_Config is
 
 	begin
 
-		Iterate( 	Config_Path,
-				Path_Iterator'Access );
+		Iterate( 	
+				Get_Config_Path,
+				Path_Iterator'Access
+			);
 	
 		return My_Map;
 	end Scan_Relative_Path;
@@ -380,9 +382,9 @@ package body KOW_Config is
 				when Ada.IO_Exceptions.Name_Error => null;
 			end;
 		end Path_Iterator;
-
+		CF : KOW_Lib.Ustring_Vectors.Vector := Get_Config_Path;
 	begin
-		if Is_Empty( Config_Path ) then
+		if Is_Empty( CF ) then
 			raise NO_CONFIG_PATH;
 		end if;
 		
@@ -392,7 +394,7 @@ package body KOW_Config is
 			File_Name := To_Unbounded_String( KOW_Config.Parsers.Get_File_Name( N ) );
 		end if;
 		
-		Iterate( Config_Path, Path_Iterator'Access );
+		Iterate( CF, Path_Iterator'Access );
 		-- iterate over the config path looking for the file
 
 		if not FOUND_IT then
