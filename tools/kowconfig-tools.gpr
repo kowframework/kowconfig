@@ -1,0 +1,17 @@
+-- GPR file for building the KOWConfig tools tools
+--
+
+
+
+with "../kowconfig.gpr";
+
+project KOWConfig.Tools is
+
+
+	for Source_Dirs use ( "src" );
+	for Object_Dir use "obj";
+	for Exec_Dir use "bin"
+
+	for Main use ( "cfg2tex" );
+
+end KOWConfig.Tools;
