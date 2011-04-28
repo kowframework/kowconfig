@@ -66,6 +66,7 @@ procedure cfg2tex is
 
 	Orig_Name : String_Ptr;
 	Dest_Name : String_Ptr;
+	Dest_File : File_Type;
 
 	Config    : Config_File;
 
@@ -136,12 +137,29 @@ procedure cfg2tex is
 		return "\newcommand\" & To_Command_Name( Key ) & '{' & KOW_Lib.String_Util.Scriptify( Value ) & '}';
 	end To_New_Command;
 
+
+
+	procedure Open_File is
+	begin
+		if Exists( Dest_Name.all ) then
+			Open( Dest_File, Out_File, Dest_Name.all );
+		else
+			Create( Dest_File, Out_File, Dest_Name.all );
+		end if;
+	end Open_File;
+
+
 	procedure Iterator( C : in KOW_Lib.UString_Hashed_Maps.Cursor ) is
 		Key	: constant String := To_String( KOW_Lib.UString_Hashed_Maps.Key( C ) );
 		Value	: constant String := To_String( KOW_Lib.UString_Hashed_Maps.Element( C ) );
 	begin
-		Put_line( To_New_Command( Key, Value ) );
+		Put_line( Dest_File, To_New_Command( Key, Value ) );
 	end Iterator;
+
+	procedure Close_File is
+	begin
+		Close( Dest_File );
+	end Close_File;
 begin
 	if Argument_Count /= 1 and then Argument_Count /= 2 then
 		Usage;
@@ -166,5 +184,7 @@ begin
 	-- if we don't do this it fails miserably
 	Config := New_Config_File( Orig_Name.all, true );
 
+	Open_File;
 	KOW_Lib.UString_Hashed_Maps.Iterate( Get_Contents_Map( Config ), Iterator'Access );
+	Close_File;
 end cfg2tex;
