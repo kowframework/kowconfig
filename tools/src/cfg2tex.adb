@@ -53,6 +53,7 @@ with KOW_Lib.Ustring_Hashed_Maps;
 --------------
 -- Ada 2005 --
 --------------
+with Ada.Characters.Handling;
 with Ada.Command_Line;			use Ada.Command_Line;
 with Ada.Directories;			use Ada.Directories;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
@@ -77,9 +78,56 @@ procedure cfg2tex is
 	end Usage;
 
 
+
 	function To_Command_Name( Key : in String ) return String is
+		New_Name	: String( 1 .. Key'Length );
+		Idx		: Positive := New_Name'First;
+
+
+		type Key_Type is (
+				Normal_Key,
+				Upper_Key
+			);
+		Current : Key_Type := Normal_Key;
+
+
+		function Set_Key_Type( C : in Character ) return Boolean is
+		begin
+			if C in 'a' .. 'z' or C in 'A' .. 'Z' then
+				Current := Normal_Key;
+				return true;
+			else
+				Current := Upper_Key;
+				return false;
+			end if;
+		end Set_Key_Type;
+
+		procedure Set( C : in Character ) is
+		begin
+			New_Name( Idx ) := C;
+			Idx := Idx + 1;
+		end Set;
+
+		function Command_Name return String is
+		begin
+			return New_Name( 1 .. Idx - 1 );
+		end Command_Name;
 	begin
-		return "FIXME" & Key;
+		for i in Key'Range loop
+			case Current is
+				when Normal_Key =>
+					if Set_Key_Type( Key( i ) ) then
+						Set( Key( i ) );
+					end if;
+				when Upper_Key =>
+					if Set_Key_Type( Key( i ) ) then
+						Set( Ada.Characters.Handling.To_Upper( Key( i ) ) );
+					end if;
+			end case;
+		end loop;
+
+
+		return Command_Name;
 	end To_Command_Name;
 
 
