@@ -384,18 +384,18 @@ package body KOW_Config is
 		end Path_Iterator;
 		CF : KOW_Lib.Ustring_Vectors.Vector := Get_Config_Path;
 	begin
-		if Is_Empty( CF ) then
+		if not Is_Complete_Path and then Is_Empty( CF ) then
 			raise NO_CONFIG_PATH;
 		end if;
 		
 		if Is_Complete_Path then
-			File_Name := To_Unbounded_String( N );
+			F.File_Name := To_Unbounded_String( N );
+			Found_IT := Ada.Directories.Exists( N );
 		else
 			File_Name := To_Unbounded_String( KOW_Config.Parsers.Get_File_Name( N ) );
+			Iterate( CF, Path_Iterator'Access );
+			-- iterate over the config path looking for the file
 		end if;
-		
-		Iterate( CF, Path_Iterator'Access );
-		-- iterate over the config path looking for the file
 
 		if not FOUND_IT then
 			Ada.Exceptions.Raise_Exception( FILE_NOT_FOUND'Identity, N );
