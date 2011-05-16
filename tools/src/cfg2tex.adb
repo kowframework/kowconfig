@@ -134,7 +134,7 @@ procedure cfg2tex is
 
 	function To_New_Command( Key, Value : in String ) return String is
 	begin
-		return "\newcommand\" & To_Command_Name( Key ) & '{' & KOW_Lib.String_Util.Scriptify( Value ) & '}';
+		return "\newcommand\" & To_Command_Name( Key ) & '{' & KOW_Lib.String_Util.Texify( Value ) & '}';
 	end To_New_Command;
 
 
