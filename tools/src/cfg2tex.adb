@@ -132,9 +132,20 @@ procedure cfg2tex is
 	end To_Command_Name;
 
 
+
+	Path_URI : constant String := "path:";
 	function To_New_Command( Key, Value : in String ) return String is
+		
+		function The_Value return String is
+		begin
+			if Value'Length > Path_URI'Length and then Value( Value'First .. Path_URI'Length + Value'First - 1 ) = Path_URI then
+				return KOW_Lib.String_Util.Texify( Value( Value'First + Path_URI'Length .. Value'Last ), False );
+			else
+				return KOW_Lib.String_Util.Texify( Value, True );
+			end if;
+		end The_Value;
 	begin
-		return "\newcommand\" & To_Command_Name( Key ) & '{' & KOW_Lib.String_Util.Texify( Value ) & '}';
+		return "\newcommand\" & To_Command_Name( Key ) & '{' & The_Value & '}';
 	end To_New_Command;
 
 
