@@ -1,0 +1,35 @@
+-- This is the AdaConfig GNAT Project file.
+--
+-- author Marcelo Coraça de Freitas <marcelo.batera@gmail.com> 
+--
+-- Repository information:
+-- $Date$
+-- $Revision$
+-- $Author$
+
+
+
+with "kowlib.gpr";
+
+project KOWConfig is
+
+	Version := $version;
+	Prefix	:= $prefix;
+
+	for languages use ("Ada");
+
+	for Source_Dirs use ( "" & prefix & "/include/kowconfig" );
+	for Library_Name use "kowconfig";
+	for Library_Dir use "" & prefix & "/lib";
+	for Library_Ali_Dir use "" & prefix & "/lib";
+	for Library_Kind use KOWLib'Library_Kind;
+	for externally_build use "true";
+	
+	package Compiler is
+		for Default_Switches ("ada") use ("-O2", "-gnat05");
+	end Compiler;
+
+
+
+end KOWConfig;
+
