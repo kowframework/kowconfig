@@ -23,7 +23,7 @@ project KOWConfig is
 	for Library_Dir use "" & prefix & "/lib";
 	for Library_Ali_Dir use "" & prefix & "/lib";
 	for Library_Kind use KOWLib'Library_Kind;
-	for externally_build use "true";
+	for externally_built use "true";
 	
 	package Compiler is
 		for Default_Switches ("ada") use ("-O2", "-gnat05");
