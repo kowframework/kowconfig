@@ -68,9 +68,9 @@ project KOWConfig is
 	package Compiler is
 		case Debug is
 			when "true" =>
-				for Default_Switches ("ada") use ("-O2", "-gnat05", "-g");
+				for Default_Switches ("ada") use ("-O2", "-gnat05", "-fPIC", "-g");
 			when "false" =>
-				for Default_Switches ("ada") use ("-O2", "-gnat05" );
+				for Default_Switches ("ada") use ("-O2", "-gnat05", "-fPIC" );
 		end case;
 	end Compiler;
 
