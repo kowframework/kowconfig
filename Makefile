@@ -1,17 +1,18 @@
-# Makefile for the KOW Configuration Framework
+# Makefile for the KOW Generic Library Framework
 #
 # @author Marcelo Coraça de Freitas <marcelo@kow.com.br> 
-
-PROJECT_FILES=kowconfig.gpr
-GPR_FILES=kowconfig.gpr
-INCLUDE_FILES=src/*
-
-
-include Makefile.include
+#
+#
+# Please, read Makefile.include for more information
 
 
-pre_libs:
+all:
+	./scripts/build.sh
 
-pos_libs:
+install:
+	./scripts/install.sh
 
-extra_clean:
+uninstall:
+	./scripts/uninstall.sh
+clean:
+	./scripts/clean.sh
