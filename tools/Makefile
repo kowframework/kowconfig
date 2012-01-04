@@ -1,12 +1,18 @@
-
-
+# Makefile for the KOW Generic Library Framework
+#
+# @author Marcelo Coraça de Freitas <marcelo@kow.com.br> 
+#
+#
+# Please, read Makefile.include for more information
 
 
 all:
-	gprbuild -gnat05 kowconfig-tools.gpr
+	./scripts/build.sh
 
+install:
+	./scripts/install.sh
+
+uninstall:
+	./scripts/uninstall.sh
 clean:
-	gprclean kowconfig-tools.gpr
-
-test:
-	./bin/cfg2tex ./data/example.cfg
+	./scripts/clean.sh

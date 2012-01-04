@@ -5,4 +5,10 @@
 
 
 project="kowconfig-tools"
+
+enable_static="true"
+enable_relocatable="false"
+enable_debug="false"
+
 set_configuration KOWCONFIGTOOLS_EXTERNALLY_BUILT "false"
+
