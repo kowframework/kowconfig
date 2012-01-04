@@ -6,6 +6,11 @@
 
 
 
+
+######################
+# Environment Checks #
+######################
+
 # Check if a given command is in path;
 # usage:
 #	check_in_path COMMAND_NAME
@@ -14,6 +19,16 @@ check_in_path(){
 	hash $1 2>&- || { echo "[false]"; echo >&2 "I need $1 in path but I can't find it... aborting"; exit 1; } && echo "[ok]"
 }
 
+
+
+# Check if a project file is available 
+# usage:
+#	check_project projectname
+check_project(){
+	proj=$1;
+	echo -n "Looking for project $proj ...	"
+	${GPRBUILD} -P$proj 2>&- || { echo "[false]"; echo "${GPRBUILD} can't find $proj in ADA_PROJECT_PATH"; exit -1;} && echo "[ok]";
+}
 
 
 # Copy updating a regular file or directory

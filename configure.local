@@ -6,3 +6,5 @@
 
 project="kowconfig"
 set_configuration KOWCONFIG_EXTERNALLY_BUILT "false"
+
+check_project kowlib
