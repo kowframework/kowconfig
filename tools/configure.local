@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# 
+# Local configuration file for KOW Lib
+
+
+
+project="kowconfig-tools"
+set_configuration KOWCONFIGTOOLS_EXTERNALLY_BUILT "false"
