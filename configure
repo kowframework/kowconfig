@@ -17,7 +17,6 @@ enable_static="true";
 enable_relocatable="true";
 include_files=src/*
 work_path="$PWD/work"
-object_path="$PWD/obj"
 
 prefix=$(dirname `which gnatls`)
 prefix=$(dirname $prefix)
@@ -59,8 +58,6 @@ do
 			OS="$value";;
 		--work-path )
 			work_path="$value";;
-		--object-path )
-			object_path="$value";;
 
 		--gprbuild )
 			GPRBUILD="$value";;
@@ -127,7 +124,6 @@ echo "Preparing def file.."
 set_gnatprep version $version
 set_gnatprep prefix "$prefix"
 set_gnatprep project "$project"
-set_gnatprep object_path "$object_path"
 
 
 
@@ -159,7 +155,6 @@ set_configuration OS "$OS"
 set_configuration include_files "$include_files"
 set_configuration version "$version"
 set_configuration work_path "$work_path"
-set_configuration object_path "$object_path"
 set_configuration GPRBUILD "$GPRBUILD"
 set_configuration gprbuild_params "$gprbuild_params"
 set_configuration processors $processors
