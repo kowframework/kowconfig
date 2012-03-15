@@ -156,13 +156,7 @@ package body KOW_Config is
 	procedure Add_Config_Path( Str: in String ) is
 		-- add Str to config path.
 	begin
-		Add_Config_Path( To_Unbounded_String( Str ) );
-	end Add_Config_Path;
-
-	procedure Add_Config_Path( Str: in Unbounded_String ) is
-		-- add Str to config path.
-	begin
-		KOW_Lib.UString_Vectors.Append( Config_Path, Str );
+		KOW_Lib.UString_Vectors.Append( Config_Path, To_Unbounded_String( Str ) );
 	end Add_Config_Path;
 
 	function Get_Config_Path return KOW_Lib.UString_Vectors.Vector is
@@ -172,169 +166,9 @@ package body KOW_Config is
 	end Get_Config_Path;
 
 
-	-------------------
-	-- File handling --
-	-------------------
-
-
-	function Scan_Relative_Path(
-				Relative_Path : in String
-			) return KOW_Lib.UString_Hashed_Maps.Map is
-		-- Scan a given relative path within the Config_Path for the project.
-		-- Return all the config files found without the extension.
-		
-		use Ada.Directories;
-		My_Map: KOW_Lib.UString_Hashed_Maps.Map;
-
-
-		-- the 1 is for the directory separator
-		Current_Root_Path_Length: Positive;
-		Current_Root_With_Relative_Path_Length: Positive;
-
-		function Get_Config_Name( Name: in String ) return Unbounded_String is
-			First: Integer := Name'First + Current_Root_With_Relative_Path_Length;
-		begin
-			return To_Unbounded_String(
-				Name( First .. Name'Last )
-				);
-		end Get_Config_Name;
-
-		function Get_Relative_Path( Absolute_Path: in String ) return Unbounded_String is
-			New_First : Integer := Absolute_Path'First + Current_Root_Path_Length + 1;
-			Last      : Integer := Absolute_Path'Last;
-		begin
-			return To_Unbounded_String(
-				Absolute_Path( New_First .. Last )
-				);
-		end Get_Relative_Path;
-
-		procedure Check_File( Path: in String ) is
-		begin
-			declare
-				Name: String := KOW_Config.Parsers.File_To_Config_Name(
-										Path
-									);
-				Config_Name	: Unbounded_String := Get_Config_Name( Name );
-				Relative_Path	: Unbounded_String := Get_Relative_Path( Name );
-			begin
-				KOW_Lib.UString_Hashed_Maps.Include(
-					My_Map,
-					Config_Name,
-					Relative_Path
-					);
-			end;
-		exception
-			when NOT_MY_FILE => null;
-		end Check_File;
-
-
-	
-		Filter : Filter_Type := (	Directory	=> true,
-						Ordinary_File	=> true,
-						Special_File	=> false );
-
-		procedure Process_Search( Directory_Entry : Directory_Entry_Type );
-
-		procedure Search( Directory: in String ) is
-		begin
-			Search(	Directory	=> Directory,
-				Pattern		=> "*",
-				Filter		=> Filter,
-				Process		=> Process_Search'Access );
-		exception
-			when ADA.IO_EXCEPTIONS.NAME_ERROR => null;
-		end Search;
-
-
-		To_Scan_Path : KOW_Lib.UString_Vectors.Vector;
-
-		procedure Process_Search( Directory_Entry : Directory_Entry_Type ) is
-		begin
-			if Kind( Directory_Entry ) = Ordinary_File then
-				-- if it's a regular file, check and tries to append it to the result
-				Check_File( Full_Name( Directory_Entry ) );
-			elsif Kind( Directory_Entry ) = Directory then
-				-- append to a to-scan line
-				if	Simple_Name( Directory_Entry ) /= "."
-					AND 
-					Simple_Name( Directory_Entry ) /= ".."
-					then
-					KOW_Lib.UString_Vectors.Append( To_Scan_Path,
-						To_Unbounded_String( Full_Name( Directory_Entry ) ) );
-				end if;
-			end if;
-		end Process_Search;
-
-		procedure Path_Iterator( C : KOW_Lib.UString_Vectors.Cursor ) is
-			use KOW_Lib.UString_Vectors;
-			use KOW_Lib.File_System;
-			use Ada.Directories;
-
-			Current_Root_Path : String := Full_Name( To_String( Element( C ) ) );
-			Current_Root_With_Relative_Path: String :=  Full_Name( 
-				Current_Root_Path		&
-				KOW_Lib.File_System.Separator	&
-				Relative_Path );
-		begin
-			Current_Root_Path_Length := Current_Root_Path'Length;
-			Current_Root_With_Relative_Path_Length := Current_Root_With_Relative_Path'Length;
-			
-			Append(
-				To_Scan_Path,
-				To_Unbounded_String(
-					 Current_Root_Path & KOW_Lib.File_System.Separator & Relative_Path
-					)
-				);
-
-			while not Is_Empty( To_Scan_Path ) loop
-				Search( To_String( First_Element( To_Scan_Path ) ) );
-				Delete_First( To_Scan_Path );
-			end loop;
-
-		end Path_Iterator;
-
-		use KOW_Lib.UString_Vectors;
-		use Ada.Containers;
-
-	begin
-
-		Iterate( 	
-				Get_Config_Path,
-				Path_Iterator'Access
-			);
-	
-		return My_Map;
-	end Scan_Relative_Path;
-
-
-
-	procedure Generic_Iterate( Map : in KOW_Lib.UString_Hashed_Maps.Map ) is
-		-- Iterate over the elements returned by Scan_Relative_Path.
-		-- The parameters are the initialized config file and
-		-- the config name within the relative_path parameter
-
-
-		use KOW_Lib.UString_Hashed_Maps;
-		
-		procedure Inner_Iterator( C: in Cursor ) is
-			Config: Config_File := New_Config_File( To_String( Element( C ) ) );
-
-		begin
-			declare
-				My_Key : Unbounded_String :=
-					KOW_Lib.UString_Hashed_Maps.Key( C );
-			begin
-				Path_Iterator(
-					Name	=> KOW_Lib.File_System.To_Unix_Path( To_String( My_Key ) ),
-					Config	=> Config
-					);
-			end;
-		end Inner_Iterator;
-	begin
-		Iterate( Map, Inner_Iterator'Access );
-	end Generic_Iterate;
-
-
+	---------------------
+	-- The Config File --
+	---------------------
 
 	function New_Config_File(	N		: in String;
 					Is_Complete_Path: Boolean := False
@@ -420,7 +254,6 @@ package body KOW_Config is
 		use KOW_Lib.Locales;
 		use KOW_Config.Parsers;
 
-		Locales_Cursor : Locale_Tables.Cursor;
 		P : Parser;
 
 
@@ -447,6 +280,14 @@ package body KOW_Config is
 			end if;
 
 		end;
+
+
+		procedure Locale_Iterator( Locale : in Locale_Type ) is
+			Config_Name	: String := File_To_Config_Name( To_String( F.File_Name ) );
+			File_Name	: String := Get_File_Name( To_String( Config_Name & "_" & L_Code ) );
+		begin
+			File_Loader( File_Name, Locale.Code );
+		end Locale_Iterator;
 	begin
 		Locales_Cursor := Locale_Tables.First( Supported_Locales );
 
@@ -456,8 +297,6 @@ package body KOW_Config is
 		while Locale_Tables.Has_Element( Locales_Cursor ) loop
 			declare
 				L_Code		: Unbounded_String :=  Locale_Tables.Key( Locales_Cursor );
-				Config_Name	: String := File_To_Config_Name( To_String( F.File_Name ) );
-				File_Name	: String := Get_File_Name( To_String( Config_Name & "_" & L_Code ) );
 			begin	
 				File_Loader( File_Name, L_Code );	
 			end;
@@ -536,239 +375,6 @@ package body KOW_Config is
 		return F.Current_Section;
 	end Get_Section;
 
-
-
-	function Value(	F	: Config_File;
-			Key	: String;
-			Default	: Boolean := FALSE ) return Boolean is
-		My_Value : Unbounded_String;
-	begin
-		My_Value := Element( F, Key );
-		return Boolean'Value( To_String( My_Value ) );
-	exception
-		when CONSTRAINT_ERROR =>
-			return Default;
-	end Value;
-
-	
-	function Value(	F	: Config_File;
-			Key	: String;
-			Default	: Float := 0.0 ) return Float is
-		My_Value : Unbounded_String;
-	begin
-		My_Value := Element( F, Key );
-		return Float'Value( To_String( My_Value ) );
-	exception
-		when CONSTRAINT_ERROR =>
-			return Default;
-	end Value;
-
-
-	function Value(	F	: Config_File;
-			Key	: String;
-			Default	: Integer := 0 ) return Integer is
-		My_Value : Unbounded_String;
-	begin
-		My_Value := Element( F, Key );
-		return Integer'Value( To_String( My_Value ) );
-	exception
-		when CONSTRAINT_ERROR =>
-			return Default;
-	end Value;
-
-	
-	function Value(	F	: Config_File;
-			Key	: String;
-			Default	: String := "" ) return String is
-		My_Value : Unbounded_String;
-	begin
-		My_Value := Element( F, Key );
-		return To_String( My_Value );
-	exception
-		when CONSTRAINT_ERROR =>
-			return Default;
-	end Value;
-
-
-	function Value(	F	: Config_File;
-			Key	: String;
-			Default	: String ) return Unbounded_String is
-		Pragma Inline( Value );
-	begin
-		return Value( F, Key, To_Unbounded_String( Default ) );
-	end Value;
-
-	function Value(	F	: Config_File;
-			Key	: String;
-			Default	: Unbounded_String := Null_Unbounded_String ) return Unbounded_String is
-		My_Value : Unbounded_String;
-	begin
-		My_Value := Element( F, Key );
-		return My_Value;
-	exception
-		when CONSTRAINT_ERROR =>
-			return Default;
-
-
-	end Value;
-
-
-	function Has_Element(	F	: Config_File;
-				Key	: String ) return Boolean is
-		-- check if the element exists in the config file
-	begin
-		return Has_Element( F, To_Unbounded_String( Key ) );
-	end Has_Element;
-
-	function Has_Element(	F	: Config_File;
-				Key	: Unbounded_String ) return Boolean is
-		-- check if the element exists in the config file
-	begin
-		if F.Current_Section = "" then
-			return KOW_Lib.UString_Hashed_Maps.Contains( F.Contents, Key );
-		else
-			return KOW_Lib.UString_Hashed_Maps.Contains( F.Contents, F.Current_Section & '.' & Key );
-		end if;
-	end Has_Element;
-
-
-
-	function Element(	F	: Config_File;
-				Key	: String ) return Boolean is
-		My_Element : Unbounded_String;
-	begin
-		My_Element := Element( F, Key );
-		return Boolean'Value( To_String( My_Element ) );
-	end Element;
-
-
-	function Element(	F	: Config_File;
-				Key	: String ) return Float is
-		My_Element : Unbounded_String;
-	begin
-		My_Element := Element( F, Key );
-		return Float'Value( To_String( My_Element ) );
-	end Element;
-
-
-	function Element(	F	: Config_File;
-				Key	: String ) return Integer is
-		My_Element : Unbounded_String;
-	begin
-		My_Element := Element( F, Key );
-		return Integer'Value( To_String( My_Element ) );
-	end Element;
-
-
-	function Element(	F	: Config_File;
-				Key	: String ) return String is
-		My_Element : Unbounded_String;
-	begin
-		My_Element := Element( F, Key );
-		return To_String( My_Element );
-	end Element;
-
-
-	function Find_Localed_Key(	F	: Config_File;
-					Key	: Unbounded_String;
-					L_Code	: KOW_Lib.Locales.Locale_Code )
-		return Unbounded_String is
-		
-		use KOW_Lib.UString_Hashed_Maps;
-	
-		Code_Tmp : Unbounded_String := L_Code;
-	
-	begin
-		while not Contains( F.Contents, Key & ":" & Code_Tmp ) 
-		loop
-			if ( Length( Code_Tmp ) - 3 ) > 1 then
-				Code_Tmp := Head( Code_Tmp, ( Length(Code_Tmp)- 3 ) );
-			else
-				return Key;
-			end if;		
-		end loop;
-
-		return Key & ":" & Code_Tmp;
-	end Find_Localed_Key;
-
-
-	function Element(	F		: Config_File;
-				Key		: Unbounded_String;
-				L_Code		: KOW_Lib.Locales.Locale_Code;
-				Dump_On_Error	: Boolean := False
-			) return Unbounded_String is
-		-- return the value of element inside the current section with
-		-- key Key
-		-- if no current section active, return propertie relative
-		-- to root section; ie expects Key to be of the form "sectionName.key"
-		use KOW_Lib.UString_Hashed_Maps;
-		Localed_Key : Unbounded_String;
-	begin
-		if F.Current_Section = "" then
-			Localed_Key :=  Find_Localed_Key( F, Key, L_Code ); 
-		else
-			Localed_Key := 	Find_Localed_Key( F, F.Current_Section &
-				'.' & Key, L_Code ); 
-		end if;
-	
-		return Element(	F.Contents, Localed_Key );
-	exception
-		when CONSTRAINT_ERROR =>
-			if Dump_on_Error then
-				Dump_Contents( F );
-			end if;
-			raise CONSTRAINT_ERROR with 
-				"Error when trying to get Key """ &
-				To_String( Localed_Key ) & 
-				""" in configuration file """
-				& Get_File_Name( F )
-				& """";
-	end Element;
-		
-	function Element(	F	: Config_File;
-				Key	: String;
-				L_Code	: KOW_Lib.Locales.Locale_Code )
-		return String is
-		-- return the value of element inside the current section with
-		-- key 'Key:L_Code'
-	begin
-		return To_String(
-			Element(
-				F	=> F,
-				Key	=> To_Unbounded_String( Key ),
-				L_Code	=> L_Code
-				)
-			);
-	end Element;
-
-
-
-
-	function Element( F: Config_File; Key: Unbounded_String ) return Unbounded_String is
-	begin
-		return Element( F, Key, Get_Environment_Locale.CODE );
-	exception
-		when others =>
-			return Element( F, Key, Null_Unbounded_String );
-	end Element;
-
-	function Element( F: Config_File; Key: String ) return Unbounded_String is
-		-- return the value of element inside the current section with
-		-- key Key
-		-- if no current section active, return propertie relative
-		-- to root section; ie expects Key to be of the form "sectionName.key"
-	begin
-		return Element( F, To_Unbounded_String( Key ) );
-	end Element;
-
-
-
-	function Extract( F: Config_File; Prefix: Unbounded_String ) return Config_File is
-		-- return a new config file with the data prefixed by the give prefix
-	begin
-		return Extract( F, To_String( Prefix ) );
-	end Extract;
-
 	function Extract( F: Config_File; Prefix: String ) return Config_File is
 		-- return a new config file with the data prefixed by the give prefix
 		
@@ -815,15 +421,6 @@ package body KOW_Config is
 		return My_File;
 	end Extract;
 
-	function Elements_Array( F: Config_File; Key: Unbounded_String )
-		return Config_File_Array is
-		-- return an array with elements within the category named by:
-		-- (THE_CURRENT_CATEGORY).Key.INDEX
-		-- where INDEX starts with 1.
-	begin
-		return Elements_Array( F, To_String( Key ) );
-	end Elements_Array;
-
 
 	function Elements_Array( F: Config_File; Key: String ) return Config_File_Array is
 		-- return an array with elements within the category named by:
@@ -860,23 +457,6 @@ package body KOW_Config is
 		return Iterator( 1 );
 	end Elements_Array;
 
-	function Get_Contents_Map( F: in Config_File ) return KOW_Lib.UString_Hashed_Maps.Map is
-	-- return an Hashed map of Unbounded_String => Unbounded_String
-	-- with all keys respecting the pattern "section.subSection.key"
-	begin
-		return F.Contents;
-	end Get_Contents_Map;
-
-
-
-	procedure Set_Contents_Map( F: in out Config_File; Contents_Map: in KOW_Lib.UString_Hashed_Maps.Map ) is
-	begin
-		F.Contents := Contents_Map;
-	end Set_Contents_Map;
-
-
-
-	-- save the config file.
 	procedure Save( F: in out Config_File ) is
 		use KOW_Config.Parsers;
 
@@ -889,4 +469,307 @@ package body KOW_Config is
 		Save( F, Output_File );
 		Close( Output_File );
 	end Save;
+
+
+
+
+
+	--------------------------
+	-- The Config File Item --
+	--------------------------
+
+
+
+	function Value(
+			Item 		: in     Config_Item_Type;
+			Locale_Code	: in     KOW_Lib.Locales.Locale_Code_Type
+		) return String is
+		-- tries to get the data in the given locale with country, then only language
+		-- and if not found, return the default value
+		-- For instance. If try fetching the item using the locale pt_BR
+		-- 	=> tries pt_BR
+		-- 	=> tries pt
+		-- 	=> fallback to the default value
+		use Locale_UString_Maps;
+	begin
+		if Contains( Item.Translated_Values, Locale_Code ) then
+			return To_String( Element( Item.Translated_Values, Locale_Code ) );
+		elsif Locale_Code.Country /= No_Country then
+			return Value(
+					Item		=> Item,
+					Locale_Code	=> (
+								Language	=> Locale_Code.Language,
+								Country		=> No_Country
+							)
+					);
+		else
+			return Default_Value( Item );
+		end if;
+	end Value;
+
+
+	function Default_Value(
+			Item		: in     Config_Item_Type
+		) return String is
+		-- get the default value
+	begin
+		return To_String( Item.Default_Value );
+	end Default_Value;
+
+
+	procedure Set_Default_Value(
+			Item		: in out Config_Item_Type;
+			Value		: in     String
+		) is
+		-- set the value as the default_value
+	begin
+		Item.Default_Value := To_Unbounded_String( Value );
+	end Set_Default_Value;
+
+	procedure Set_Value(
+			Item		: in out Config_Item_Type;
+			Locale_Code	: in     KOW_Lib.Locales.Locale_Code_Type;
+			Value		: in     String
+		) is
+		-- set the value for the given locale code
+		-- if the default value is not set yet, set it as well
+	begin
+		Include( Item.Translated_Values, Locale_Code, To_Unbounded_String( Value ) );
+		if Item.Default_Value = Null_Unbounded_String then
+			Set_Default_Value( Item, Value );
+		end if;
+	end Set_Value;
+
+	procedure Iterate(
+			Item	: in     Config_Item_Type;
+			Iterator: not null access procedure(
+								Locale_Code	: in KOW_Lib.Locales.Locale_Code_Type;
+								Value		: in String
+							)
+		) is
+		-- iterate over all translated values in the config item
+	
+		procedure Inner_Iterator( C : in Cursor ) is
+		begin
+			Iterator.all( Key( C ), To_String( Element( C ) ) );
+		end Inner_Iterator;
+	begin
+		Iterate( Item.Translated_Values, Inner_Iterator'Access );
+	end Iterate;
+
+
+	---------------------------------
+	-- Item and Configuration Link --
+	---------------------------------
+
+
+	use Configuration_Maps;
+
+	function Contains(
+				F	: Config_File;
+				Key	: String
+			) return Boolean is
+		UKey : constant Unbounded_String := To_Unbounded_String( Key );
+		-- check if the element exists in the config file
+	begin
+		if F.Current_Section = "" then
+			return Contains( F.Contents, UKey );
+		else
+			return Contains( F.Contents, F.Current_Section & '.' & UKey );
+		end if;
+	end Contains;
+
+
+	function Element(
+				Config		: in Config_File_Type;
+				Key		: in String
+			) return Config_Item_Type is
+		-- get the given configuration item
+	begin
+		return Element( Config.Contents, To_Unbounded_String( Key ) );
+	end ELement;
+
+	function Element(
+				Config		: in Config_File_Type;
+				Key		: in String
+			) return String is
+		-- get the default value for the given key
+	begin
+		return Default_Value( Element( Config, Key ) );
+	end Element;
+
+	function Element(
+				Config		: in Config_File_Type;
+				Key		: in String;
+				Locale_Code	: in KOW_Lib.Locales.Locale_Code_Type
+			) return String is
+		-- tries getting the localized message
+	begin
+		return Value( Element( Config, Key ), Locale_Code );
+	end Element;
+
+
+	-------------------
+	-- File handling --
+	-------------------
+
+
+	function Scan_Relative_Path(
+				Relative_Path : in String
+			) return KOW_Lib.Vectors.Vector is
+		-- TODO: refactor the internals of this function; it can be much improved
+		
+		use Ada.Directories;
+		Result: KOW_Lib.UString_Vectors.Vector;
+
+
+		-- the 1 is for the directory separator
+		Current_Root_Path_Length: Positive;
+		Current_Root_With_Relative_Path_Length: Positive;
+
+		function Get_Config_Name( Name: in String ) return Unbounded_String is
+			First: Integer := Name'First + Current_Root_With_Relative_Path_Length;
+		begin
+			return To_Unbounded_String(
+				Name( First .. Name'Last )
+				);
+		end Get_Config_Name;
+
+		function Get_Relative_Path( Absolute_Path: in String ) return Unbounded_String is
+			New_First : Integer := Absolute_Path'First + Current_Root_Path_Length + 1;
+			Last      : Integer := Absolute_Path'Last;
+		begin
+			return To_Unbounded_String(
+				Absolute_Path( New_First .. Last )
+				);
+		end Get_Relative_Path;
+
+		procedure Check_File( Path: in String ) is
+		begin
+			declare
+				Name : constant String := KOW_Config.Parsers.File_To_Config_Name( Path );
+				UName: constant Unbounded_String := To_Unbounded_String( Name );
+				use KOW_Lib.UString_Vectors;
+			begin
+				if not Contains( Result, UName ) then
+					Append( Result, UName );
+				end if;
+			end;
+		exception
+			when NOT_MY_FILE => null;
+		end Check_File;
+
+
+	
+		Filter : constant Filter_Type := (
+					Directory	=> true,
+					Ordinary_File	=> true,
+					Special_File	=> false 
+				);
+
+		procedure Process_Search( Directory_Entry : Directory_Entry_Type );
+
+		procedure Search( Directory: in String ) is
+		begin
+			Search(
+					Directory	=> Directory,
+					Pattern		=> "*",
+					Filter		=> Filter,
+					Process		=> Process_Search'Access
+				);
+		exception
+			when ADA.IO_EXCEPTIONS.NAME_ERROR => null;
+		end Search;
+
+
+		To_Scan_Path : KOW_Lib.UString_Vectors.Vector;
+
+		procedure Process_Search( Directory_Entry : Directory_Entry_Type ) is
+		begin
+			if Kind( Directory_Entry ) = Ordinary_File then
+				-- if it's a regular file, check and tries to append it to the result
+				Check_File( Full_Name( Directory_Entry ) );
+			elsif Kind( Directory_Entry ) = Directory then
+				-- append to a to-scan line
+				if	Simple_Name( Directory_Entry ) /= "."
+					AND 
+					Simple_Name( Directory_Entry ) /= ".."
+					then
+					KOW_Lib.UString_Vectors.Append( To_Scan_Path,
+						To_Unbounded_String( Full_Name( Directory_Entry ) ) );
+				end if;
+			end if;
+		end Process_Search;
+
+		procedure Path_Iterator( C : KOW_Lib.UString_Vectors.Cursor ) is
+			use KOW_Lib.UString_Vectors;
+			use KOW_Lib.File_System;
+			use Ada.Directories;
+
+			Current_Root_Path : String := Full_Name( To_String( Element( C ) ) );
+			Current_Root_With_Relative_Path: String :=  Full_Name( 
+				Current_Root_Path		&
+				KOW_Lib.File_System.Separator	&
+				Relative_Path );
+		begin
+			Current_Root_Path_Length := Current_Root_Path'Length;
+			Current_Root_With_Relative_Path_Length := Current_Root_With_Relative_Path'Length;
+			
+			Append(
+				To_Scan_Path,
+				To_Unbounded_String(
+					 Current_Root_Path & KOW_Lib.File_System.Separator & Relative_Path
+					)
+				);
+
+			while not Is_Empty( To_Scan_Path ) loop
+				Search( To_String( First_Element( To_Scan_Path ) ) );
+				Delete_First( To_Scan_Path );
+			end loop;
+
+		end Path_Iterator;
+
+		use KOW_Lib.UString_Vectors;
+		use Ada.Containers;
+
+	begin
+
+		Iterate( 	
+				Get_Config_Path,
+				Path_Iterator'Access
+			);
+	
+		return Result;
+	end Scan_Relative_Path;
+
+
+
+	procedure Generic_Iterate( Vect : in KOW_Lib.UString_Vectors.Vector ) is
+		-- Iterate over the elements returned by Scan_Relative_Path.
+		-- The parameters are the initialized config file and
+		-- the config name within the relative_path parameter
+
+
+		use KOW_Lib.UString_Vectors;
+		
+		procedure Inner_Iterator( C: in Cursor ) is
+			Name	: constant String := To_String( Element( C ) );
+			Config	: Config_File := New_Config_File( Name );
+		begin
+			Path_Iterator(
+					Name	=> Name,
+					Config	=> Config
+				);
+		end Inner_Iterator;
+	begin
+		Iterate( Map, Inner_Iterator'Access );
+	end Generic_Iterate;
+
+
+
+
+
+
+	
+
 end KOW_Config;

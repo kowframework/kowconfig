@@ -33,10 +33,8 @@
 ------------------------------------------------------------------------------
 -- This is the KOW_Config package                                           --
 --                                                                          --
--- This is the main KOWConfig package.                                      --
--- Here you'll find the types you should use in your application and all    --
--- visible procedures and functions.                                        --
---                                                                          --
+-- KOW Config is a simple library for handling .cfg files with a simplistic --
+-- syntax and localization support based on KOW_Lib.Locales package.        --
 --                                                                          --
 -- Notice that, even though it has been taken in consideration, there is no --
 -- big concern in efficiency (which can be noted in the Elements_Array meth.--
@@ -48,26 +46,14 @@
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
+with Ada.Strings.Unbounded.Hash;
 with Ada.Text_IO;			use Ada.Text_IO;
 
 -- KOW_Lib Packages
 with KOW_Lib.UString_Vectors;
-with KOW_Lib.UString_Hashed_Maps;
 with KOW_Lib.Locales;			use KOW_Lib.Locales;
 
 package KOW_Config is
-
-
-	-----------------------
-	-- Types Declaration --
-	-----------------------
-
-	type Config_File is private;
-	-- represents the configuration file
-	
-	type Config_File_Array is Array( Positive range<> ) of Config_File;
-	-- one array of config files
-
 
 	----------------
 	-- Exceptions --
@@ -90,14 +76,12 @@ package KOW_Config is
 	-- when the file name is wrong or something like that
 	-- used by the parser
 
-	------------------------
-	-- Exception Handling --
-	------------------------
-
-	procedure Raise_Syntax_Error(	File_Name: in String;
-					Line_Number: in Natural := 0;
-					Column_Number: in Natural := 0;
-					Message: in String );
+	procedure Raise_Syntax_Error (
+					File_Name	: in     String;
+					Line_Number	: in     Natural := 0;
+					Column_Number	: in     Natural := 0;
+					Message		: in     String
+			      );
 	-- Raise SYNTAX_ERROR exception with message composed by:
 	-- "["& File_Name &":"&Line_Number & "] " & Message
 
@@ -107,23 +91,11 @@ package KOW_Config is
 	------------------------------------
 
 	procedure Set_Project_Name( Str: in String );
-	pragma Inline( Set_Project_Name );
-	-- Set the project name so KOWConfig can find for 
-	-- config files search path
-	-- This will reset the config path
-
-	procedure Set_Project_Name( Str: in Unbounded_String );
-	pragma Inline( Set_Project_Name );
 	-- Set the project name so KOWConfig can find for 
 	-- config files search path
 	-- This will reset the config path
 
 	function Get_Project_Name return String;
-	pragma Inline( Get_Project_Name );
-	-- return the current project name
-
-	function Get_Project_Name return Unbounded_String;
-	pragma Inline( Get_Project_Name );
 	-- return the current project name
 
 	procedure Reset_Config_Path;
@@ -133,47 +105,32 @@ package KOW_Config is
 	procedure Add_Config_Path( Str: in String );
 	-- add Str to config path.
 
-	procedure Add_Config_Path( Str: in Unbounded_String );
-	-- add Str to config path.
-
 	function Get_Config_Path return KOW_Lib.UString_Vectors.Vector;
-	pragma Inline( Get_Config_Path );
 	-- return the current config path
 
-	-------------------
-	-- File handling --
-	-------------------
 
 
-	function Scan_Relative_Path( Relative_Path : in String ) return KOW_Lib.UString_Hashed_Maps.Map;
-	-- Scan a given relative path within the Config_Path for the project.
-	-- Return all the config files found without the extension,
-	-- indexed by their relative name (inside the relative path)
-	-- without the extensio.
 
+	---------------------
+	-- The Config File --
+	---------------------
 
-	generic
-		with procedure Path_Iterator(
-				Name	: in String;
-				Config	: in out Config_File
-			);
-	procedure Generic_Iterate(
-			Map	: in KOW_Lib.UString_Hashed_Maps.Map
-		);
-	-- Iterate over the elements returned by Scan_Relative_Path.
-	-- The parameters are the initialized config file and the
-	-- config name within the relative_path parameter
+	type Config_File_Type is private;
+	-- represents the configuration file
+	
+	type Config_File_Array is Array( Positive range<> ) of Config_File_Type;
+	-- one array of config files
 
 
 	function New_Config_File(
-				N		: in String;
-				Is_Complete_Path: Boolean := False
-			) return Config_File;
+				N		: in     String;
+				Is_Complete_Path: in     Boolean := False
+			) return Config_File_Type;
 	-- opens a new config file 
 	-- read it's contents and return an object representing it.
 	-- the file is closed right after it've been read
 
-	procedure Save( F: in out Config_File );
+	procedure Save( F: in out Config_File_Type );
 	-- save the config file.
 	-- it has to be a file that was loaded directly from a file.
 	
@@ -191,173 +148,189 @@ package KOW_Config is
 	function Merge_Configs( Parent, Child : in Config_File ) return Config_File;
 	-- merge two config files, overriding all parent's keys by the child's ones
 
-	----------------------------------
-	-- Methods for Config Iteration --
-	----------------------------------
 
-	procedure Set_Section( F: in out Config_File; S: in String );
-	pragma Inline( Set_Section );
-	-- set the current section of the config file.
-
-	procedure Set_Section(	F: in out Config_File; 
-				S: in Unbounded_String );
-	pragma Inline( Set_Section );
-	-- set the current section of the config file.
-
-	function Get_Section( F: in Config_File ) return String;
-	pragma Inline( Get_Section );
-	-- return the current section or "" if there is no section active
-
-	function Get_Section( F: in Config_File ) return Unbounded_String;
-	pragma Inline( Get_Section );
-	-- return the current section or "" if there is no section active
-
-
-	function Value(	F	: Config_File;
-			Key	: String;
-			Default	: Boolean := FALSE ) return Boolean;
-	-- returns the element value like the Element function,
-	-- but converts it to Boolean value and, if occurs a
-	-- constraint error, returns the default value
-
-	function Value(	F	: Config_File;
-			Key	: String;
-			Default	: Float := 0.0 ) return Float;
-	-- returns the element value like the Element function, 
-	-- but converts it to Float value and, if occurs a constraint
-	-- error, returns the default value
-
-	function Value(	F	: Config_File;
-			Key	: String;
-			Default	: Integer := 0 ) return Integer;
-	-- returns the element value like the Element function,
-	-- but converts it to Integer value and, if occurs a constraint
-	-- error, returns the default value
-
-	
-	function Value(	F	: Config_File;
-			Key	: String;
-			Default	: String := "" ) return String;
-	-- returns the element value like the Element function, but converts 
-	-- is to String and, if occurs a constraint error, returns the 
-	-- default value
-
-	function Value(	F	: Config_File;
-			Key	: String;
-			Default	: String ) return Unbounded_String;
-	
-	-- returns the element value like the Element function
-	-- if occurs a constraint error, returns the default value in 
-	-- Unbounded_String
-
-
-	function Value(	F	: Config_File;
-			Key	: String;
-			Default	: Unbounded_String := Null_Unbounded_String ) return Unbounded_String;
-	-- returns the element value like the Element function
-	-- if occurs a constraint error, returns the default value in 
-	-- Unbounded_String
-
-	function Has_Element(	F	: Config_File;
-				Key	: String ) return Boolean;
-	-- check if the element exists in the config file
-	
-	function Has_Element(	F	: Config_File;
-				Key	: Unbounded_String ) return Boolean;
-	-- check if the element exists in the config file
-
-
-	function Element(	F	: Config_File;
-				Key	: String ) return Boolean;
-	-- returns the element value like the Element function, but 
-	-- converts it to Boolean value
-
-	function Element(	F	: Config_File;
-				Key	: String ) return Float;
-	-- returns the element value like the Element function, 
-	-- but converts it to Float value
-
-	function Element(	F	: Config_File;
-				Key	: String ) return Integer;
-	-- returns the element value like the Element function, but
-	-- converts it to Integer value
-	
-	function Element(	F	: Config_File;
-				Key	: String ) return String;
-	-- returns the element value like the Element function, but 
-	-- converts is to String 
-
-	function Element( F: Config_File; Key: String ) 
-		return Unbounded_String;
-	-- return the value of element inside the current section with
-	-- key Key if no current section active, return propertie relative
-	-- to root section; ie expects Key to be of the form "sectionName.key"
-
-	function Element( F: Config_File; Key: Unbounded_String )
-		return Unbounded_String;
-	-- return the value of element inside the current section with
-	-- key Key
-	-- if no current section active, return propertie relative
-	-- to root section; ie expects Key to be of the form "sectionName.key"
-
-
-	function Element(	F		: Config_File;
-				Key		: Unbounded_String;
-				L_Code		: KOW_Lib.Locales.Locale_Code;
-				Dump_On_Error	: Boolean := False
-			) return Unbounded_String;
-	-- return the value of element inside the current section with
-	-- key 'Key:L_Code'
-	
-
-	function Element(	F	: Config_File;
-				Key	: String;
-				L_Code	: KOW_Lib.Locales.Locale_Code )
-		return String;
-	-- return the value of element inside the current section with
-	-- key 'Key:L_Code'
-
-	
-	function Extract( F: Config_File; Prefix: Unbounded_String )
-		return Config_File;
+	function Extract(
+				F	: in     Config_File;
+				Prefix	: in     String
+			) return Config_File_Type;
 	-- return a new config file with the data prefixed by the give prefix
 
-	function Extract( F: Config_File; Prefix: String ) return Config_File;
-	-- return a new config file with the data prefixed by the give prefix
-
-	function Elements_Array( F: Config_File; Key: Unbounded_String )
-		return Config_File_Array;
-	-- return an array with elements withing the category named by:
-	-- (THE_CURRENT_CATEGORY).Key.INDEX
-	-- where INDEX starts with 1.
-
-	function Elements_Array( F: Config_File; Key: String ) 
-		return Config_File_Array;
+	function Elements_Array(
+				F	: in     Config_File;
+				Key	: in     String
+			) return Config_File_Array;
 	-- return an array with elements withing the category named by:
 	-- (THE_CURRENT_CATEGORY).Key.INDEX
 	-- where INDEX starts with 1.
 
 
-	function Get_Contents_Map( F: in Config_File ) 
-		return KOW_Lib.UString_Hashed_Maps.Map;
-	Pragma Inline( Get_Contents_Map );
-	-- return an Hashed map of Unbounded_String => Unbounded_String
-	-- with all keys respecting the pattern "section.subSection.key"
 
-	procedure Set_Contents_Map(
-		F: in out Config_File;
-		Contents_Map: in KOW_Lib.UString_Hashed_Maps.Map );
+	procedure Set_Section(
+				F	: in out Config_File_Type;
+			       	S	: in     String
+			);
+	-- set the current section of the config file.
+
+
+	function Get_Section( F : in Config_File ) return String;
+	-- return the current section or "" if there is no section active
+
+
+
+
+	--------------------------
+	-- The Config File Item --
+	--------------------------
+
+	type Config_Item_Type is private;
+
+	function Value(
+			Item 		: in     Config_Item_Type;
+			Locale_Code	: in     KOW_Lib.Locales.Locale_Code_Type
+		) return String;
+	-- tries to get the data in the given locale with country, then only language
+	-- and if not found, return the default value
+	-- For instance. If try fetching the item using the locale pt_BR
+	-- 	=> tries pt_BR
+	-- 	=> tries pt
+	-- 	=> fallback to the default value
+
+
+
+	function Default_Value(
+			Item		: in     Config_Item_Type
+		) return String;
+	-- get the default value
+	
+
+
+	procedure Set_Default_Value(
+			Item		: in out Config_Item_Type;
+			Value		: in     String
+		);
+	-- set the value as the default_value
+	
+
+	procedure Set_Value(
+			Item		: in out Config_Item_Type;
+			Locale_Code	: in     KOW_Lib.Locales.Locale_Code_Type;
+			Value		: in     String
+		);
+	-- set the value for the given locale code
+	-- if the default value is not set yet, set it as well
+	
+
+	procedure Iterate(
+			Item	: in     Config_Item_Type;
+			Iterator: not null access procedure(
+								Locale_Code	: in KOW_Lib.Locales.Locale_Code_Type;
+								Value		: in String
+							)
+		);
+	-- iterate over all translated values in the config item
+
+
+
+	---------------------------------
+	-- Item and Configuration Link --
+	---------------------------------
+
+
+	function Contains(
+				F	: in     Config_File;
+				Key	: in     String
+			) return Boolean;
+	-- check if the element exists in the config file
+	
+
+	function Element(
+				Config		: in Config_File_Type;
+				Key		: in String
+			) return Config_Item_Type;
+	-- get the given configuration item
+
+
+	function Element(
+				Config		: in Config_File_Type;
+				Key		: in String
+			) return String;
+	-- get the default value for the given key
+	
+	function Element(
+				Config		: in Config_File_Type;
+				Key		: in String;
+				Locale_Code	: in KOW_Lib.Locales.Locale_Code_Type
+			) return String;
+	-- tries getting the localized message
+
+
+	-------------------
+	-- File handling --
+	-------------------
+
+
+	function Scan_Relative_Path( Relative_Path : in String ) return KOW_Lib.UString_Vectors.Vector;
+	-- Scan a given relative path within the Config_Path for the project.
+	-- Return all the config files found without the extension and locale sufix
+	-- If there are more and 1 config file with the same name in the configuration path
+	-- the one that should be loaded is controlled by the new_config function
+
+
+	generic
+		with procedure Path_Iterator(
+				Name	: in     String;
+				Config	: in out Config_File_Type
+			);
+	procedure Generic_Iterate(
+			Vect	: KOW_Lib.UString_Vectors.Vector
+		);
+	-- Iterate over the elements returned by Scan_Relative_Path.
+	-- The parameters are the initialized config file and the
+	-- config name within the relative_path parameter
+
+
+
 
 private
 
-	Config_Path: KOW_Lib.UString_Vectors.Vector;
 
-	Project_Name: Unbounded_String;
+	-- All the unbounded string references should be private for a simple reason
+	-- The Unbounded String implementation in GNAT's opensource versions of 2011
+	-- all behave weirdly in a multi-tasking environment, raising random exceptions
+	-- and eventually segfaulting the application
+	-- I don't know why that's so and I haven't reported the bug (if that's really a bug and
+	-- not a missuse of the library)
+	-- So I am hiding the unbounded string dependency and trying not to use it
+	-- elsewhere in the code that might be accessed by several tasks.
+
+	-- TODO :: if for some reason it start crashing, change the unbounded string to something else
+	package Locale_UString_Maps is new Ada.Containers.Hashed_Maps(
+						Key_type	=> KOW_Lib.Locales.Locale_Code_Type,
+						Element_Type	=> Unbounded_String,
+						Hash		=> KOW_Lib.Locales.Hash
+					);
+
+	type Config_Item_Type is record
+		Default_Value		: Unbounded_String;
+		Translated_Values	: Locale_UString_Maps.Map;
+	end record;
+
+	package Configuration_Maps is new Ada.Containers.Hashed_Maps(
+						Key_Type	=> Unbounded_String,
+						Element_Type	=> Config_Item_Type,
+						Hash		=> Hash
+					);
+
+
+
+	Config_Path : KOW_Lib.UString_Vectors.Vector;
+
+	Project_Name : Unbounded_String;
 
 	type Config_File is record
-		File_Name: Unbounded_String;
-		Current_Section: Unbounded_String;
-		Contents: KOW_Lib.UString_Hashed_Maps.Map;
+		File_Name	: Unbounded_String;
+		Current_Section	: Unbounded_String;
+		Contents	: Configuration_Maps.Map;
 	end record;
 
 end KOW_Config;
