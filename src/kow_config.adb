@@ -473,6 +473,38 @@ package body KOW_Config is
 
 
 
+
+	generic
+		with function value_of( Key : in String ) return String;
+	function Expand( Value : in String ) return String;
+	function Expand( Value : in String ) return String is
+		use Ada.Strings;
+		From : Natural := Fixed.Index( Value, "${", Forward );
+		To   : Natural;
+	begin
+		while From /= 0 loop
+
+			if From = Value'First or else Value( From - 1 ) /= '$' then
+				To := Fixed.Index( Value, "}", From, Forward );
+				if To = 0 or else From + 2 > To - 1 then
+					From := Fixed.Index( Value, "${", From + 1, Forward );
+				else
+					declare
+						Before	: constant String := Value( Value'First .. From - 1 );
+						Key	: constant String := Value( From + 2 .. To - 1 );
+						After	: constant String := Value( To + 1 .. Value'Last );
+					begin
+						return Expand( Before & Value_Of( Key ) & After );
+					end;
+				end if;
+			else
+				From := Fixed.Index( Value, "${", From + 1, Forward );
+			end if;
+		end loop;
+
+		return Value;
+	end Expand;
+
 	procedure Include_Item(
 				F		: in out Config_File_Type;
 				Key		: in     String;
@@ -481,12 +513,24 @@ package body KOW_Config is
 			) is
 		-- include the given localized item
 		Item : Config_Item_Type;
+
+
+		function Value_Of( Key : in String ) return String is
+		begin
+			if Contains( F, Key ) then
+				return Element( F, Key, Locale_Code );
+			else
+				return "[UNKNOWN KEY: " & Key & "]";
+			end if;
+		end Value_Of;
+
+		function My_Expand is new Expand( Value_Of );
 	begin
 		if Contains( F, Key ) then
 			Item := Element( F, Key );
 		end if;
 
-		Set_Value( Item, Locale_Code, Value );
+		Set_Value( Item, Locale_Code, My_Expand( Value ) );
 
 		Include( F, Key, Item );
 	end Include_Item;
@@ -498,12 +542,24 @@ package body KOW_Config is
 			) is
 		-- include the given default item
 		Item : Config_Item_Type;
+
+
+		function Value_of( Key : in String ) return String is
+		begin
+			if Contains( F, Key ) then
+				return Element( F, Key );
+			else
+				return "[UNKNOWN KEY: " & Key & "]";
+			end if;
+		end Value_of;
+
+		function My_Expand is new Expand( Value_Of );
 	begin
 		if Contains( F, Key ) then
 			Item := Element( F, Key );
 		end if;
 
-		Set_Default_Value( Item, Default_Value );
+		Set_Default_Value( Item, My_Expand( Default_Value ) );
 		
 		Include( F, Key, Item );
 	end Include_Item;
