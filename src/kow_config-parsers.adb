@@ -90,6 +90,7 @@ package body KOW_Config.Parsers is
 		function Load_Locale( From : in Natural ) return Boolean is
 			-- Try loading the locale from the given index
 		begin
+			log( "Tentando Locale usando código : " & File_Name( From .. E_Index ), KOW_Lib.Log.Level_Debug );
 			P.File_Locale := KOW_Lib.Locales.From_String( File_Name( From .. E_Index ) );
 			return True;
 		exception
@@ -111,7 +112,7 @@ package body KOW_Config.Parsers is
 			end if;
 
 
-			L_Index2 := Fixed.Index( File_Name, "_", L_Index1, Backward );
+			L_Index2 := Fixed.Index( File_Name, "_", L_Index1 - 1, Backward );
 
 			if L_Index2 /= 0 and then Load_Locale( L_Index2 + 1 ) then
 				P.Localized_File := True;
