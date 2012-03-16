@@ -58,7 +58,7 @@ package KOW_Config.Generic_Registry is
 	DUPLICATED_ELEMENT : Exception;
 
 
-	type Element_Factory is access function( Id: in String; Config: in KOW_Config.Config_File ) return Element_Type;
+	type Element_Factory is access function( Id: in String; Config: in KOW_Config.Config_File_Type ) return Element_Type;
 	-- Função usada para criar os elementos.
 	-- Para cada tipo ( a ser registrado no Factory_Registry ) o usuário ( desenvolvedor ) deve criar um factory
 	-- e registrar o access no Factory_Registry a seguir
@@ -112,12 +112,12 @@ package KOW_Config.Generic_Registry is
 
 	protected Registry is
 
-		procedure Iterator( Id: in String; Config: in out KOW_Config.Config_File );
+		procedure Iterator( Id: in String; Config: in out KOW_Config.Config_File_Type );
 		-- procedure is used internally and shouldn't be used anywhere else!
 		-- Reload_Registry utilize this one to iterate over the configuration and call the factories
 
 
-		procedure Register_And_Save( Element_Id: in String; Config: in out KOW_Config.Config_File );
+		procedure Register_And_Save( Element_Id: in String; Config: in out KOW_Config.Config_File_Type );
 		-- register a new element from it's config file.
 		-- also, write this new element to disk;
 

@@ -136,7 +136,7 @@ package body KOW_Config.Parsers is
 	
 		P.First_Key_Value_Pair := True;
 		P.Current_Key := Null_Unbounded_String;
-		P.Current_Element := Null_Unbounded_String;
+		P.Current_Value := Null_Unbounded_String;
 		P.Current_Section := NUll_Unbounded_String;
 	end Finish;
 
@@ -289,10 +289,10 @@ package body KOW_Config.Parsers is
 				-- Element block or not.
 				P.Current_Block := B_NONE;
 			else
-				Append( P.Current_Element, P.C );
+				Append( P.Current_Value, P.C );
 				-- the value is appended even it's the final "
 				if End_of_Line( P.File ) then
-					Append( P.Current_Element, NEW_LINE );
+					Append( P.Current_Value, NEW_LINE );
 				end if;
 			end if;
 		end Read_Element;
@@ -307,8 +307,8 @@ package body KOW_Config.Parsers is
 				if P.C = '"' then
 					P.Current_Block := B_ELEMENT;
 					-- it's part of the element.
-					Append( P.Current_Element, P.C );
-					-- and append the " to Current_Element.
+					Append( P.Current_Value, P.C );
+					-- and append the " to Current_Value.
 					return;
 					-- and return to main looping so I can
 					-- continue fetching array and stuff. :D
@@ -353,7 +353,7 @@ package body KOW_Config.Parsers is
 	begin
 		P.Current_Key := Null_Unbounded_String;
 		-- Reset the key
-		P.Current_Element := Null_Unbounded_String;
+		P.Current_Value := Null_Unbounded_String;
 		-- Reset the value
 
 		if P.First_Key_Value_Pair or P.C = '"' then
@@ -436,7 +436,7 @@ package body KOW_Config.Parsers is
 		end if;
 	end Locale_Code;
 
-	function Element( P: in Parser ) return String is
+	function Value( P: in Parser ) return String is
 		-- return the value of the current field
 		-- raise CONSTRAINT_ERROR if there is nothing else to read
 	begin
@@ -448,8 +448,8 @@ package body KOW_Config.Parsers is
 
 
 
-		return To_String( P.Current_Element );
-	end Element;
+		return To_String( P.Current_Value );
+	end Value;
 
 	
 	function Get_File_Name( Original: in String ) return String is

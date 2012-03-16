@@ -84,7 +84,7 @@ package KOW_Config.Parsers is
 	function Locale_Code( P : in Parser ) return KOW_Lib.Locales.Locale_Code_Type;
 	-- get the locale code for this entry (either localized file or key)
 
-	function Element( P: in Parser ) return String;
+	function Value( P: in Parser ) return String;
 	-- return the value of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
@@ -116,7 +116,7 @@ package KOW_Config.Parsers is
 		C			: Character;
 		File			: File_Type;
 		File_Name		: String_Access;
-		Current_Key, Current_Element, Current_Section: Unbounded_String;
+		Current_Key, Current_Value, Current_Section: Unbounded_String;
 
 
 		Locale_Separator_Index	: Integer;

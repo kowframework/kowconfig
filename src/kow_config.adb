@@ -172,7 +172,7 @@ package body KOW_Config is
 
 	function New_Config_File(	N		: in String;
 					Is_Complete_Path: Boolean := False
-			) return Config_File is
+			) return Config_File_Type is
 		-- opens a new config file 
 		-- read it's contents and return an object representing it.
 		-- the file is closed right after it've been read
@@ -184,7 +184,7 @@ package body KOW_Config is
 
 		-- this is used to check when the file has been found
 		
-		F: Config_File;
+		F : Config_File_Type;
 		-- this is the object that is used as return value
 
 		FOUND_IT: Boolean := FALSE;
@@ -239,7 +239,7 @@ package body KOW_Config is
 	end New_Config_File;
 
 
-	procedure Save( F: in out Config_File ) is
+	procedure Save( F : in out Config_File_Type ) is
 		use KOW_Config.Parsers;
 
 		Output_File	: File_Type;
@@ -255,7 +255,7 @@ package body KOW_Config is
 
 
 
-	procedure Reload_Config( F: in out Config_File ) is
+	procedure Reload_Config( F : in out Config_File_Type ) is
 		-- reloads the configuration from the file. :D
 		use KOW_Lib.UString_Hashed_Maps;
 		use KOW_Lib.Locales;
@@ -264,7 +264,7 @@ package body KOW_Config is
 		P : Parser;
 
 
-		procedure File_Loader( File_Name: in String; L_Code: in Unbounded_String ) is
+		procedure File_Loader( File_Name: in String ) is
 			use Ada.Directories;
 
 		begin
@@ -277,13 +277,13 @@ package body KOW_Config is
 									F		=> F,
 									Key		=> Key( P ),
 									Locale_Code	=> Locale_Code( P ),
-									Value		=> Element( P )
+									Value		=> Value( P )
 								);
 						else
 							Include_Item(
 									F		=> F,
 									Key		=> Key( P ),
-									Default_Value	=> Value
+									Default_Value	=> Value( P )
 								);
 						end if;
 
@@ -296,83 +296,91 @@ package body KOW_Config is
 				end;				
 			end if;
 
-		end;
+		end File_Loader;
 
 
-		procedure Locale_Iterator( Locale : in Locale_Type ) is
-			Config_Name	: String := File_To_Config_Name( To_String( F.File_Name ) );
-			File_Name	: String := Get_File_Name( To_String( Config_Name & "_" & L_Code ) );
+
+
+		Path : constant String := To_String( F.File_Name );
+		Extension : constant String := ".cfg";
+
+		procedure Locale_Iterator( Locale : in KOW_Lib.Locales.Locale_Type ) is
+			use KOW_Lib.Locales;
+			function FN( Code : in Locale_Code_Type ) return String is
+				pragma Inline( FN );
+			begin
+				return Path & '_' & To_String( Code ) & Extension;
+			end FN;
 		begin
-			File_Loader( File_Name, Locale.Code );
+			if Locale.Code.Country /= No_Country then
+				File_Loader( FN( ( Language => Locale.Code.Language, Country => No_Country ) ) );
+			end if;
+			File_Loader( File_Name => FN( Locale.Code ) );
 		end Locale_Iterator;
 	begin
-		Locales_Cursor := Locale_Tables.First( Supported_Locales );
 
-		F.Contents := Empty_Map;
+		F.Contents := Configuration_Maps.Empty_Map;
+
+
+		File_Loader( Path & Extension );
+		KOW_Lib.Locales.Iterate( Locale_Iterator'Access );
 		
-		-- loads locale files and puts keys in the map like key:ll_cc_ll
-		while Locale_Tables.Has_Element( Locales_Cursor ) loop
-			declare
-				L_Code		: Unbounded_String :=  Locale_Tables.Key( Locales_Cursor );
-			begin	
-				File_Loader( File_Name, L_Code );	
-			end;
-			
-			Locale_Tables.Next( Locales_Cursor );
-		end loop;
-
-		File_Loader( To_String( F.File_Name ), Null_Unbounded_String );
 	end Reload_Config;
 
 
-	function Get_File_Name( F: in Config_File ) return String is
+	function Get_File_Name( F : in Config_File_Type ) return String is
 		-- return the file name used for this config file.
 	begin
 		return To_String( F.File_Name );
 	end Get_File_Name;
 
-	procedure Dump_Contents( Config: in KOW_Config.Config_File ) is
+	procedure Dump_Contents( Config: in Config_File_Type ) is
 		-- dumps the contents map into the std out
-		use Ada.Text_IO;
-		use KOW_Lib.UString_Hashed_Maps;
-		procedure My_Iterator( C: in KOW_Lib.UString_Hashed_Maps.Cursor ) is
+		use KOW_Lib.Locales;
+		procedure Item_Iterator( Key : in String; Item : Config_Item_Type ) is
+			procedure Localization_Iterator( Locale_Code : in Locale_Code_Type; Value : in String ) is
+			begin
+				Log( "     * " & To_String( Locale_Code ) & " => " & Value );
+			end Localization_Iterator;
 		begin
-			Log( To_String( Key( C ) ) & " => " & To_String( Element( C ) ), KOW_lib.Log.Level_Debug );
-		end My_Iterator;
+			Log( Key & " => " & Default_Value( Item ) );
+			Iterate( Item, Localization_Iterator'Access );
+		end Item_Iterator;
 	begin
-		Iterate(
-			KOW_Config.Get_Contents_Map( Config ),
-			My_Iterator'Access
-		);
+		Iterate( Config, Item_Iterator'Access );
 	end Dump_Contents;
 
 	
-	function Merge_Configs( Parent, Child : in Config_File ) return Config_File is
+	function Merge_Configs( Parent, Child : in Config_File_Type ) return Config_File_Type is
 		-- merge two config files, overriding all parent's keys by the child's ones
 
 
 		use KOW_Lib.UString_Hashed_Maps;
-		Cfg: Config_File := Child;
+		Cfg: Config_File_Type := Child;
+		-- will set the file path and other useful information as the child...
+		-- and the content will be initialized as the parent's.
 
-		procedure Iterator( C: in Cursor ) is
+		procedure Item_Iterator( Key : in String; Item : in Config_Item_Type ) is
 		begin
-			Include( Cfg.Contents, Key( C ), Element( C ) );
-		end Iterator;
+			Include( Cfg, Key, Item );
+		end Item_Iterator;
 	begin
 		Cfg.Contents := Parent.Contents;
-		Iterate( Child.Contents, Iterator'Access );
+
+		Iterate( Child, Item_Iterator'Access );
+
 		return Cfg;
 	end Merge_Configs;
 
 
 
-	function Extract( F: Config_File; Prefix: String ) return Config_File is
+	function Extract( F : Config_File_Type; Prefix: String ) return Config_File_Type is
 		-- return a new config file with the data prefixed by the give prefix
 		
 		
 		use KOW_Lib.UString_Hashed_Maps;
 		
-		My_File: Config_File;
+		My_File: Config_File_Type;
 		-- Notice this config file won't have any special property except for the
 		-- data it will extract from the given file.
 		--
@@ -391,29 +399,22 @@ package body KOW_Config is
 
 		Calculated_Prefix : String := Get_Calculated_Prefix;
 
-		procedure Iterator( C: in Cursor ) is
-			Value: String  := To_String( Key( C ) );
-			First: Integer := Value'First;
-			Last : Integer := Value'First + Calculated_Prefix'Length - 1;
-		begin
-			if Value( First .. Last ) = Calculated_Prefix then
-				Include(
-					My_File.Contents,
-					To_Unbounded_String( Value( Last + 1 .. Value'Last ) ),
-					Element( C )
-					);
-			end if;
-		exception
-			when CONSTRAINT_ERROR => null;
-		end Iterator;
-	begin
-		Iterate( F.Contents, Iterator'Access );
 
+		procedure Item_Iterator( Key : in String; Item : in Config_Item_Type ) is
+			Key_Last : constant Integer := Key'First + Calculated_Prefix'Length - 1;
+			New_Key_First : constant Integer := Key_Last + 1;
+		begin
+			if Key'Length > Calculated_Prefix'Length and then Key( Key'First .. Key_Last ) = Calculated_Prefix then
+				Include( My_File, Key( New_Key_First .. Key'Last ), Item );
+			end if;
+		end Item_Iterator;
+	begin
+		Iterate( F, Item_Iterator'Access );
 		return My_File;
 	end Extract;
 
 
-	function Elements_Array( F: Config_File; Key: String ) return Config_File_Array is
+	function Elements_Array( F : Config_File_Type; Key : String ) return Config_File_Array is
 		-- return an array with elements within the category named by:
 		-- (THE_CURRENT_CATEGORY).Key.INDEX
 		-- where INDEX starts with 1.
@@ -432,14 +433,14 @@ package body KOW_Config is
 			end Get_Index;
 
 
-			My_Key: String := key & '.' & Get_Index & '.' ;
-			My_Config: Config_File := Extract( F, My_Key );
-			Empty: Config_File_Array( 2 .. 1 );
+			My_Key		: String := key & '.' & Get_Index & '.' ;
+			My_Config	: Config_File_Type := Extract( F, My_Key );
+			Empty		: Config_File_Array( 2 .. 1 );
 
 		begin
 			My_Config.File_Name := F.File_Name & To_Unbounded_String( ":" & Key );
-			if KOW_Lib.UString_Hashed_Maps.Length( My_Config.Contents ) > 0 then
-				return  My_Config & Iterator( Index + 1 );
+			if Length( My_Config ) > 0 then
+				return My_Config & Iterator( Index + 1 );
 			else
 				return Empty;
 			end if;
@@ -451,14 +452,14 @@ package body KOW_Config is
 
 	
 
-	procedure Set_Section( F: in out Config_File_Type; S: in String ) is
+	procedure Set_Section( F : in out Config_File_Type; S: in String ) is
 		-- set the current section of the config file.
 	begin
 		F.Current_Section := To_Unbounded_String( S );
 	end Set_Section;
 
 
-	function Get_Section( F: in Config_File_Type ) return String is
+	function Get_Section( F : in Config_File_Type ) return String is
 		-- return the current section or "" if there is no section active
 	begin
 		return To_String( F.Current_Section );
@@ -567,7 +568,7 @@ package body KOW_Config is
 		-- set the value for the given locale code
 		-- if the default value is not set yet, set it as well
 	begin
-		Include( Item.Translated_Values, Locale_Code, To_Unbounded_String( Value ) );
+		Locale_UString_Maps.Include( Item.Translated_Values, Locale_Code, To_Unbounded_String( Value ) );
 		if Item.Default_Value = Null_Unbounded_String then
 			Set_Default_Value( Item, Value );
 		end if;
@@ -582,6 +583,7 @@ package body KOW_Config is
 		) is
 		-- iterate over all translated values in the config item
 	
+		use Locale_Ustring_Maps;
 		procedure Inner_Iterator( C : in Cursor ) is
 		begin
 			Iterator.all( Key( C ), To_String( Element( C ) ) );
@@ -610,9 +612,10 @@ package body KOW_Config is
 
 
 	function Contains(
-				F	: Config_File;
+				F	: Config_File_Type;
 				Key	: String
 			) return Boolean is
+		use Configuration_Maps;
 		UKey : constant Unbounded_String := To_Unbounded_String( Key );
 		-- check if the element exists in the config file
 	begin
@@ -622,6 +625,15 @@ package body KOW_Config is
 			return Contains( F.Contents, F.Current_Section & '.' & UKey );
 		end if;
 	end Contains;
+
+
+	function Length(
+				F	: in      Config_File_Type
+			) return Natural is
+		-- count the elements in this config file
+	begin
+		return Natural( Configuration_Maps.Length( F.Contents ) );
+	end Length;
 
 
 	function Element(
@@ -677,7 +689,7 @@ package body KOW_Config is
 
 	function Scan_Relative_Path(
 				Relative_Path : in String
-			) return KOW_Lib.Vectors.Vector is
+			) return KOW_Lib.UString_Vectors.Vector is
 		-- TODO: refactor the internals of this function; it can be much improved
 		
 		use Ada.Directories;
@@ -812,10 +824,9 @@ package body KOW_Config is
 
 
 		use KOW_Lib.UString_Vectors;
-		
-		procedure Inner_Iterator( C: in Cursor ) is
+		procedure Inner_Iterator( C: in KOW_Lib.UString_Vectors.Cursor ) is
 			Name	: constant String := To_String( Element( C ) );
-			Config	: Config_File := New_Config_File( Name );
+			Config	: Config_File_Type := New_Config_File( Name );
 		begin
 			Path_Iterator(
 					Name	=> Name,
@@ -823,7 +834,7 @@ package body KOW_Config is
 				);
 		end Inner_Iterator;
 	begin
-		Iterate( Map, Inner_Iterator'Access );
+		Iterate( Vect, Inner_Iterator'Access );
 	end Generic_Iterate;
 
 

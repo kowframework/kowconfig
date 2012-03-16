@@ -159,25 +159,27 @@ package body KOW_Config.Generic_Registry is
 
 	procedure Reload_Registry is
 		-- escaneia o diretório informado e recria o registro
-		Config_Map : KOW_Lib.UString_Hashed_Maps.Map := 
+		Config_Vector : KOW_Lib.UString_Vectors.Vector := 
 			KOW_Config.Scan_Relative_Path( Relative_Path => Relative_Path );
 	begin
-		Path_Iterate( Config_Map );
+		Path_Iterate( Config_Vector );
 	end Reload_Registry;
 
 
 	protected body Registry is
 
-		procedure Iterator( Id: in String; Config: in out KOW_Config.Config_File ) is
+		procedure Iterator( Id: in String; Config: in out KOW_Config.Config_File_Type ) is
 			-- this procedure is used internally and shouldn't be used anywhere else!
 			-- Reload_Registry utilize this one to iterate over the configuration and call the factories
 			
 			
 			function Get_Type return Unbounded_String is
-				My_Type: Unbounded_String;
 			begin
-				My_Type := KOW_Config.Element( Config, "type" );
-				return My_Type;
+				declare
+					My_Type : constant String := Default_Value( KOW_Config.Element( Config, "type" ) );
+				begin
+					return To_Unbounded_String( My_Type );
+				end;
 			exception
 				when CONSTRAINT_ERROR =>
 					KOW_Config.Dump_Contents( Config );
@@ -221,7 +223,7 @@ package body KOW_Config.Generic_Registry is
 		end Iterator;
 		
 		
-		procedure Register_And_Save( Element_Id: in String; Config: in out KOW_Config.Config_File ) is
+		procedure Register_And_Save( Element_Id: in String; Config: in out KOW_Config.Config_File_Type ) is
 			-- register a new element from it's config file.
 			-- also, write this new element to disk;
 			use Ada.Text_IO;
@@ -268,7 +270,7 @@ package body KOW_Config.Generic_Registry is
 
 		procedure Delete( Element_Id: in String ) is
 			use KOW_Config;
-			F: Config_File := New_Config_File( Relative_Path & KOW_Lib.File_System.Separator & Element_Id ); 
+			F: Config_File_Type := New_Config_File( Relative_Path & KOW_Lib.File_System.Separator & Element_Id ); 
 			
 			UElement_Id : Unbounded_String := To_Unbounded_String( Element_Id );
 		begin

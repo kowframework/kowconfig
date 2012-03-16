@@ -267,6 +267,11 @@ package KOW_Config is
 	-- check if the element exists in the config file
 	
 
+	function Length(
+				F	: in      Config_File_Type
+			) return Natural;
+	-- count the elements in this config file
+
 	function Element(
 				Config		: in Config_File_Type;
 				Key		: in String
