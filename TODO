@@ -1,0 +1,12 @@
+Extend the configuration file syntax to include:
+
+	${key}	=> internal substituion, not allowing circular dependency.
+		* can be done outside the parser
+		* $${} would be treated as ${} text
+		* ${key:locale} will look for specific locale, being "default" a keyword to default value
+		* ${key} will look for the key in the current key's locale (using Element's syntax)
+
+	dynamic indexed arrays =>
+		* such as:
+			[Some_Interestin_Section.#] => '#' would be auto-incremented
+		* should be done in the parser
