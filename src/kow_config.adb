@@ -923,5 +923,6 @@ package body KOW_Config is
 
 
 
-
+begin
+	Reset_Config_Path;
 end KOW_Config;
