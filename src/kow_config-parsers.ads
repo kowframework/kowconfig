@@ -72,6 +72,8 @@ package KOW_Config.Parsers is
 	-- if not prepare the parser to return CONSTRAINT_ERROR
 	-- everytime Key and Value are called
 
+	function End_Of_File( P : in Parser ) return Boolean;
+	-- checks if there is a value loaded
 
 	function Key( P: in Parser ) return String;
 	-- return the key of the current field
@@ -119,7 +121,7 @@ package KOW_Config.Parsers is
 		Current_Key, Current_Value, Current_Section: Unbounded_String;
 
 
-		Locale_Separator_Index	: Integer;
+		Locale_Separator_Index	: Natural;
 		-- for localized keys
 
 		Localized_File		: Boolean;

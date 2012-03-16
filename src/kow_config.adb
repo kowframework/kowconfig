@@ -270,31 +270,27 @@ package body KOW_Config is
 
 		begin
 			if Exists( File_Name ) then
-				begin
-					Prepare( P, File_Name );
-					loop
-						if Is_Localized( P ) then
-							Include_Item(
-									F		=> F,
-									Key		=> Key( P ),
-									Locale_Code	=> Locale_Code( P ),
-									Value		=> Value( P )
-								);
-						else
-							Include_Item(
-									F		=> F,
-									Key		=> Key( P ),
-									Default_Value	=> Value( P )
-								);
-						end if;
+				Prepare( P, File_Name );
+				loop
+					exit when End_Of_File( P );
+					if Is_Localized( P ) then
+						Include_Item(
+								F		=> F,
+								Key		=> Key( P ),
+								Locale_Code	=> Locale_Code( P ),
+								Value		=> Value( P )
+							);
+					else
+						Include_Item(
+								F		=> F,
+								Key		=> Key( P ),
+								Default_Value	=> Value( P )
+							);
+					end if;
 
-						Next( P );
-					end loop;
-				exception
-					when CONSTRAINT_ERROR =>
-						-- the file has reached the end
-						Finish( P );
-				end;				
+					Next( P );
+				end loop;
+				Finish( P );
 			end if;
 
 		end File_Loader;

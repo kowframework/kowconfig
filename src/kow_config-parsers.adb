@@ -394,8 +394,18 @@ package body KOW_Config.Parsers is
 			if P.Current_Block /= B_NONE then
 				-- if it's not expected...
 				Raise_Unexpected_EOF;
+			else
+				P.Locale_Separator_Index := Index( Source => P.Current_Key, Pattern => ":" );
 			end if;
 	end Next;
+
+
+
+	function End_Of_File( P : in Parser ) return Boolean is
+		-- checks if there is a value loaded
+	begin
+		return P.Current_Key = Null_Unbounded_String;
+	end End_Of_File;
 
 	function Key( P: in Parser ) return String is
 		-- return the key of the current field
