@@ -97,7 +97,7 @@ package body Tests is
 
 		Put_Line( "Extracting a part of the config file..." );
 
-		Dump_Contents( Extract( Config, "Database" ) );
+		Dump_Contents( Extract( Config, "Database." ) );
 
 
 		New_Line;

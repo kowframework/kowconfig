@@ -230,6 +230,7 @@ package body KOW_Config is
 			Iterate( CF, Path_Iterator'Access );
 			-- iterate over the config path looking for the file
 		end if;
+		log( "found file " & To_String( F.File_Name ), KOW_Lib.Log.Level_Debug );
 
 		if not FOUND_IT then
 			Ada.Exceptions.Raise_Exception( FILE_NOT_FOUND'Identity, N );
@@ -301,15 +302,15 @@ package body KOW_Config is
 
 
 
-		Path : constant String := To_String( F.File_Name );
-		Extension : constant String := ".cfg";
+		Path		: constant String := Ada.Directories.Base_Name( To_String( F.File_Name ) );
+		Extension 	: constant String := Ada.Directories.Extension( To_String( F.File_Name ) );
 
 		procedure Locale_Iterator( Locale : in KOW_Lib.Locales.Locale_Type ) is
 			use KOW_Lib.Locales;
 			function FN( Code : in Locale_Code_Type ) return String is
 				pragma Inline( FN );
 			begin
-				return Path & '_' & To_String( Code ) & Extension;
+				return Ada.Directories.Compose( Name => Path & '_' & To_String( Code ), Extension => Extension );
 			end FN;
 		begin
 			if Locale.Code.Country /= No_Country then
@@ -322,7 +323,7 @@ package body KOW_Config is
 		F.Contents := Configuration_Maps.Empty_Map;
 
 
-		File_Loader( Path & Extension );
+		File_Loader( To_String( F.File_Name ) );
 		KOW_Lib.Locales.Iterate( Locale_Iterator'Access );
 		
 	end Reload_Config;
@@ -642,7 +643,11 @@ package body KOW_Config is
 			) return Config_Item_Type is
 		-- get the given configuration item
 	begin
-		return Element( Config.Contents, To_Unbounded_String( Key ) );
+		if Config.Current_Section /= Null_Unbounded_String then
+			return Element( Config.Contents, Config.Current_Section & '.' & To_Unbounded_String( Key ) );
+		else
+			return Element( Config.Contents, To_Unbounded_String( Key ) );
+		end if;
 	end ELement;
 
 	function Element(
