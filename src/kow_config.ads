@@ -43,6 +43,7 @@
 
 
 -- Ada Packages
+with Ada.Command_Line;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
@@ -365,7 +366,7 @@ private
 
 	Config_Path : KOW_Lib.UString_Vectors.Vector;
 
-	Project_Name : Unbounded_String;
+	Project_Name : Unbounded_String := To_Unbounded_String( Ada.Command_Line.Command_Name );
 
 	type Config_File_Type is record
 		File_Name	: Unbounded_String;

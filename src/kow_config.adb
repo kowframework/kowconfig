@@ -924,8 +924,4 @@ package body KOW_Config is
 
 
 
-
-
-	
-
 end KOW_Config;
