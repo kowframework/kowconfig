@@ -1,7 +1,6 @@
 Extend the configuration file syntax to include:
 
 	${key}	=> improve having:
-		* $${} would be treated as ${} text in the end
 		* ${key:locale} will look for specific locale, being "default" a keyword to default value
 
 	dynamic indexed arrays =>
