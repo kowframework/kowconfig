@@ -302,15 +302,20 @@ package body KOW_Config is
 
 
 
-		Path		: constant String := Ada.Directories.Base_Name( To_String( F.File_Name ) );
-		Extension 	: constant String := Ada.Directories.Extension( To_String( F.File_Name ) );
+		use KOW_Lib.File_System;
+		SFN		: constant String := To_String( F.File_Name );
+		Path		: constant String := Ada.Directories.Containing_Directory( SFN ) / Ada.Directories.Base_Name( SFN );
+		Extension 	: constant String := Ada.Directories.Extension( SFN );
 
 		procedure Locale_Iterator( Locale : in KOW_Lib.Locales.Locale_Type ) is
 			use KOW_Lib.Locales;
 			function FN( Code : in Locale_Code_Type ) return String is
 				pragma Inline( FN );
+
+				Localized_Path : constant string := Path & '_' & To_String( Code ) & '.' & Extension;
 			begin
-				return Ada.Directories.Compose( Name => Path & '_' & To_String( Code ), Extension => Extension );
+				Log( "Trying locale " & To_String( Code ) & " @ " & Localized_Path , KOW_Lib.Log.Level_Debug );
+				return Localized_Path;
 			end FN;
 		begin
 			if Locale.Code.Country /= No_Country then
