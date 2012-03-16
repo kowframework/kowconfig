@@ -9,8 +9,8 @@
 
 
 
-with "kowlib.gpr";
-with "kowconfig.gpr";
+with "kowlib";
+with "kowconfig";
 
 project KOWConfig.Tests is
 
@@ -20,10 +20,6 @@ project KOWConfig.Tests is
    for Object_Dir use "obj";
    for Exec_Dir use ".";
    for Main use ( "run_tests" );
-
-   package Linker renames KOWLib.Linker;
-
-
 
 end KOWConfig.Tests;
 

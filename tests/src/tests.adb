@@ -2,28 +2,23 @@
 -- Ada 2005 --
 --------------
 with Ada.Text_IO;			use Ada.Text_IO;
-with Ada.Strings.Unbounded;		use Ada.Strings.Unbounded;
 
 
 -------------------
 -- KOW Framework --
 -------------------
-with KOW_Lib.UString_Hashed_Maps;	use KOW_Lib.UString_Hashed_Maps;
+with KOW_Lib.Locales;
+with KOW_Lib.UString_Vectors;		use KOW_Lib.UString_Vectors;
 with KOW_Config;			use KOW_Config;
 with KOW_Config.Parsers;		use KOW_Config.Parsers;
 
 package body Tests is
 
 
-	procedure iterator( C: in Cursor ) is
-	begin
-		Put_Line( To_String( Key( C ) ) & " ==> " & To_String( Element( C ) ) );
-	end iterator;
-
-	procedure config_iterator( Name: in String; Cfg: in out Config_File ) is
+	procedure config_iterator( Name: in String; Cfg: in out Config_File_Type ) is
 	begin
 		Put_Line( "===== " & Name & " =========" );
-		Iterate( Get_Contents_Map( Cfg ), Iterator'Access );
+		KOW_Config.Dump_Contents( Cfg );
 	end config_iterator;
 
 	procedure My_Iterate is new Generic_Iterate( Path_Iterator => Config_Iterator );
@@ -31,9 +26,10 @@ package body Tests is
 	procedure Run_Tests is
 		-- run a test
 
-		Config: Config_File;
+		Config: Config_File_Type;
 
-		My_Map: Map;
+		My_Vect : Vector;
+
 
 		Output_File : File_Type;
 
@@ -52,7 +48,8 @@ package body Tests is
 
 		New_Line;
 
-		Iterate( Get_Contents_Map( Config ), Iterator'Access );
+
+		KOW_Config.Dump_Contents( Config );
 
 		New_Line;
 
@@ -72,14 +69,14 @@ package body Tests is
 
 		Put_Line( "Section => ""Main Section""" );
 		Set_Section( Config, "Main Section" );
-		Put_Line( "     company name     => " & To_String( Element( Config, "company name" ) ) );
-		Put_Line( "     company size     => " & To_String( Element( Config, "company size" ) ) );
+		Put_Line( "     company name     => " & Element( Config, "company name" ) );
+		Put_Line( "     company size     => " & Element( Config, "company size" ) );
 
 		New_Line;
 
 		Put_Line( "Section => ""Main Section.Contact Information""" );
 		Set_Section( Config, "Main Section.Contact Information" );
-		Put_Line( "     address          => " & To_String( Element( Config, "address" ) ) );
+		Put_Line( "     address          => " & Element( Config, "address" ) );
 
 		New_Line;
 
@@ -90,10 +87,8 @@ package body Tests is
 
 		Put_Line( "Scanning all known config files in the relative config path ""data"":" );
 
-		My_Map := Scan_Relative_Path( "data" );
-		Iterate( My_Map, Iterator'Access );
-
-		My_Iterate( My_Map );
+		My_Vect := Scan_Relative_Path( "data" );
+		My_Iterate( My_Vect );
 
 		New_Line;
 
@@ -102,7 +97,7 @@ package body Tests is
 
 		Put_Line( "Extracting a part of the config file..." );
 
-		Iterate( Get_Contents_Map( Extract( Config, "Database" ) ), Iterator'Access );
+		Dump_Contents( Extract( Config, "Database" ) );
 
 
 		New_Line;
@@ -114,8 +109,9 @@ package body Tests is
 			Put_Line( "Extracting an array of values..." );
 
 			for i in My_Array'Range loop
-				Put_Line( "Element @ " &Integer'Image(i) );
-				Iterate( Get_Contents_Map( My_Array( i ) ), Iterator'Access );
+				Put_Line( "Element @ " & Integer'Image(i) );
+				KOW_Config.Dump_Contents( My_Array( i ) );
+
 			end loop;
 		end;
 
@@ -127,18 +123,16 @@ package body Tests is
 		
 	end Run_Tests;
 
-	procedure Database_Information( Config: in out Config_File ) is
+	procedure Database_Information( Config: in out Config_File_Type ) is
 		-- this procedure has no idea of where the config file is
 		-- and what parser was used to treat it
 	begin
 		Put_Line( "Section => ""Database"" " );
 		Set_Section( Config, "Database" );
-		Put_Line( "     host     => " & To_String( Element( Config, "host" ) ) );
-		Put_Line( "     user     => " & To_String( Element( Config, "user" ) ) );
-		Put_Line( "     password => " & To_String( Element( Config, "password" ) ) );
-		Put_Line( "     database => " & To_String( Element( Config, "database" ) ) );
-		Put_Line( "     engine   => " & To_String( Element( Config, "engine" ) ) );
-
-
+		Put_Line( "     host     => " & Default_Value( Element( Config, "host" ) ) );
+		Put_Line( "     user     => " & Default_Value( Element( Config, "user" ) ) );
+		Put_Line( "     password => " & Default_Value( Element( Config, "password" ) ) );
+		Put_Line( "     database => " & Default_Value( Element( Config, "database" ) ) );
+		Put_Line( "     engine   => " & Value( Element( Config, "engine" ), KOW_Lib.Locales.From_String( "pt_BR" ) ) );
 	end Database_Information;
 end Tests;

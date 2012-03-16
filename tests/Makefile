@@ -14,10 +14,10 @@ TCP=$(PWD)/data
 all: libs
 
 libs:
-	gnatmake -P ${PROJECT}.gpr
+	gprbuild -p -P ${PROJECT}.gpr
 
 clean: 
-	gnatclean -P ${PROJECT}.gpr
+	gprclean -P ${PROJECT}.gpr
 	@echo "All clean"
 
 docs:
