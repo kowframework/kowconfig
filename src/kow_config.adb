@@ -238,15 +238,22 @@ package body KOW_Config is
 		return F;
 	end New_Config_File;
 
-	function Create_Localed_Key( Key : Unbounded_String;
-		Code : Unbounded_String ) return Unbounded_String is
-	begin
-		if Code /= Null_Unbounded_String then
-			return Key & ":" & Code;
-		else
-			return Key;
-		end if;
-	end Create_Localed_Key;
+
+	procedure Save( F: in out Config_File ) is
+		use KOW_Config.Parsers;
+
+		Output_File	: File_Type;
+
+		File_Name : String := Get_File_Name( To_String( F.File_Name ) );
+	Begin	
+		Log( "Saving to file :: " & File_Name & " :: " & To_String( F.File_Name ), KOW_Lib.Log.Level_Debug );			
+		Create( Output_File, Out_File, To_String(F.File_Name));
+		Save( F, Output_File );
+		Close( Output_File );
+	end Save;
+
+
+
 
 	procedure Reload_Config( F: in out Config_File ) is
 		-- reloads the configuration from the file. :D
@@ -265,11 +272,21 @@ package body KOW_Config is
 				begin
 					Prepare( P, File_Name );
 					loop
-						Include(
-							F.Contents,
-							Create_Localed_Key( Key( P ), L_Code ),
-							Element( P )
-						);
+						if Is_Localized( P ) then
+							Include_Item(
+									F		=> F,
+									Key		=> Key( P ),
+									Locale_Code	=> Locale_Code( P ),
+									Value		=> Element( P )
+								);
+						else
+							Include_Item(
+									F		=> F,
+									Key		=> Key( P ),
+									Default_Value	=> Value
+								);
+						end if;
+
 						Next( P );
 					end loop;
 				exception
@@ -346,34 +363,8 @@ package body KOW_Config is
 		Iterate( Child.Contents, Iterator'Access );
 		return Cfg;
 	end Merge_Configs;
-	
-	----------------------------------
-	-- Methods for Config Iteration --
-	----------------------------------
 
-	procedure Set_Section( F: in out Config_File; S: in String ) is
-		-- set the current section of the config file.
-	begin
-		F.Current_Section := To_Unbounded_String( S );
-	end Set_Section;
 
-	procedure Set_Section( F: in out Config_File; S: in Unbounded_String ) is
-		-- set the current section of the config file.
-	begin
-		F.Current_Section := S;
-	end Set_Section;
-
-	function Get_Section( F: in Config_File ) return String is
-		-- return the current section or "" if there is no section active
-	begin
-		return To_String( F.Current_Section );
-	end Get_Section;
-
-	function Get_Section( F: in Config_File ) return Unbounded_String is
-		-- return the current section or "" if there is no section active
-	begin
-		return F.Current_Section;
-	end Get_Section;
 
 	function Extract( F: Config_File; Prefix: String ) return Config_File is
 		-- return a new config file with the data prefixed by the give prefix
@@ -457,18 +448,60 @@ package body KOW_Config is
 		return Iterator( 1 );
 	end Elements_Array;
 
-	procedure Save( F: in out Config_File ) is
-		use KOW_Config.Parsers;
 
-		Output_File	: File_Type;
+	
 
-		File_Name : String := Get_File_Name( To_String( F.File_Name ) );
-	Begin	
-		Log( "Saving to file :: " & File_Name & " :: " & To_String( F.File_Name ), KOW_Lib.Log.Level_Debug );			
-		Create( Output_File, Out_File, To_String(F.File_Name));
-		Save( F, Output_File );
-		Close( Output_File );
-	end Save;
+	procedure Set_Section( F: in out Config_File_Type; S: in String ) is
+		-- set the current section of the config file.
+	begin
+		F.Current_Section := To_Unbounded_String( S );
+	end Set_Section;
+
+
+	function Get_Section( F: in Config_File_Type ) return String is
+		-- return the current section or "" if there is no section active
+	begin
+		return To_String( F.Current_Section );
+	end Get_Section;
+
+
+
+	procedure Include_Item(
+				F		: in out Config_File_Type;
+				Key		: in     String;
+				Locale_Code	: in     KOW_Lib.Locales.Locale_Code_Type;
+				Value		: in     String
+			) is
+		-- include the given localized item
+		Item : Config_Item_Type;
+	begin
+		if Contains( F, Key ) then
+			Item := Element( F, Key );
+		end if;
+
+		Set_Value( Item, Locale_Code, Value );
+
+		Include( F, Key, Item );
+	end Include_Item;
+
+	procedure Include_Item(
+				F		: in out Config_File_Type;
+				Key		: in     String;
+				Default_Value	: in     String
+			) is
+		-- include the given default item
+		Item : Config_Item_Type;
+	begin
+		if Contains( F, Key ) then
+			Item := Element( F, Key );
+		end if;
+
+		Set_Default_Value( Item, Default_Value );
+		
+		Include( F, Key, Item );
+	end Include_Item;
+
+
 
 
 
@@ -565,6 +598,17 @@ package body KOW_Config is
 
 	use Configuration_Maps;
 
+
+	procedure Include(
+				F		: in out Config_File_Type;
+				Key		: in     String;
+				Item		: in     Config_Item_Type
+			) is
+	begin
+		Include( F.Contents, To_Unbounded_String( Key ), Item );
+	end Include;
+
+
 	function Contains(
 				F	: Config_File;
 				Key	: String
@@ -608,6 +652,23 @@ package body KOW_Config is
 		return Value( Element( Config, Key ), Locale_Code );
 	end Element;
 
+
+	procedure Iterate(
+				Config		: in Config_File_type;
+				Iterator	: not null access procedure(
+										Key	: in String;
+										Item	: in Config_Item_Type
+									)
+			) is
+		-- iterate over all elements in the configuration file
+		
+		procedure Inner_Iterator( C : Cursor ) is
+		begin
+			Iterator.all( To_String( Key( C ) ), Element( C ) );
+		end Inner_Iterator;
+	begin
+		Iterate( Config.Contents, Inner_Iterator'Access );
+	end Iterate;
 
 	-------------------
 	-- File handling --

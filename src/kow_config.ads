@@ -135,28 +135,28 @@ package KOW_Config is
 	-- it has to be a file that was loaded directly from a file.
 	
 
-	procedure Reload_Config( F: in out Config_File );
+	procedure Reload_Config( F: in out Config_File_Type );
 	-- (re)load the configuration from the file
 
-	function Get_File_Name( F: in Config_File ) return String;
+	function Get_File_Name( F: in Config_File_Type ) return String;
 	-- return the file name used for this config file.
 
-	procedure Dump_Contents( Config: in KOW_Config.Config_File );
+	procedure Dump_Contents( Config: in Config_File_Type );
 	-- dumps the contents map into the std out
 	
 	
-	function Merge_Configs( Parent, Child : in Config_File ) return Config_File;
+	function Merge_Configs( Parent, Child : in Config_File_Type ) return Config_File_Type;
 	-- merge two config files, overriding all parent's keys by the child's ones
 
 
 	function Extract(
-				F	: in     Config_File;
+				F	: in     Config_File_Type;
 				Prefix	: in     String
 			) return Config_File_Type;
 	-- return a new config file with the data prefixed by the give prefix
 
 	function Elements_Array(
-				F	: in     Config_File;
+				F	: in     Config_File_Type;
 				Key	: in     String
 			) return Config_File_Array;
 	-- return an array with elements withing the category named by:
@@ -172,11 +172,26 @@ package KOW_Config is
 	-- set the current section of the config file.
 
 
-	function Get_Section( F : in Config_File ) return String;
+	function Get_Section( F : in Config_File_Type ) return String;
 	-- return the current section or "" if there is no section active
 
 
 
+	procedure Include_Item(
+				F		: in out Config_File_Type;
+				Key		: in     String;
+				Locale_Code	: in     KOW_Lib.Locales.Locale_Code_Type;
+				Value		: in     String
+			);
+	-- include the given localized item
+
+
+	procedure Include_Item(
+				F		: in out Config_File_Type;
+				Key		: in     String;
+				Default_Value	: in     String
+			);
+	-- include the given default item
 
 	--------------------------
 	-- The Config File Item --
@@ -236,8 +251,17 @@ package KOW_Config is
 	---------------------------------
 
 
+	procedure Include(
+				F		: in out Config_File_Type;
+				Key		: in     String;
+				Item		: in     Config_Item_Type
+			);
+	-- set (insert/overwrite) the given iten into the configuration file
+
+
+
 	function Contains(
-				F	: in     Config_File;
+				F	: in     Config_File_Type;
 				Key	: in     String
 			) return Boolean;
 	-- check if the element exists in the config file
@@ -263,6 +287,15 @@ package KOW_Config is
 			) return String;
 	-- tries getting the localized message
 
+
+	procedure Iterate(
+				Config		: in Config_File_type;
+				Iterator	: not null access procedure(
+										Key	: in String;
+										Item	: in Config_Item_Type
+									)
+			);
+	-- iterate over all elements in the configuration file
 
 	-------------------
 	-- File handling --
@@ -307,7 +340,8 @@ private
 	package Locale_UString_Maps is new Ada.Containers.Hashed_Maps(
 						Key_type	=> KOW_Lib.Locales.Locale_Code_Type,
 						Element_Type	=> Unbounded_String,
-						Hash		=> KOW_Lib.Locales.Hash
+						Hash		=> KOW_Lib.Locales.Hash,
+						Equivalent_Keys	=> KOW_Lib.Locales."="
 					);
 
 	type Config_Item_Type is record
@@ -318,7 +352,8 @@ private
 	package Configuration_Maps is new Ada.Containers.Hashed_Maps(
 						Key_Type	=> Unbounded_String,
 						Element_Type	=> Config_Item_Type,
-						Hash		=> Hash
+						Hash		=> Hash,
+						Equivalent_Keys	=> "="
 					);
 
 
@@ -327,7 +362,7 @@ private
 
 	Project_Name : Unbounded_String;
 
-	type Config_File is record
+	type Config_File_Type is record
 		File_Name	: Unbounded_String;
 		Current_Section	: Unbounded_String;
 		Contents	: Configuration_Maps.Map;

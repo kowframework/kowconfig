@@ -31,23 +31,35 @@
 
 
 ------------------------------------------------------------------------------
--- This is the KOW_Lib.Calendar package                                     --
+-- This is the KOW_Config.Parsers package                                   --
+--
+-- Here is where the parser is actually implemented.                        --
 --                                                                          --
 -- parser for plain text/properties file                                    --
 ------------------------------------------------------------------------------
 
 
+--------------
+-- Ada 2005 --
+--------------
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
-
 with Ada.Text_IO;		use Ada.Text_IO;
+
+
+-------------------
+-- KOW Framework --
+-------------------
+with KOW_Lib.Locales;
 
 package KOW_Config.Parsers is
 
 	type Parser is limited private;
 
 
-	procedure Prepare(	P: in out Parser;
-				File_Name: in String );
+	procedure Prepare(
+				P		: in out Parser;
+				File_Name	: in     String
+			);
 	-- prepare the parser to parse the file with the
 	-- absolute path File_Name.
 	-- read the 1st field
@@ -61,11 +73,18 @@ package KOW_Config.Parsers is
 	-- everytime Key and Value are called
 
 
-	function Key( P: in Parser ) return Unbounded_String;
+	function Key( P: in Parser ) return String;
 	-- return the key of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
-	function Element( P: in Parser ) return Unbounded_String;
+
+	function Is_Localized( P : in Parser ) return Boolean;
+	-- check if the current value is localized (either file or key)
+	
+	function Locale_Code( P : in Parser ) return KOW_Lib.Locales.Locale_Code_Type;
+	-- get the locale code for this entry (either localized file or key)
+
+	function Element( P: in Parser ) return String;
 	-- return the value of the current field
 	-- raise CONSTRAINT_ERROR if there is nothing else to read
 
@@ -78,9 +97,9 @@ package KOW_Config.Parsers is
 	function File_To_Config_Name( File_Name: in String ) return String;
 
 	procedure Save(
-			Config	: in KOW_Config.Config_File; 
-			File	: in File_Type
-		);
+				Config	: in Config_File_Type;
+				File	: in File_Type
+			);
 	-- save config file
 
 	private
@@ -91,13 +110,22 @@ package KOW_Config.Parsers is
 	-- represents the known structures in the file
 
 	type Parser is limited record
-		First_Key_Value_Pair: Boolean := True;
+		First_Key_Value_Pair	: Boolean := True;
 		-- controls if it's the 1st pair to be read
-		Current_Block: File_Blocks := B_NONE;
-		C: Character;
-		File: File_Type;
-		File_Name: String_Access;
+		Current_Block		: File_Blocks := B_NONE;
+		C			: Character;
+		File			: File_Type;
+		File_Name		: String_Access;
 		Current_Key, Current_Element, Current_Section: Unbounded_String;
+
+
+		Locale_Separator_Index	: Integer;
+		-- for localized keys
+
+		Localized_File		: Boolean;
+		-- check if it's localized file
+		File_Locale		: Locale_Code_Type;
+		-- get the file locale
 	end record;
 
 end KOW_Config.Parsers;

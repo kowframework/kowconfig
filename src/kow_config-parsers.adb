@@ -18,7 +18,7 @@
 -- License for  more details.  You should have  received  a copy of the GNU --
 -- General Public License distributed with KOW Config; see file COPYING.    --
 -- If not, write to  the Free Software Foundation,  59 Temple Place - Suite --
--- 330,  Boston,  MA 02111-1307, USA.                                       --
+-- 330,  Boston,  MA 021110307, USA.                                       --
 --                                                                          --
 -- As a special exception,  if other files  instantiate  generics from this --
 -- unit, or you link  this unit with other files  to produce an executable, --
@@ -34,6 +34,7 @@
 -- Ada 2005 --
 --------------
 with Ada.Strings;		use Ada.Strings;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;	use Ada.Strings.Unbounded;
 
 with Ada.Characters.Latin_1;	use Ada.Characters.Latin_1;
@@ -68,19 +69,56 @@ package body KOW_Config.Parsers is
 
 
 
-	Ext: constant String := ".cfg";
+	Ext : constant String := ".cfg";
 
 
 
-	procedure Prepare(	P: in out Parser;
-				File_Name: in String ) is
+	procedure Prepare(
+				P		: in out Parser;
+				File_Name	: in String
+			) is
 		-- prepare the parser to parse the file with the
 		-- absolute path File_Name.
 		-- read the 1st field
+
+		L_Index1 : Natural := Fixed.Index( File_Name, "_", Backward );
+		L_Index2 : Natural;
+		E_Index  : Natural := Fixed.Index( File_Name, ".", Backward );
+
+
+
+		function Load_Locale( From : in Natural ) return Boolean is
+			-- Try loading the locale from the given index
+		begin
+			P.File_Locale := KOW_Lib.Locales.From_String( File_Name( From .. E_Index ) );
+			return True;
+		exception
+			when others =>
+				return False;
+		end Load_Locale;
 	begin
 		P.File_Name := new String( File_Name'Range );
 		P.File_Name.all := File_Name;
-		Log("Preparing File """ & File_Name & """");
+		Log( "Preparing File """ & File_Name & '"' );
+
+
+		P.Localized_File := False;
+		if L_Index1 /= 0 then
+			if E_Index <= 1 then -- means the file has no extension
+				E_Index := File_Name'Last;
+			else
+				E_Index := E_Index - 1;
+			end if;
+
+
+			L_Index2 := Fixed.Index( File_Name, "_", L_Index1, Backward );
+
+			if L_Index2 /= 0 and then Load_Locale( L_Index2 + 1 ) then
+				P.Localized_File := True;
+			elsif Load_Locale( L_Index1 + 1 ) then
+				P.Localized_File := True;
+			end if;
+		end if;
 		
 		Open( P.File, In_File, File_Name );
 		Next( P );
@@ -346,6 +384,7 @@ package body KOW_Config.Parsers is
 			Next_Char;
 		end loop;
 
+		P.Locale_Separator_Index := Index( Source => P.Current_Key, Pattern => ":" );
 
 	exception
 		when End_Error =>
@@ -357,19 +396,47 @@ package body KOW_Config.Parsers is
 			end if;
 	end Next;
 
-	function Key( P: in Parser ) return Unbounded_String is
+	function Key( P: in Parser ) return String is
 		-- return the key of the current field
 		-- raise CONSTRAINT_ERROR if there is nothing else to read
+		K : constant String := To_String( P.Current_Key );
 	begin
 		if P.Current_Key = Null_Unbounded_String then
 			raise CONSTRAINT_ERROR;
 		end if;
 
-		return P.Current_Section & P.Current_Key;
+
+		if P.Locale_Separator_Index = 0 then
+			return To_String( P.Current_Section ) & K;
+		else
+			return To_String( P.Current_Section ) & K( K'First .. P.Locale_Separator_Index - 1 );
+		end if;
 
 	end Key;
 
-	function Element( P: in Parser ) return Unbounded_String is
+	function Is_Localized( P : in Parser ) return Boolean is
+		-- check if the current value is localized (either file or key)
+	begin
+		return P.Localized_File or P.Locale_Separator_Index /= 0;
+	end Is_Localized;
+
+	function Locale_Code( P : in Parser ) return KOW_Lib.Locales.Locale_Code_Type is
+		-- get the locale code for this entry (either localized file or key)
+	begin
+		if P.Locale_Separator_Index /= 0 then
+			declare
+				K : constant String := To_String( P.Current_Key );
+			begin
+				return KOW_Lib.Locales.From_String( K( P.Locale_Separator_Index + 1 .. K'Last ) );
+			end;
+		elsif P.Localized_File then
+			return P.File_Locale;
+		else
+			raise PROGRAM_ERROR with "trying to get a locale code for a non-localized key";
+		end if;
+	end Locale_Code;
+
+	function Element( P: in Parser ) return String is
 		-- return the value of the current field
 		-- raise CONSTRAINT_ERROR if there is nothing else to read
 	begin
@@ -381,7 +448,7 @@ package body KOW_Config.Parsers is
 
 
 
-		return P.Current_Element;
+		return To_String( P.Current_Element );
 	end Element;
 
 	
@@ -407,21 +474,19 @@ package body KOW_Config.Parsers is
 	end File_To_Config_Name;
 
 	procedure Save(
-			Config	: in KOW_Config.Config_File; 
+			Config	: in KOW_Config.Config_File_Type;
 			File	: in File_Type
 		) is 
 		-- save config file
 		use Ada.Text_IO;
-		use KOW_Lib.UString_Hashed_Maps;
 		
-		function Get_Handled_String( Element : String ) 
-			return String is
+		function Get_Handled_String( Element : String ) return String is
 			Handled_String : Unbounded_String;
 		begin
 			for Index in Element'First .. Element'Last loop
-				if Element(Index) = Character'Val(16#22#) then
-					Handled_String := Handled_String & 
-						Character'Val(16#22#) & Element( Index );
+				if Element(Index) = '"' then
+					-- we were using Character'Val(16#22#) instead of '"'; I don't remember why
+					Handled_String := Handled_String & '"' & Element( Index );
 				else
 					Handled_String := Handled_String & Element(Index);
 				end if;
@@ -429,23 +494,32 @@ package body KOW_Config.Parsers is
 		
 			return To_String( Handled_String );
 		end Get_Handled_String;
-		
-		procedure My_Iterator( C: in KOW_Lib.UString_Hashed_Maps.Cursor ) is
+
+		procedure Put_Item( Key, Value : in String ) is
 		begin
-			Put( File, To_String( Key( C ) ) );
-			Put( File, " = " );
-			Put(	File,	
-				Character'Val(16#22#) &
-					Get_Handled_String( To_String( Element( C ) ) ) &
-					Character'Val(16#22#) );
-			Put( File, "" );
+			Put( File, Key & " = " );
+			Put( File, '"' & Get_Handled_String( Value ) & '"' );
 			New_Line( File );
-		end My_Iterator;
+		end Put_Item;
+		
+		procedure Item_Iterator( Key : in String; Item : in Config_Item_Type ) is
+
+			procedure Localized_Iterator( Locale_Code : in Locale_Code_Type; Value : in String ) is
+			begin
+				Put_Item(
+						Key	=> Key & ':' & To_String( Locale_Code ),
+						Value	=> Value
+					);
+			end Localized_Iterator;
+		begin
+			Put_Item(
+					Key	=> Key,
+					Value	=> Default_Value( Item )
+				);
+			Iterate( Item, Localized_Iterator'Access );
+		end Item_Iterator;
 	begin
-		Iterate(
-			KOW_Config.Get_Contents_Map( Config ),
-			My_Iterator'Access
-		);
+		Iterate( Config, Item_Iterator'Access );
 	end Save;
 	
 end KOW_Config.Parsers;
