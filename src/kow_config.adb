@@ -91,7 +91,7 @@ package body KOW_Config is
 			end if;
 		end if;
 		Append( msg, "] " & Message );
-		Ada.Exceptions.Raise_Exception( SYNTAX_ERROR'Identity, To_String( msg ) );
+		raise SYNTAX_ERROR with To_String( msg );
 	end Raise_Syntax_Error;
 
 
@@ -362,17 +362,23 @@ package body KOW_Config is
 
 
 		use KOW_Lib.UString_Hashed_Maps;
-		Cfg: Config_File_Type := Child;
-		-- will set the file path and other useful information as the child...
-		-- and the content will be initialized as the parent's.
+		Cfg : Config_File_Type := (
+						File_Name	=> Child.File_Name,
+						Current_Section	=> Null_Unbounded_String,
+						Contents	=> Configuration_Maps.Empty_Map
+					);
 
 		procedure Item_Iterator( Key : in String; Item : in Config_Item_Type ) is
 		begin
+			log( "MERGIN KEY : " & Key, KOW_Lib.Log.Level_Debug );
 			Include( Cfg, Key, Item );
 		end Item_Iterator;
 	begin
-		Cfg.Contents := Parent.Contents;
-
+		
+		log( "about to merge configurations", KOW_Lib.Log.Level_Debug );
+		log( "parent length: " & integer'image( length(parent) ), KOW_Lib.Log.Level_Debug );
+		log( "child length: " & integer'image( length(child) ), KOW_Lib.Log.Level_Debug );
+		Iterate( Parent, Item_Iterator'Access );
 		Iterate( Child, Item_Iterator'Access );
 
 		return Cfg;
@@ -554,7 +560,23 @@ package body KOW_Config is
 		end Value_of;
 
 		function My_Expand is new Expand( Value_Of );
+
+
+		function Parent_Name return String is
+			use KOW_Lib.File_System;
+			-- computes the name of the parent configuration file
+			-- based on the F's path
+			F_Name : constant String := Parsers.Get_File_Name( Ada.Directories.Containing_Directory( To_String( F.File_Name ) ) / Default_Value );
+		begin
+			log( "Will merge with file: " & F_Name, KOW_Lib.Log.Level_Debug );
+			return F_Name;
+		end Parent_Name;
 	begin
+		if Key = "extends" then
+			F := Merge_Configs( Parent => New_Config_File( Parent_Name, True ), Child => F );
+			log( "Merged!", KOW_Lib.Log.Level_Debug );
+		end if;
+
 		if Contains( F, Key ) then
 			Item := Element( F, Key );
 		end if;
