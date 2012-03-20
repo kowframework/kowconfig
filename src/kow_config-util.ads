@@ -36,13 +36,19 @@
 
 
 
-with KOW_Config.Generics;
+with KOW_Config.Generic_Util;
 
 package KOW_Config.Util is
 
-	function Element is new Generics.Element( Return_Type => Integer, From_String => Integer'Value );
+	package Integers is new Generic_Util(
+						Element_Type	=> Integer,
+						From_String	=> Integer'Value,
+						To_String	=> Integer'Image
+					);
 
-	function Element is new Generics.Element( Return_Type => Boolean, From_String => Boolean'Value );
-
-
+	package Booleans is new Generic_Util(
+						Element_Type	=> Boolean,
+						From_String	=> Boolean'Value,
+						To_String	=> Boolean'Image
+					);
 end KOW_Config.Util;

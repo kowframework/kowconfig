@@ -42,17 +42,73 @@
 with KOW_Lib.Locales;		use KOW_Lib.Locales;
 
 generic
-	type Return_Type is private;
-	with function From_String( Str : in String ) return Return_Type;
-	with function To_String( Str : in String ) return Return_Type;
-package KOW_Config.Generics is
+	type Element_Type is private;
+	with function From_String( Str : in String ) return Element_Type;
+	with function To_String( Element : in Element_Type ) return String;
+package KOW_Config.Generic_Util is
 
 
-	function Element(
-				Config	: in     Config_File_Type;
-				Key	: in     String;
-				Locale	: in     Locale_Code_Type
-			) return Return_Type;
+
+	------------------
+	-- Item Methods --
+	------------------
+
+	function Value(
+				Item		: in     Config_Item_Type;
+				Locale_Code	: in     Locale_Code_Type
+			) return Element_Type;
+	-- gets the value in the given locale
+
+
+	function Default_Value(
+				Item		: in     Config_Item_Type
+			) return Element_Type;
+	-- get the default value
+
+
 	
+	procedure Set_Value(
+				Item		: in out Config_Item_Type;
+				Locale_Code	: in     Locale_Code_Type;
+				Value		: in     Element_Type
+			);
 
-end KOW_Config.Generics;
+	procedure Set_Default_Value(
+				Item		: in out Config_Item_Type;
+				Value		: in     Element_Type
+			);
+
+	--------------------
+	-- Config Methods --
+	--------------------
+
+	function Value(
+				Config		: in     Config_File_Type;
+				Key		: in     String;
+				Locale_Code	: in     Locale_Code_Type
+			) return Element_Type;
+
+	function Default_Value(
+				Config		: in     Config_File_Type;
+				Key		: in     String
+			) return Element_Type;
+
+	
+	function Value(
+				Config		: in     Config_File_Type;
+				Key		: in     String;
+				Locale_Code	: in     Locale_Code_Type;
+				Fallback	: in     Element_Type
+			) return Element_Type;
+	-- checks if the key is set; if true, returns it's value
+	-- or else, returns Default value
+	
+	function Default_Value(
+				Config		: in     Config_File_Type;
+				Key		: in     String;
+				Fallback	: in     Element_Type
+			) return Element_Type;
+	-- checks if the key is set; if true, returns it's default value
+	-- or else, returns fallback value
+
+end KOW_Config.Generic_Util;

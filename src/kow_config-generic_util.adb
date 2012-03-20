@@ -36,31 +36,120 @@
 
 
 
-package body KOW_Config.Generics is
+-------------------
+-- KOW Framework --
+-------------------
+with KOW_Lib.Locales;		use KOW_Lib.Locales;
+
+package body KOW_Config.Generic_Util is
 
 
-	-------------------
-	-- Item Generics --
-	-------------------
 
+	------------------
+	-- Item Methods --
+	------------------
 
-
-	function Element(
-				Config	: in     Config_Item_Type;
-				Key	: in     String;
-				Locale	: in     Locale_Code_Type
-			) return Return_Type is
+	function Value(
+				Item		: in     Config_Item_Type;
+				Locale_Code	: in     Locale_Code_Type
+			) return Element_Type is
+		-- gets the value in the given locale
 	begin
+		return From_String( KOW_Config.Value( Item, Locale_Code ) );
+	end Value;
 
-
-
-	function Element(
-				Config	: in     Config_File_Type;
-				Key	: in     String;
-				Locale	: in     Locale_Code_Type
-			) return Return_Type is
+	function Default_Value(
+				Item		: in     Config_Item_Type
+			) return Element_Type is
+		-- get the default value
 	begin
-		return From_String( Value( KOW_Config.Element( Config, Key ), Locale ) );
-	end Element;
+		return From_String( KOW_Config.Default_Value( Item ) );
+	end Default_Value;
 
-end KOW_Config.Generics;
+	
+	procedure Set_Value(
+				Item		: in out Config_Item_Type;
+				Locale_Code	: in     Locale_Code_Type;
+				Value		: in     Element_Type
+			) is
+	begin
+		KOW_Config.Set_Value(
+					Item		=> item,
+					Locale_Code	=> Locale_Code,
+					Value		=> To_String( Value )
+				);
+	end Set_Value;
+
+	procedure Set_Default_Value(
+				Item		: in out Config_Item_Type;
+				Value		: in     Element_Type
+			) is
+	begin
+		KOW_Config.Set_Default_Value(
+					Item		=> Item,
+					Value		=> To_String( Value )
+				);
+	end Set_Default_Value;
+
+	--------------------
+	-- Config Methods --
+	--------------------
+
+	function Value(
+				Config		: in     Config_File_Type;
+				Key		: in     String;
+				Locale_Code	: in     Locale_Code_Type
+			) return Element_Type is
+	begin
+		return Value( Element( Config, Key ), Locale_Code );
+	end Value;
+
+	function Default_Value(
+				Config		: in     Config_File_Type;
+				Key		: in     String
+			) return Element_Type is
+	begin
+		return Default_Value( Element( Config, Key ) );
+	end Default_Value;
+
+	
+	function Value(
+				Config		: in     Config_File_Type;
+				Key		: in     String;
+				Locale_Code	: in     Locale_Code_Type;
+				Fallback	: in     Element_Type
+			) return Element_Type is
+		-- checks if the key is set; if true, returns it's value
+		-- or else, returns Default value
+	begin
+		if Contains( Config, Key ) then
+			return Value(
+					Config		=> Config,
+					Key		=> Key,
+					Locale_Code	=> Locale_Code
+				);
+		else
+			return Fallback;
+		end if;
+	end Value;
+
+
+	function Default_Value(
+				Config		: in     Config_File_Type;
+				Key		: in     String;
+				Fallback	: in     Element_Type
+			) return Element_Type is
+		-- checks if the key is set; if true, returns it's default value
+		-- or else, returns fallback value
+	begin
+		if Contains( Config, Key ) then
+			return Default_Value(
+					Config		=> Config,
+					Key		=> Key
+				);
+		else
+			return Fallback;
+		end if;
+	end Default_Value;
+
+end KOW_Config.Generic_Util;
