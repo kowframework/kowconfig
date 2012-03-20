@@ -35,10 +35,24 @@
 ------------------------------------------------------------------------------
 
 
+--------------
+-- Ada 2005 --
+--------------
+with Ada.Strings.Unbounded;
 
+-------------------
+-- KOW Framework --
+-------------------
 with KOW_Config.Generic_Util;
+with KOW_Lib.Json;
+with KOW_Lib.Locales;
 
 package KOW_Config.Util is
+	
+
+	--------------------
+	-- Integer Values --
+	--------------------
 
 	package Integers is new Generic_Util(
 						Element_Type	=> Integer,
@@ -46,9 +60,60 @@ package KOW_Config.Util is
 						To_String	=> Integer'Image
 					);
 
+	--------------------
+	-- Boolean Values --
+	--------------------
+
 	package Booleans is new Generic_Util(
 						Element_Type	=> Boolean,
 						From_String	=> Boolean'Value,
 						To_String	=> Boolean'Image
+					);
+
+	----------------------
+	-- Unbounded String --
+	----------------------
+
+	package Unbounded_Strings is new Generic_Util(
+						Element_Type	=> Ada.Strings.Unbounded.Unbounded_String,
+						From_String	=> Ada.Strings.Unbounded.To_Unbounded_String,
+						To_String	=> Ada.Strings.Unbounded.To_String
+					);
+	-- NOTE: it has been a design decision not to offer direct access to unbounded string values
+	-- in the main kowconfig package even though they are used internally
+	--
+	-- this will leave the code more organized an with a cleaner API, easier to understand and maintain.
+	-- 
+	-- we do intend, however, to change the implementation to some other (possibly more efficient) data type
+
+	---------------------
+	-- Json Data Types --
+	---------------------
+
+	package Json_Objects is new Generic_Util(
+						Element_Type	=> KOW_Lib.Json.Object_Type,
+						From_String	=> KOW_Lib.Json.From_Json,
+						To_String	=> KOW_Lib.Json.To_Json
+					);
+
+	package Json_Arrays is new Generic_Util(
+						Element_Type	=> KOW_Lib.Json.Array_Type,
+						From_String	=> KOW_Lib.Json.From_Json,
+						To_String	=> KOW_Lib.Json.To_Json
+					);
+	package Json_Data is new Generic_Util(
+						Element_Type	=> KOW_Lib.Json.Json_Data_Type,
+						From_String	=> KOW_Lib.Json.From_Json,
+						To_String	=> KOW_Lib.Json.To_Json
+					);
+
+	-----------------
+	-- Locale Code --
+	-----------------
+
+	package Locale_Code is new Generic_Util(
+						Element_Type	=> KOW_Lib.Locales.Locale_Code_Type,
+						From_String	=> KOW_Lib.Locales.From_String,
+						To_String	=> KOW_Lib.Locales.To_String
 					);
 end KOW_Config.Util;
