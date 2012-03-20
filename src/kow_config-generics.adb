@@ -37,13 +37,30 @@
 
 
 package body KOW_Config.Generics is
-	function Generic_Element(
+
+
+	-------------------
+	-- Item Generics --
+	-------------------
+
+
+
+	function Element(
+				Config	: in     Config_Item_Type;
+				Key	: in     String;
+				Locale	: in     Locale_Code_Type
+			) return Return_Type is
+	begin
+
+
+
+	function Element(
 				Config	: in     Config_File_Type;
 				Key	: in     String;
 				Locale	: in     Locale_Code_Type
 			) return Return_Type is
 	begin
 		return From_String( Value( KOW_Config.Element( Config, Key ), Locale ) );
-	end Generic_Element;
+	end Element;
 
 end KOW_Config.Generics;

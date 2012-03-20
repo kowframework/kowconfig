@@ -41,16 +41,14 @@
 -------------------
 with KOW_Lib.Locales;		use KOW_Lib.Locales;
 
+generic
+	type Return_Type is private;
+	with function From_String( Str : in String ) return Return_Type;
+	with function To_String( Str : in String ) return Return_Type;
 package KOW_Config.Generics is
 
 
-
-
-
-	generic
-		type Return_Type is private;
-		with function From_String( Str : in String ) return Return_Type;
-	function Generic_Element(
+	function Element(
 				Config	: in     Config_File_Type;
 				Key	: in     String;
 				Locale	: in     Locale_Code_Type
