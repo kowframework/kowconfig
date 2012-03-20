@@ -631,15 +631,6 @@ package body KOW_Config is
 	end Default_Value;
 
 
-	procedure Set_Default_Value(
-			Item		: in out Config_Item_Type;
-			Value		: in     String
-		) is
-		-- set the value as the default_value
-	begin
-		Item.Default_Value := To_Unbounded_String( Value );
-	end Set_Default_Value;
-
 	procedure Set_Value(
 			Item		: in out Config_Item_Type;
 			Locale_Code	: in     KOW_Lib.Locales.Locale_Code_Type;
@@ -653,6 +644,17 @@ package body KOW_Config is
 			Set_Default_Value( Item, Value );
 		end if;
 	end Set_Value;
+
+
+	procedure Set_Default_Value(
+			Item		: in out Config_Item_Type;
+			Value		: in     String
+		) is
+		-- set the value as the default_value
+	begin
+		Item.Default_Value := To_Unbounded_String( Value );
+	end Set_Default_Value;
+
 
 	procedure Iterate(
 			Item	: in     Config_Item_Type;

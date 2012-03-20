@@ -219,6 +219,15 @@ package KOW_Config is
 	-- get the default value
 	
 
+	procedure Set_Value(
+			Item		: in out Config_Item_Type;
+			Locale_Code	: in     KOW_Lib.Locales.Locale_Code_Type;
+			Value		: in     String
+		);
+	-- set the value for the given locale code
+	-- if the default value is not set yet, set it as well
+
+
 
 	procedure Set_Default_Value(
 			Item		: in out Config_Item_Type;
@@ -227,13 +236,6 @@ package KOW_Config is
 	-- set the value as the default_value
 	
 
-	procedure Set_Value(
-			Item		: in out Config_Item_Type;
-			Locale_Code	: in     KOW_Lib.Locales.Locale_Code_Type;
-			Value		: in     String
-		);
-	-- set the value for the given locale code
-	-- if the default value is not set yet, set it as well
 	
 
 	procedure Iterate(
