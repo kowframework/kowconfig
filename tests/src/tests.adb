@@ -7,10 +7,12 @@ with Ada.Text_IO;			use Ada.Text_IO;
 -------------------
 -- KOW Framework --
 -------------------
+with KOW_Lib.Json;
 with KOW_Lib.Locales;
 with KOW_Lib.UString_Vectors;		use KOW_Lib.UString_Vectors;
 with KOW_Config;			use KOW_Config;
-with KOW_Config.Parsers;		use KOW_Config.Parsers;
+with KOW_Config.Parsers;
+with KOW_Config.Util;
 
 package body Tests is
 
@@ -59,11 +61,16 @@ package body Tests is
 
 		Create( Output_File, Out_File, "out" ); 
 		
-		Save( Config, Output_File );
+		KOW_Config.Parsers.Save( Config, Output_File );
 		New_Line;
 
 
 		Put_Line( "Fetching information" );
+
+		New_Line;
+
+		Put_Line( "A json object: " & KOW_lib.Json.To_Json( KOW_Config.Util.Json_Objects.Default_Value( Config, "json_object" ) ) );
+		Put_Line( "A json array: " & KOW_lib.Json.To_Json( KOW_Config.Util.Json_Arrays.Default_Value( Config, "json_array" ) ) );
 
 		New_Line;
 
