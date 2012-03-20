@@ -305,6 +305,15 @@ package KOW_Config is
 			);
 	-- iterate over all elements in the configuration file
 
+
+	procedure Run_if_Set(
+				Config		: in Config_File_Type;
+				Key		: in String;
+				Method		: not null access procedure( Item : in Config_Item_Type )
+			);
+	-- run the given method if, and only if, the given key is set in the configuration file
+
+
 	-------------------
 	-- File handling --
 	-------------------

@@ -768,6 +768,19 @@ package body KOW_Config is
 		Iterate( Config.Contents, Inner_Iterator'Access );
 	end Iterate;
 
+	procedure Run_if_Set(
+				Config		: in Config_File_Type;
+				Key		: in String;
+				Method		: not null access procedure( Item : in Config_Item_Type )
+			) is
+	begin
+		if Contains( Config, Key ) then
+			Method.all( Element( Config, Key ) );
+		end if;
+	end Run_If_Set;
+
+
+
 	-------------------
 	-- File handling --
 	-------------------
