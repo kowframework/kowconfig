@@ -37,7 +37,7 @@
 -- syntax and localization support based on KOW_Lib.Locales package.        --
 --                                                                          --
 -- Notice that, even though it has been taken in consideration, there is no --
--- big concern in efficiency (which can be noted in the Configs_Array meth.--
+-- big concern in efficiency (which can be noted in the Extract_Array meth.--
 --                                                                          --
 ------------------------------------------------------------------------------
 
@@ -156,7 +156,7 @@ package KOW_Config is
 			) return Config_File_Type;
 	-- return a new config file with the data prefixed by the give prefix
 
-	function Configs_Array(
+	function Extract_Array(
 				F	: in     Config_File_Type;
 				Key	: in     String
 			) return Config_File_Array;

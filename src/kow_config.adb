@@ -422,7 +422,7 @@ package body KOW_Config is
 	end Extract;
 
 
-	function Configs_Array( F : Config_File_Type; Key : String ) return Config_File_Array is
+	function Extract_Array( F : Config_File_Type; Key : String ) return Config_File_Array is
 		-- return an array with elements within the category named by:
 		-- (THE_CURRENT_CATEGORY).Key.INDEX
 		-- where INDEX starts with 1.
@@ -455,7 +455,7 @@ package body KOW_Config is
 		end Iterator;
 	begin
 		return Iterator( 1 );
-	end Configs_Array;
+	end Extract_Array;
 
 
 	
