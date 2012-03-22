@@ -14,7 +14,7 @@ TCP=$(PWD)/data
 all: libs
 
 libs:
-	gprbuild -p -P ${PROJECT}.gpr
+	gprbuild -p -P ${PROJECT}.gpr -gnat05
 
 clean: 
 	gprclean -P ${PROJECT}.gpr
