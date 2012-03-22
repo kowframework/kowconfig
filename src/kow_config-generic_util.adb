@@ -101,7 +101,7 @@ package body KOW_Config.Generic_Util is
 				Locale_Code	: in     Locale_Code_Type
 			) return Element_Type is
 	begin
-		return Value( Element( Config, Key ), Locale_Code );
+		return Value( Item( Config, Key ), Locale_Code );
 	end Value;
 
 	function Default_Value(
@@ -109,7 +109,7 @@ package body KOW_Config.Generic_Util is
 				Key		: in     String
 			) return Element_Type is
 	begin
-		return Default_Value( Element( Config, Key ) );
+		return Default_Value( Item( Config, Key ) );
 	end Default_Value;
 
 	

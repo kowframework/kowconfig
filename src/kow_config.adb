@@ -422,7 +422,7 @@ package body KOW_Config is
 	end Extract;
 
 
-	function Elements_Array( F : Config_File_Type; Key : String ) return Config_File_Array is
+	function Configs_Array( F : Config_File_Type; Key : String ) return Config_File_Array is
 		-- return an array with elements within the category named by:
 		-- (THE_CURRENT_CATEGORY).Key.INDEX
 		-- where INDEX starts with 1.
@@ -455,7 +455,7 @@ package body KOW_Config is
 		end Iterator;
 	begin
 		return Iterator( 1 );
-	end Elements_Array;
+	end Configs_Array;
 
 
 	
@@ -514,7 +514,7 @@ package body KOW_Config is
 				Value		: in     String
 			) is
 		-- include the given localized item
-		Item : Config_Item_Type;
+		The_Item : Config_Item_Type;
 
 
 		function Value_Of( The_Key : in String ) return String is
@@ -530,12 +530,12 @@ package body KOW_Config is
 		function My_Expand is new Expand( Value_Of );
 	begin
 		if Contains( F, Key ) then
-			Item := Element( F, Key );
+			The_Item := Item( F, Key );
 		end if;
 
-		Set_Value( Item, Locale_Code, My_Expand( Value ) );
+		Set_Value( The_Item, Locale_Code, My_Expand( Value ) );
 
-		Include( F, Key, Item );
+		Include( F, Key, The_Item );
 	end Include_Item;
 
 	procedure Include_Item(
@@ -544,7 +544,7 @@ package body KOW_Config is
 				Default_Value	: in     String
 			) is
 		-- include the given default item
-		Item : Config_Item_Type;
+		The_Item : Config_Item_Type;
 
 
 		function Value_of( The_Key : in String ) return String is
@@ -575,12 +575,12 @@ package body KOW_Config is
 		end if;
 
 		if Contains( F, Key ) then
-			Item := Element( F, Key );
+			The_Item := Item( F, Key );
 		end if;
 
-		Set_Default_Value( Item, My_Expand( Default_Value ) );
+		Set_Default_Value( The_Item, My_Expand( Default_Value ) );
 		
-		Include( F, Key, Item );
+		Include( F, Key, The_Item );
 	end Include_Item;
 
 
@@ -719,7 +719,7 @@ package body KOW_Config is
 	end Length;
 
 
-	function Element(
+	function Item(
 				Config		: in Config_File_Type;
 				Key		: in String
 			) return Config_Item_Type is
@@ -730,7 +730,7 @@ package body KOW_Config is
 		else
 			return Element( Config.Contents, To_Unbounded_String( Key ) );
 		end if;
-	end Element;
+	end Item;
 
 
 
@@ -809,7 +809,7 @@ package body KOW_Config is
 			) is
 	begin
 		if Contains( Config, Key ) then
-			Method.all( Element( Config, Key ) );
+			Method.all( Item( Config, Key ) );
 		end if;
 	end Run_If_Set;
 

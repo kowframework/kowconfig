@@ -176,7 +176,7 @@ package body KOW_Config.Generic_Registry is
 			function Get_Type return Unbounded_String is
 			begin
 				declare
-					My_Type : constant String := Default_Value( KOW_Config.Element( Config, "type" ) );
+					My_Type : constant String := KOW_Config.Default_Value( Config, "type" );
 				begin
 					return To_Unbounded_String( My_Type );
 				end;
