@@ -282,19 +282,41 @@ package KOW_Config is
 	-- get the given configuration item
 
 
-	function Element(
+	function Item(
 				Config		: in Config_File_Type;
 				Key		: in String
-			) return String;
-	-- get the default value for the given key
-	
-	function Element(
+			) return Config_Item_Type renames Element;
+
+
+	function Value(
 				Config		: in Config_File_Type;
 				Key		: in String;
 				Locale_Code	: in KOW_Lib.Locales.Locale_Code_Type
 			) return String;
-	-- tries getting the localized message
+	-- shortcut for value(element(config_file, key), locale_code )
+	
+	function Value(
+				Config		: in Config_File_Type;
+				Key		: in String;
+				Locale_Code	: in KOW_Lib.Locales.Locale_Code_Type;
+				Fallback	: in String
+			) return String;
+	-- same as previous value function but with a fallback value in case the element
+	-- doesn't exist
+	
+	function Default_Value(
+				Config		: in Config_File_Type;
+				Key		: in String
+			) return String;
+	-- shortcut for default_value( element( config_file, key ) );	
 
+	
+	function Default_Value(
+				Config		: in Config_File_Type;
+				Key		: in String;
+				Fallback	: in String
+			) return String;
+	-- same as before, with fallback value
 
 	procedure Iterate(
 				Config		: in Config_File_type;

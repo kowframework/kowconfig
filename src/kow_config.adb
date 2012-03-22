@@ -517,13 +517,14 @@ package body KOW_Config is
 		Item : Config_Item_Type;
 
 
-		function Value_Of( Key : in String ) return String is
+		function Value_Of( The_Key : in String ) return String is
 		begin
-			if Contains( F, Key ) then
-				return Element( F, Key, Locale_Code );
-			else
-				return "[UNKNOWN KEY: " & Key & "]";
-			end if;
+			return KOW_Config.Value(
+					Config		=> F,
+					Key		=> The_Key,
+					Locale_Code	=> Locale_Code, 
+					Fallback	=> "[UNKNOWN KEY: " & The_Key & "]" 
+				);
 		end Value_Of;
 
 		function My_Expand is new Expand( Value_Of );
@@ -546,13 +547,13 @@ package body KOW_Config is
 		Item : Config_Item_Type;
 
 
-		function Value_of( Key : in String ) return String is
+		function Value_of( The_Key : in String ) return String is
 		begin
-			if Contains( F, Key ) then
-				return Element( F, Key );
-			else
-				return "[UNKNOWN KEY: " & Key & "]";
-			end if;
+			return KOW_Config.Default_Value(
+						Config		=> F, 
+						Key		=> The_Key, 
+						Fallback	=> "[UNKNOWN KEY: " & The_Key & "]"
+    					);
 		end Value_of;
 
 		function My_Expand is new Expand( Value_Of );
@@ -729,26 +730,59 @@ package body KOW_Config is
 		else
 			return Element( Config.Contents, To_Unbounded_String( Key ) );
 		end if;
-	end ELement;
-
-	function Element(
-				Config		: in Config_File_Type;
-				Key		: in String
-			) return String is
-		-- get the default value for the given key
-	begin
-		return Default_Value( Element( Config, Key ) );
 	end Element;
 
-	function Element(
+
+
+	function Value(
 				Config		: in Config_File_Type;
 				Key		: in String;
 				Locale_Code	: in KOW_Lib.Locales.Locale_Code_Type
 			) return String is
-		-- tries getting the localized message
+		-- shortcut for value(element(config_file, key), locale_code )
 	begin
-		return Value( Element( Config, Key ), Locale_Code );
-	end Element;
+		return Value( Item( Config, Key ), Locale_Code );
+	end Value;
+
+	function Value(
+				Config		: in Config_File_Type;
+				Key		: in String;
+				Locale_Code	: in KOW_Lib.Locales.Locale_Code_Type;
+				Fallback	: in String
+			) return String is
+		-- same as previous value function but with a fallback value in case the element
+		-- doesn't exist
+	begin
+		if Contains( Config, Key) then
+			return Value( Config, Key, Locale_Code );
+		else
+			return Fallback;
+		end if;
+	end Value;
+
+
+	function Default_Value(
+				Config		: in Config_File_Type;
+				Key		: in String
+			) return String is
+		-- shortcut for default_value( element( config_file, key ) );	
+	begin
+		return Default_Value( Item( Config, Key ) );
+	end Default_Value;
+	
+	function Default_Value(
+				Config		: in Config_File_Type;
+				Key		: in String;
+				Fallback	: in String
+			) return String is
+		-- same as before, with fallback value
+	begin
+		if Contains( Config, Key ) then
+			return Default_Value( Config, key );
+		else
+			return Fallback;
+		end if;
+	end Default_Value;
 
 
 	procedure Iterate(
