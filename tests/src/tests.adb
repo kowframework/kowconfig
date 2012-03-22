@@ -76,14 +76,14 @@ package body Tests is
 
 		Put_Line( "Section => ""Main Section""" );
 		Set_Section( Config, "Main Section" );
-		Put_Line( "     company name     => " & Element( Config, "company name" ) );
-		Put_Line( "     company size     => " & Element( Config, "company size" ) );
+		Put_Line( "     company name     => " & Default_Value( Config, "company name" ) );
+		Put_Line( "     company size     => " & Default_Value( Config, "company size" ) );
 
 		New_Line;
 
 		Put_Line( "Section => ""Main Section.Contact Information""" );
 		Set_Section( Config, "Main Section.Contact Information" );
-		Put_Line( "     address          => " & Element( Config, "address" ) );
+		Put_Line( "     address          => " & Default_Value( Config, "address" ) );
 
 		New_Line;
 
@@ -110,7 +110,7 @@ package body Tests is
 		New_Line;
 
 		declare
-			My_Array : Config_File_Array := Elements_Array( Config, "data" );
+			My_Array : Config_File_Array := Extract_Array( Config, "data" );
 		begin
 
 			Put_Line( "Extracting an array of values..." );
@@ -136,10 +136,10 @@ package body Tests is
 	begin
 		Put_Line( "Section => ""Database"" " );
 		Set_Section( Config, "Database" );
-		Put_Line( "     host     => " & Default_Value( Element( Config, "host" ) ) );
-		Put_Line( "     user     => " & Default_Value( Element( Config, "user" ) ) );
-		Put_Line( "     password => " & Default_Value( Element( Config, "password" ) ) );
-		Put_Line( "     database => " & Default_Value( Element( Config, "database" ) ) );
-		Put_Line( "     engine   => " & Value( Element( Config, "engine" ), KOW_Lib.Locales.From_String( "pt_BR" ) ) );
+		Put_Line( "     host     => " & Default_Value( Item( Config, "host" ) ) );
+		Put_Line( "     user     => " & Default_Value( Item( Config, "user" ) ) );
+		Put_Line( "     password => " & Default_Value( Item( Config, "password" ) ) );
+		Put_Line( "     database => " & Default_Value( Item( Config, "database" ) ) );
+		Put_Line( "     engine   => " & Value( Item( Config, "engine" ), KOW_Lib.Locales.From_String( "pt_BR" ) ) );
 	end Database_Information;
 end Tests;
