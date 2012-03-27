@@ -476,36 +476,6 @@ package body KOW_Config is
 
 
 
-	generic
-		with function value_of( Key : in String ) return String;
-	function Expand( Value : in String ) return String;
-	function Expand( Value : in String ) return String is
-		use Ada.Strings;
-		From : Natural := Fixed.Index( Value, "${", Forward );
-		To   : Natural;
-	begin
-		while From /= 0 loop
-
-			if From = Value'First or else Value( From - 1 ) /= '$' then
-				To := Fixed.Index( Value, "}", From, Forward );
-				if To = 0 or else From + 2 > To - 1 then
-					From := Fixed.Index( Value, "${", From + 1, Forward );
-				else
-					declare
-						Before	: constant String := Value( Value'First .. From - 1 );
-						Key	: constant String := Value( From + 2 .. To - 1 );
-						After	: constant String := Value( To + 1 .. Value'Last );
-					begin
-						return Expand( Before & Value_Of( Key ) & After );
-					end;
-				end if;
-			else
-				From := Fixed.Index( Value, "${", From + 1, Forward );
-			end if;
-		end loop;
-
-		return Value;
-	end Expand;
 
 	procedure Include_Item(
 				F		: in out Config_File_Type;
@@ -527,7 +497,7 @@ package body KOW_Config is
 				);
 		end Value_Of;
 
-		function My_Expand is new Expand( Value_Of );
+		function My_Expand is new KOW_Lib.String_Util.Expand( Value_Of );
 	begin
 		if Contains( F, Key ) then
 			The_Item := Item( F, Key );
@@ -556,7 +526,7 @@ package body KOW_Config is
     					);
 		end Value_of;
 
-		function My_Expand is new Expand( Value_Of );
+		function My_Expand is new KOW_Lib.String_Util.Expand( Value_Of );
 
 
 		function Parent_Name return String is
