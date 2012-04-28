@@ -140,16 +140,15 @@ package body KOW_Config is
 	procedure Reset_Config_Path is
 		-- reset the config path using the environment variable:
 		-- [PROJECT_NAME]_CONFIG_PATH
+		use Ada.Environment_Variables;
 		use KOW_Lib.String_Util;
+		Key : constant String := Str_Replace( ' ', '_', To_String( Project_name ) ) & "_CONFIG_PATH";
 	begin
-		Config_Path := KOW_Lib.File_System.To_Vector (
-			Ada.Environment_Variables.Value(
-				Str_Replace( ' ', '_', To_String( Project_Name ) ) &
-				"_CONFIG_PATH" 	)
-				);
-	exception
-		when CONSTRAINT_ERROR =>
+		if Exists( Key ) then
+			Config_Path := KOW_Lib.File_System.To_Vector( Value( Key ) );
+		else
 			Config_Path := KOW_Lib.UString_Vectors.Empty_Vector;
+		end if;
 	end Reset_Config_Path;
 
 
