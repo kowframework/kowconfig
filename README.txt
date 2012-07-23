@@ -1,4 +1,3 @@
-
 #########################################################################
 #			AdaWorks :: Config				#
 #########################################################################
@@ -27,3 +26,11 @@ some_other_key="${some_key} is the value of the some_key key"
 
 and so on
 
+
+
+
+Installation:
+
+The usual ./configure && make all install
+
+It'll install in the GNAT path.
